@@ -565,14 +565,30 @@
     font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.02em; text-transform:uppercase;
     margin-top:4px;
   }
-  .race-time{ color:var(--grey); font-size:12px; margin-top:4px; }
-  .race-weather{
-    display:inline-flex; align-items:center; gap:6px; margin-top:8px;
-    font-family:'Chakra Petch',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.02em;
-    padding:5px 10px; border-radius:999px;
+  .race-meta-row{ display:flex; gap:22px; margin-top:10px; flex-wrap:wrap; }
+  .race-meta{ display:flex; flex-direction:column; gap:2px; }
+  .race-meta-label{
+    font-family:'Chakra Petch',sans-serif; font-size:9.5px; font-weight:700; letter-spacing:.07em;
+    text-transform:uppercase; color:rgba(245,246,248,.4);
   }
-  .race-weather.wet{ background:rgba(62,225,232,.12); color:var(--cyan); }
-  .race-weather.dry{ background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
+  .race-meta-value{ font-family:'Chakra Petch',sans-serif; font-size:12.5px; font-weight:600; color:var(--white); }
+  .race-weather{
+    margin-top:10px; font-family:'Chakra Petch',sans-serif; font-size:11.5px; font-weight:600;
+    letter-spacing:.02em;
+  }
+  .race-weather.dry{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px;
+    background:rgba(245,246,248,.05); color:rgba(199,204,212,.6);
+  }
+  .race-weather.wet{ padding:9px 12px; border-radius:10px; background:rgba(62,225,232,.10); color:var(--cyan); }
+  /* .wx-* are shared (unscoped) between .race-weather (Full Schedule cards)
+     and .nrh-weather (hero) so both render identically. */
+  .wx-head{ display:flex; align-items:center; gap:6px; }
+  .wx-value{ margin-left:auto; font-weight:700; }
+  .wx-windows{
+    margin-top:6px; padding-left:20px; display:flex; flex-direction:column; gap:3px;
+    font-size:10.5px; font-weight:500; color:rgba(62,225,232,.85);
+  }
   .race-countdown{
     margin-top:10px; font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
     letter-spacing:.02em; color:var(--white);
@@ -588,76 +604,101 @@
   }
   .race-join-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
 
-  /* ---------- Big Next-Race hero (schedule.html) ---------- */
+  /* ---------- Big Next-Race hero (schedule.html) ----------
+     2026-08-08 redesign: full width (matches Full Schedule grid below),
+     two-column (data left / art+countdown right), buttons bottom-right —
+     modeled on IndyCar's Schedule-page "Next Race" card composition.
+     We have no track name/photo data, so the right side uses a stylised
+     placeholder (checkered-flag texture + gradient) instead of a real
+     venue photo until real event art exists. */
   .next-race-hero{
-    position:relative; z-index:3; margin:8px auto 40px; max-width:920px;
+    position:relative; z-index:3; margin:8px 0 40px;
     background:linear-gradient(135deg, rgba(226,28,43,.10), rgba(62,225,232,.08));
     border:1px solid rgba(62,225,232,.35); border-radius:24px;
-    padding:28px clamp(20px,4vw,40px) 32px; text-align:center;
+    padding:22px clamp(18px,3.5vw,34px) 26px;
+  }
+  .nrh-topbar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    gap:8px; margin-bottom:20px;
   }
   .nrh-eyebrow{
     display:inline-flex; align-items:center; gap:8px;
     font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--cyan); margin-bottom:18px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--cyan);
   }
   .nrh-dot{
     width:8px; height:8px; border-radius:50%; background:var(--cyan); flex:0 0 auto;
     box-shadow:0 0 10px rgba(62,225,232,.9);
   }
-  .nrh-main{
-    display:flex; align-items:center; justify-content:center; gap:clamp(20px,4vw,48px);
-    flex-wrap:wrap;
-  }
-  .nrh-track-icon{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-    width:96px; height:96px; border-radius:18px; flex:0 0 auto;
-    background:rgba(245,246,248,.05);
-  }
-  .nrh-track-icon svg{ width:34px; height:34px; fill:none; stroke:rgba(245,246,248,.45); stroke-width:1.6; }
-  .nrh-track-icon span{
-    font-family:'Chakra Petch',sans-serif; font-size:10px; font-weight:700; letter-spacing:.08em;
-    text-transform:uppercase; color:rgba(245,246,248,.45);
-  }
-  .nrh-info{ text-align:left; }
   .nrh-round{
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px; letter-spacing:.06em;
-    text-transform:uppercase; color:var(--cyan);
-  }
-  .nrh-date{
-    font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,5vw,52px); letter-spacing:.02em;
-    text-transform:uppercase; line-height:1.05; margin-top:2px;
-  }
-  .nrh-time{ color:var(--grey); font-size:13.5px; margin-top:6px; }
-  .nrh-weather{
-    display:inline-flex; align-items:center; gap:6px; margin-top:10px;
-    font-family:'Chakra Petch',sans-serif; font-size:12px; font-weight:600; letter-spacing:.02em;
-    padding:5px 12px; border-radius:999px;
-  }
-  .nrh-weather.wet{ background:rgba(62,225,232,.12); color:var(--cyan); }
-  .nrh-weather.dry{ background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
-  .nrh-countdown-wrap{ text-align:center; }
-  .nrh-countdown-label{
-    font-family:'Chakra Petch',sans-serif; font-size:11px; font-weight:700; letter-spacing:.08em;
+    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:.06em;
     text-transform:uppercase; color:rgba(245,246,248,.5);
   }
-  .nrh-countdown{
-    font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,4.4vw,44px); color:var(--white);
-    letter-spacing:.02em; margin-top:2px;
+  .nrh-main{
+    display:grid; grid-template-columns:1fr 1fr; gap:clamp(20px,4vw,40px); align-items:stretch;
   }
-  .nrh-countdown.live{ color:var(--red); }
-  .nrh-btn-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:26px; }
+  @media (max-width:820px){ .nrh-main{ grid-template-columns:1fr; } }
+  .nrh-info{ display:flex; flex-direction:column; justify-content:center; text-align:left; }
+  .nrh-date{
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,4.6vw,48px); letter-spacing:.02em;
+    text-transform:uppercase; line-height:1.05;
+  }
+  .nrh-time-row{ display:flex; gap:28px; margin-top:16px; flex-wrap:wrap; }
+  .nrh-time-block{ display:flex; flex-direction:column; gap:2px; }
+  .nrh-time-label{
+    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:rgba(245,246,248,.45);
+  }
+  .nrh-time-value{ font-family:'Chakra Petch',sans-serif; font-size:15px; font-weight:600; color:var(--white); }
+  .nrh-weather{ margin-top:16px; align-self:flex-start; font-family:'Chakra Petch',sans-serif; font-size:12.5px; font-weight:600; letter-spacing:.02em; }
+  .nrh-weather.dry{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:999px; background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
+  .nrh-weather.wet{ padding:10px 16px; border-radius:12px; background:rgba(62,225,232,.10); color:var(--cyan); }
+  .nrh-weather .wx-windows{ font-size:11px; margin-top:8px; }
+  .nrh-media{ position:relative; display:flex; flex-direction:column; }
+  .nrh-media-art{
+    position:relative; flex:1 1 auto; min-height:190px; border-radius:16px; overflow:hidden;
+    background:
+      linear-gradient(135deg, rgba(226,28,43,.32), rgba(11,12,16,.92) 62%, rgba(62,225,232,.24)),
+      url('assets/backgrounds/checkered-flag.png');
+    background-size:cover, 480px auto;
+    background-position:center, center 35%;
+    background-repeat:no-repeat, repeat;
+    background-blend-mode:normal, screen;
+  }
+  .nrh-countdown-box{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:rgba(11,12,16,.72); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border:1px solid rgba(245,246,248,.18); border-radius:14px;
+    padding:14px 16px 12px; text-align:center; width:min(90%, 340px);
+  }
+  .nrh-countdown-label{
+    font-family:'Chakra Petch',sans-serif; font-size:10px; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; color:rgba(245,246,248,.55); margin-bottom:9px;
+  }
+  .nrh-countdown-segments{ display:flex; justify-content:center; gap:14px; }
+  .nrh-seg{ display:flex; flex-direction:column; align-items:center; gap:2px; min-width:36px; }
+  .nrh-seg-num{ font-family:'Bebas Neue',sans-serif; font-size:clamp(22px,3.6vw,30px); color:var(--white); line-height:1; }
+  .nrh-seg-label{
+    font-family:'Chakra Petch',sans-serif; font-size:8.5px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:rgba(245,246,248,.45);
+  }
+  .nrh-countdown-box.live .nrh-seg-num{ color:var(--red); }
+  .nrh-btn-row{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:14px; }
   .nrh-btn{
     display:inline-flex; align-items:center; gap:8px; background:transparent;
     color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
-    font-size:13px; letter-spacing:.05em; text-transform:uppercase; padding:12px 24px;
+    font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; padding:11px 22px;
     border-radius:999px; border:1.5px solid rgba(245,246,248,.28); transition:all .18s ease;
   }
   .nrh-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
   .nrh-btn.primary{ background:var(--cyan); border-color:var(--cyan); color:var(--bg); }
   .nrh-btn.primary:hover{ opacity:.88; color:var(--bg); }
-  @media (max-width:640px){
-    .nrh-main{ flex-direction:column; gap:16px; }
-    .nrh-info{ text-align:center; }
+  @media (max-width:820px){
+    .nrh-info{ text-align:center; align-items:center; }
+    .nrh-time-row{ justify-content:center; }
+    .nrh-weather{ align-self:center; }
+    .nrh-media-art{ min-height:220px; }
+    .nrh-btn-row{ justify-content:center; }
   }
 
   /* ---------- Footer (identical to the other subpages) ---------- */
@@ -875,23 +916,36 @@
 <div class="wrap">
 
   <section class="next-race-hero" id="nextRaceHero">
-    <div class="nrh-eyebrow"><span class="nrh-dot" aria-hidden="true"></span>Next Race</div>
+    <div class="nrh-topbar">
+      <div class="nrh-eyebrow"><span class="nrh-dot" aria-hidden="true"></span>Next Race</div>
+      <div class="nrh-round" id="nrhRound">Race — of —</div>
+    </div>
     <div class="nrh-main">
-      <div class="nrh-track-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V4l16 5.5L4 15"/></svg><span>Track TBA</span></div>
       <div class="nrh-info">
-        <div class="nrh-round" id="nrhRound">Race — of —</div>
         <div class="nrh-date" id="nrhDate">Loading…</div>
-        <div class="nrh-time" id="nrhTime"></div>
+        <div class="nrh-time-row">
+          <div class="nrh-time-block"><span class="nrh-time-label">Qualifying</span><span class="nrh-time-value" id="nrhQualTime">—</span></div>
+          <div class="nrh-time-block"><span class="nrh-time-label">Duration</span><span class="nrh-time-value" id="nrhDuration">—</span></div>
+        </div>
         <div class="nrh-weather" id="nrhWeather"></div>
       </div>
-      <div class="nrh-countdown-wrap">
-        <div class="nrh-countdown-label">Starts in</div>
-        <div class="nrh-countdown" id="nrhCountdown">—</div>
+      <div class="nrh-media">
+        <div class="nrh-media-art" aria-hidden="true">
+          <div class="nrh-countdown-box" id="nrhCountdownBox">
+            <div class="nrh-countdown-label" id="nrhCountdownLabel">Countdown to Green</div>
+            <div class="nrh-countdown-segments">
+              <div class="nrh-seg"><span class="nrh-seg-num" id="nrhD">00</span><span class="nrh-seg-label">Days</span></div>
+              <div class="nrh-seg"><span class="nrh-seg-num" id="nrhH">00</span><span class="nrh-seg-label">Hrs</span></div>
+              <div class="nrh-seg"><span class="nrh-seg-num" id="nrhM">00</span><span class="nrh-seg-label">Mins</span></div>
+              <div class="nrh-seg"><span class="nrh-seg-num" id="nrhS">00</span><span class="nrh-seg-label">Sec</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="nrh-btn-row">
+          <a class="nrh-btn primary" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>
+          <a class="nrh-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>
+        </div>
       </div>
-    </div>
-    <div class="nrh-btn-row">
-      <a class="nrh-btn primary" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>
-      <a class="nrh-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>
     </div>
   </section>
   <section class="res-section" id="calendar">
@@ -1036,25 +1090,35 @@ function formatLocalTime(ms){
   return new Intl.DateTimeFormat(undefined, {hour:'2-digit', minute:'2-digit', hour12:false}).format(ms);
 }
 
-function weatherHtmlFor(qualifyingIso, endIso){
+// 2026-08-08: returns the wet/dry presentation for a race as data (css
+// class + inner HTML), shared by the Full Schedule cards and the Next-Race
+// hero, so both render identically and multiple rain windows get their own
+// stacked line each instead of one cluttered comma-separated string.
+function weatherPresentation(qualifyingIso, endIso){
   const hits = wetWindowsInRange(new Date(qualifyingIso).getTime(), new Date(endIso).getTime());
   if (!hits.length){
-    return '<div class="race-weather dry">☀️ Dry forecast</div>';
+    return { cls:'dry', html:'<span class="wx-icon">☀️</span><span class="wx-label">Rain expected</span><span class="wx-value">No</span>' };
   }
-  const ranges = hits.map(([ws, we]) => `${formatLocalTime(ws)}–${formatLocalTime(we)}`).join(', ');
-  return `<div class="race-weather wet">🌧️ Rain expected ${ranges}</div>`;
+  const windows = hits.map(([ws, we]) => `<div class="wx-window">${formatLocalTime(ws)}–${formatLocalTime(we)}</div>`).join('');
+  return {
+    cls:'wet',
+    html:`<div class="wx-head"><span class="wx-icon">🌧️</span><span class="wx-label">Rain expected</span><span class="wx-value">Yes</span></div><div class="wx-windows">${windows}</div>`
+  };
 }
 
 function raceCardHtml(r){
   const localQ = formatLocalTime(new Date(r.qualifying).getTime());
-  const localE = formatLocalTime(new Date(r.end).getTime());
+  const wx = weatherPresentation(r.qualifying, r.end);
   return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">
     <div class="race-card-img">${TRACK_ICON}<span>Track TBA</span></div>
     <div class="race-card-body">
       <div class="race-round">Race ${r.round} of ${RACES.length}</div>
       <div class="race-date">${r.dateLabel}</div>
-      <div class="race-time">Qualifying ${localQ} · Race until ${localE} (1h 30m)</div>
-      ${weatherHtmlFor(r.qualifying, r.end)}
+      <div class="race-meta-row">
+        <div class="race-meta"><span class="race-meta-label">Qualifying</span><span class="race-meta-value">${localQ}</span></div>
+        <div class="race-meta"><span class="race-meta-label">Duration</span><span class="race-meta-value">1h 30m</span></div>
+      </div>
+      <div class="race-weather ${wx.cls}">${wx.html}</div>
       <div class="race-countdown" data-role="countdown">—</div>
       <div class="race-btn-row">
         <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>
@@ -1089,43 +1153,64 @@ setInterval(updateCountdowns, 1000);
 
 // 2026-08-08: big "Next Race" hero card at the top of schedule.html —
 // same RACES data + weather logic as the Full Schedule cards below.
+// Countdown always shows all four segments (Days/Hrs/Mins/Sec), modeled on
+// IndyCar's "Countdown to Green" box, overlaid on the placeholder art.
+function formatCountdownSegments(ms){
+  const totalSec = Math.max(0, Math.floor(ms/1000));
+  return {
+    d: Math.floor(totalSec/86400),
+    h: Math.floor((totalSec%86400)/3600),
+    m: Math.floor((totalSec%3600)/60),
+    s: totalSec%60,
+  };
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+
 function updateNextRaceHero(){
   const roundEl = document.getElementById('nrhRound');
   const dateEl = document.getElementById('nrhDate');
-  const timeEl = document.getElementById('nrhTime');
+  const qualEl = document.getElementById('nrhQualTime');
+  const durEl = document.getElementById('nrhDuration');
   const weatherEl = document.getElementById('nrhWeather');
-  const cdEl = document.getElementById('nrhCountdown');
-  if(!roundEl || !dateEl || !timeEl || !weatherEl || !cdEl) return;
+  const boxEl = document.getElementById('nrhCountdownBox');
+  const labelEl = document.getElementById('nrhCountdownLabel');
+  const dEl = document.getElementById('nrhD');
+  const hEl = document.getElementById('nrhH');
+  const mEl = document.getElementById('nrhM');
+  const sEl = document.getElementById('nrhS');
+  if(!roundEl || !dateEl || !boxEl) return;
   const now = Date.now();
   const upcoming = RACES.find(r => now < new Date(r.end).getTime());
   if(!upcoming){
     roundEl.textContent = 'Season complete';
     dateEl.textContent = 'See you next season';
-    timeEl.textContent = '';
+    qualEl.textContent = '—';
+    durEl.textContent = '—';
     weatherEl.textContent = '';
     weatherEl.className = 'nrh-weather';
-    cdEl.textContent = '—';
-    cdEl.classList.remove('live');
+    [dEl, hEl, mEl, sEl].forEach(el => el.textContent = '00');
+    boxEl.classList.remove('live');
+    labelEl.textContent = 'Countdown to Green';
     return;
   }
   roundEl.textContent = `Race ${upcoming.round} of ${RACES.length}`;
   dateEl.textContent = upcoming.dateLabel;
-  const localQ = formatLocalTime(new Date(upcoming.qualifying).getTime());
-  const localE = formatLocalTime(new Date(upcoming.end).getTime());
-  timeEl.textContent = `Qualifying ${localQ} · Race until ${localE} (1h 30m)`;
-  const wxHtml = weatherHtmlFor(upcoming.qualifying, upcoming.end);
-  const wxMatch = wxHtml.match(/class="race-weather (\w+)">(.*)<\/div>/);
-  if (wxMatch){
-    weatherEl.className = 'nrh-weather ' + wxMatch[1];
-    weatherEl.textContent = wxMatch[2];
-  }
+  qualEl.textContent = formatLocalTime(new Date(upcoming.qualifying).getTime());
+  durEl.textContent = '1h 30m';
+  const wx = weatherPresentation(upcoming.qualifying, upcoming.end);
+  weatherEl.className = 'nrh-weather ' + wx.cls;
+  weatherEl.innerHTML = wx.html;
   const qualifying = new Date(upcoming.qualifying).getTime();
   if (now < qualifying){
-    cdEl.textContent = formatCountdown(qualifying - now);
-    cdEl.classList.remove('live');
+    const seg = formatCountdownSegments(qualifying - now);
+    dEl.textContent = pad2(seg.d); hEl.textContent = pad2(seg.h);
+    mEl.textContent = pad2(seg.m); sEl.textContent = pad2(seg.s);
+    boxEl.classList.remove('live');
+    labelEl.textContent = 'Countdown to Green';
   } else {
-    cdEl.textContent = 'Race weekend is live';
-    cdEl.classList.add('live');
+    dEl.textContent = '00'; hEl.textContent = '00'; mEl.textContent = '00'; sEl.textContent = '00';
+    boxEl.classList.add('live');
+    labelEl.textContent = '🔴 Race Weekend Is Live';
   }
 }
 updateNextRaceHero();
