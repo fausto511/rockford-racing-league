@@ -698,7 +698,12 @@
      pass wrongly centered .data-row here too, breaking the left/right
      alignment on mobile; fixed by not touching .data-row in this query. */
   @media (max-width:820px){
-    .nrh-media{ min-height:200px; }
+    /* 2026-08-09: on mobile the two grid rows stack in DOM order (text
+       first) by default — flip visually so the image strip sits on top,
+       matching how the Full Schedule cards already do it (image strip
+       above the text body), per explicit feedback. */
+    .nrh-media{ order:-1; min-height:200px; }
+    .nrh-content{ order:1; }
     .nrh-countdown-box{ top:12px; right:12px; }
   }
 
