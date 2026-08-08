@@ -549,12 +549,12 @@
   .race-card.completed{ opacity:.55; }
   /* 2026-08-08: uniform placeholder photo (same file on all 15 cards —
      we don't have per-track photos) instead of the flag-gradient
-     placeholder + "Track TBA" label. */
+     placeholder + "Track TBA" label. 2026-08-09: dropped the tint gradient
+     over the photo — that was only there to add interest to the old empty
+     placeholder; a real photo doesn't need it. */
   .race-card-img{
     height:100px;
-    background:
-      linear-gradient(135deg, rgba(226,28,43,.22), rgba(11,12,16,.35) 60%, rgba(62,225,232,.18)),
-      url('assets/backgrounds/race-card-bg.jpg');
+    background:url('assets/backgrounds/race-card-bg.jpg');
     background-size:cover; background-position:center; background-repeat:no-repeat;
   }
   .race-card-body{ padding:16px 18px 18px; }
@@ -613,13 +613,14 @@
      Duration / Qualifying) use the shared .data-row component — full
      width, label left / value right, divider above each — same pattern
      as the Full Schedule cards below, per explicit spec.
-     We have no track name/photo data, so the image is a stylised
-     placeholder (checkered-flag texture + gradient) instead of a real
-     venue photo until real event art exists. */
+     2026-08-09: card background matches the plain anthracite .race-card
+     tone (visible behind the text column, since the image covers the
+     rest) instead of the earlier red/cyan tint gradient — no longer
+     needed now that every card shows a real photo. */
   .next-race-hero{
     position:relative; z-index:3; overflow:hidden; margin:8px 0 40px;
-    background:linear-gradient(135deg, rgba(226,28,43,.10), rgba(62,225,232,.08));
-    border:1px solid rgba(62,225,232,.35); border-radius:24px;
+    background:rgba(245,246,248,.03);
+    border:1px solid rgba(245,246,248,.09); border-radius:24px;
     display:grid; grid-template-columns:1fr 2fr;
   }
   @media (max-width:820px){ .next-race-hero{ grid-template-columns:1fr; } }
@@ -669,9 +670,7 @@
      sourced from Slides/121.png per explicit request). */
   .nrh-media-art{
     position:absolute; inset:0;
-    background:
-      linear-gradient(135deg, rgba(226,28,43,.18), rgba(11,12,16,.30) 55%, rgba(62,225,232,.14)),
-      url('assets/backgrounds/next-race-bg.jpg');
+    background:url('assets/backgrounds/next-race-bg.jpg');
     background-size:cover; background-position:center; background-repeat:no-repeat;
   }
   .nrh-countdown-box{
