@@ -565,30 +565,35 @@
     font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.02em; text-transform:uppercase;
     margin-top:4px;
   }
-  .race-meta-row{ display:flex; gap:22px; margin-top:10px; flex-wrap:wrap; }
-  .race-meta{ display:flex; flex-direction:column; gap:2px; }
-  .race-meta-label{
-    font-family:'Chakra Petch',sans-serif; font-size:9.5px; font-weight:700; letter-spacing:.07em;
-    text-transform:uppercase; color:rgba(245,246,248,.4);
+  /* 2026-08-08: shared label/value row component — full card width, label
+     left / value right, divider line above each row. Used by both the
+     Full Schedule cards (.race-datarows) and the hero (.nrh-datarows).
+     Per explicit spec: divider under Date, then Start Time, divider,
+     Duration, divider, Qualifying (live countdown to qualifying) — no
+     divider after the last row, then the weather pill, then buttons. */
+  .data-row{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:9px 0; border-top:1px solid rgba(245,246,248,.12);
   }
-  .race-meta-value{ font-family:'Chakra Petch',sans-serif; font-size:12.5px; font-weight:600; color:var(--white); }
+  .data-row-label{
+    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.07em;
+    text-transform:uppercase; color:rgba(245,246,248,.45);
+  }
+  .data-row-value{ font-family:'Chakra Petch',sans-serif; font-size:13px; font-weight:600; color:var(--white); }
+  .race-datarows{ margin-top:10px; }
+  .race-card.live [data-role="qualcountdown"]{ color:var(--red); }
+  .race-card.completed [data-role="qualcountdown"]{ color:rgba(199,204,212,.6); }
   /* 2026-08-08: reverted to a single-line badge (no Yes/No label, multiple
      rain windows comma-joined) per explicit user feedback — the stacked
      multi-line version tried earlier looked worse, not better. Shared
      verbatim by the hero's .nrh-weather. */
   .race-weather{
-    display:inline-flex; align-items:center; gap:6px; margin-top:8px;
+    display:inline-flex; align-items:center; gap:6px; margin-top:10px;
     font-family:'Chakra Petch',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.02em;
     padding:5px 10px; border-radius:999px;
   }
   .race-weather.wet{ background:rgba(62,225,232,.12); color:var(--cyan); }
   .race-weather.dry{ background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
-  .race-countdown{
-    margin-top:10px; font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.02em; color:var(--white);
-  }
-  .race-card.live .race-countdown{ color:var(--red); }
-  .race-card.completed .race-countdown{ color:rgba(199,204,212,.6); }
   .race-btn-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
   .race-join-btn{
     display:inline-flex; align-items:center; gap:8px; background:transparent;
@@ -599,12 +604,14 @@
   .race-join-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
 
   /* ---------- Big Next-Race hero (schedule.html) ----------
-     2026-08-08 redesign, revised same day per follow-up feedback:
-     full-bleed image on the right (~62% width, touches top/right/bottom
-     edges, no inset) with the countdown overlaid top-right of it; text +
-     buttons in the left column, buttons styled identically to the plain
-     Full Schedule card buttons (no filled/cyan variant). "Race N of 15"
-     sits directly next to the "Next Race" eyebrow instead of far right.
+     2026-08-08 redesign, revised twice same day per follow-up feedback:
+     full-bleed image on the right (~2/3 width, touches top/right/bottom
+     edges, no inset) with the countdown box overlaid top-right of it;
+     text + data rows + buttons in the left third. "Race N of 15" sits
+     directly next to the "Next Race" eyebrow. Data rows (Start Time /
+     Duration / Qualifying) use the shared .data-row component — full
+     width, label left / value right, divider above each — same pattern
+     as the Full Schedule cards below, per explicit spec.
      We have no track name/photo data, so the image is a stylised
      placeholder (checkered-flag texture + gradient) instead of a real
      venue photo until real event art exists. */
@@ -612,7 +619,7 @@
     position:relative; z-index:3; overflow:hidden; margin:8px 0 40px;
     background:linear-gradient(135deg, rgba(226,28,43,.10), rgba(62,225,232,.08));
     border:1px solid rgba(62,225,232,.35); border-radius:24px;
-    display:grid; grid-template-columns:38% 62%;
+    display:grid; grid-template-columns:1fr 2fr;
   }
   @media (max-width:820px){ .next-race-hero{ grid-template-columns:1fr; } }
   .nrh-content{
@@ -634,16 +641,12 @@
     text-transform:uppercase; color:rgba(245,246,248,.5);
   }
   .nrh-date{
-    font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,4.2vw,44px); letter-spacing:.02em;
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,3.6vw,40px); letter-spacing:.02em;
     text-transform:uppercase; line-height:1.05;
   }
-  .nrh-time-row{ display:flex; gap:26px; margin-top:14px; flex-wrap:wrap; }
-  .nrh-time-block{ display:flex; flex-direction:column; gap:2px; }
-  .nrh-time-label{
-    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.08em;
-    text-transform:uppercase; color:rgba(245,246,248,.45);
-  }
-  .nrh-time-value{ font-family:'Chakra Petch',sans-serif; font-size:14.5px; font-weight:600; color:var(--white); }
+  .nrh-datarows{ margin-top:12px; }
+  .nrh-datarows .data-row-value{ font-size:14.5px; }
+  .nrh-content .nrh-countdown-value.live{ color:var(--red); }
   .nrh-weather{
     display:inline-flex; align-items:center; gap:6px; margin-top:14px; align-self:flex-start;
     font-family:'Chakra Petch',sans-serif; font-size:12px; font-weight:600; letter-spacing:.02em;
@@ -691,7 +694,7 @@
   @media (max-width:820px){
     .nrh-content{ align-items:center; text-align:center; }
     .nrh-topbar{ justify-content:center; }
-    .nrh-time-row{ justify-content:center; }
+    .data-row{ justify-content:center; gap:10px; }
     .nrh-weather{ align-self:center; }
     .nrh-btn-row{ justify-content:center; }
     .nrh-media{ min-height:200px; }
@@ -919,9 +922,10 @@
         <div class="nrh-round" id="nrhRound">Race — of —</div>
       </div>
       <div class="nrh-date" id="nrhDate">Loading…</div>
-      <div class="nrh-time-row">
-        <div class="nrh-time-block"><span class="nrh-time-label">Qualifying</span><span class="nrh-time-value" id="nrhQualTime">—</span></div>
-        <div class="nrh-time-block"><span class="nrh-time-label">Duration</span><span class="nrh-time-value" id="nrhDuration">—</span></div>
+      <div class="nrh-datarows">
+        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value" id="nrhStartTime">—</span></div>
+        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value" id="nrhDuration">—</span></div>
+        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value nrh-countdown-value" id="nrhQualCountdown">—</span></div>
       </div>
       <div class="nrh-weather" id="nrhWeather"></div>
       <div class="nrh-btn-row">
@@ -1022,17 +1026,6 @@ const RACES = [
 
 const TRACK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4l16 5.5L4 15"/></svg>';
 
-function formatCountdown(ms){
-  const totalSec = Math.max(0, Math.floor(ms/1000));
-  const d = Math.floor(totalSec/86400);
-  const h = Math.floor((totalSec%86400)/3600);
-  const m = Math.floor((totalSec%3600)/60);
-  const s = totalSec%60;
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  if (h > 0) return `${h}h ${m}m ${s}s`;
-  return `${m}m ${s}s`;
-}
-
 // 2026-08-06: unofficial GTA Online in-game weather forecast for the race
 // calendar tiles. NOT sourced from the (unreliable/incomplete) community
 // wiki weather table — that table was cross-checked against live readings
@@ -1097,6 +1090,27 @@ function weatherPresentation(qualifyingIso, endIso){
   return { cls:'wet', html:`🌧️ Rain expected ${ranges}` };
 }
 
+// 2026-08-08: countdown helpers. formatCountdownSegments() feeds the
+// segmented Days/Hrs/Mins/Sec box on the hero image; formatCountdownFull()
+// feeds the "Qualifying" data-row value as one string (e.g. "8d 15h 36m
+// 30s") — always all four units, per explicit spec, unlike the old
+// formatCountdown() (which dropped seconds once days > 0 and is no longer
+// used anywhere, so it's been removed).
+function formatCountdownSegments(ms){
+  const totalSec = Math.max(0, Math.floor(ms/1000));
+  return {
+    d: Math.floor(totalSec/86400),
+    h: Math.floor((totalSec%86400)/3600),
+    m: Math.floor((totalSec%3600)/60),
+    s: totalSec%60,
+  };
+}
+function formatCountdownFull(ms){
+  const seg = formatCountdownSegments(ms);
+  return `${seg.d}d ${seg.h}h ${seg.m}m ${seg.s}s`;
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+
 function raceCardHtml(r){
   const localQ = formatLocalTime(new Date(r.qualifying).getTime());
   const wx = weatherPresentation(r.qualifying, r.end);
@@ -1105,12 +1119,12 @@ function raceCardHtml(r){
     <div class="race-card-body">
       <div class="race-round">Race ${r.round} of ${RACES.length}</div>
       <div class="race-date">${r.dateLabel}</div>
-      <div class="race-meta-row">
-        <div class="race-meta"><span class="race-meta-label">Qualifying</span><span class="race-meta-value">${localQ}</span></div>
-        <div class="race-meta"><span class="race-meta-label">Duration</span><span class="race-meta-value">1h 30m</span></div>
+      <div class="race-datarows">
+        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value">${localQ}</span></div>
+        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value">1h 30m</span></div>
+        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value" data-role="qualcountdown">—</span></div>
       </div>
       <div class="race-weather ${wx.cls}">${wx.html}</div>
-      <div class="race-countdown" data-role="countdown">—</div>
       <div class="race-btn-row">
         <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>
         <a class="race-join-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>
@@ -1124,13 +1138,13 @@ function updateCountdowns(){
   document.querySelectorAll('.race-card').forEach(card => {
     const qualifying = new Date(card.dataset.qualifying).getTime();
     const end = new Date(card.dataset.end).getTime();
-    const el = card.querySelector('[data-role="countdown"]');
+    const el = card.querySelector('[data-role="qualcountdown"]');
     card.classList.remove('live', 'completed');
     if (now < qualifying){
-      el.textContent = 'Qualifying in ' + formatCountdown(qualifying - now);
+      el.textContent = formatCountdownFull(qualifying - now);
     } else if (now < end){
       card.classList.add('live');
-      el.textContent = 'Race weekend is live';
+      el.textContent = '🔴 Live now';
     } else {
       card.classList.add('completed');
       el.textContent = 'Completed';
@@ -1144,24 +1158,16 @@ setInterval(updateCountdowns, 1000);
 
 // 2026-08-08: big "Next Race" hero card at the top of schedule.html —
 // same RACES data + weather logic as the Full Schedule cards below.
-// Countdown always shows all four segments (Days/Hrs/Mins/Sec), modeled on
-// IndyCar's "Countdown to Green" box, overlaid on the placeholder art.
-function formatCountdownSegments(ms){
-  const totalSec = Math.max(0, Math.floor(ms/1000));
-  return {
-    d: Math.floor(totalSec/86400),
-    h: Math.floor((totalSec%86400)/3600),
-    m: Math.floor((totalSec%3600)/60),
-    s: totalSec%60,
-  };
-}
-function pad2(n){ return String(n).padStart(2,'0'); }
-
+// The "Qualifying" data-row shows the same live countdown as the small
+// cards (formatCountdownFull); the segmented Days/Hrs/Mins/Sec box stays
+// on the image too as a visual accent — kept rather than removed since
+// nothing said to drop it, flagged to the user for confirmation.
 function updateNextRaceHero(){
   const roundEl = document.getElementById('nrhRound');
   const dateEl = document.getElementById('nrhDate');
-  const qualEl = document.getElementById('nrhQualTime');
+  const startEl = document.getElementById('nrhStartTime');
   const durEl = document.getElementById('nrhDuration');
+  const qualCdEl = document.getElementById('nrhQualCountdown');
   const weatherEl = document.getElementById('nrhWeather');
   const boxEl = document.getElementById('nrhCountdownBox');
   const labelEl = document.getElementById('nrhCountdownLabel');
@@ -1175,8 +1181,10 @@ function updateNextRaceHero(){
   if(!upcoming){
     roundEl.textContent = 'Season complete';
     dateEl.textContent = 'See you next season';
-    qualEl.textContent = '—';
+    startEl.textContent = '—';
     durEl.textContent = '—';
+    qualCdEl.textContent = '—';
+    qualCdEl.classList.remove('live');
     weatherEl.textContent = '';
     weatherEl.className = 'nrh-weather';
     [dEl, hEl, mEl, sEl].forEach(el => el.textContent = '00');
@@ -1186,22 +1194,27 @@ function updateNextRaceHero(){
   }
   roundEl.textContent = `Race ${upcoming.round} of ${RACES.length}`;
   dateEl.textContent = upcoming.dateLabel;
-  qualEl.textContent = formatLocalTime(new Date(upcoming.qualifying).getTime());
+  startEl.textContent = formatLocalTime(new Date(upcoming.qualifying).getTime());
   durEl.textContent = '1h 30m';
   const wx = weatherPresentation(upcoming.qualifying, upcoming.end);
   weatherEl.className = 'nrh-weather ' + wx.cls;
   weatherEl.innerHTML = wx.html;
   const qualifying = new Date(upcoming.qualifying).getTime();
+  const end = new Date(upcoming.end).getTime();
   if (now < qualifying){
     const seg = formatCountdownSegments(qualifying - now);
     dEl.textContent = pad2(seg.d); hEl.textContent = pad2(seg.h);
     mEl.textContent = pad2(seg.m); sEl.textContent = pad2(seg.s);
     boxEl.classList.remove('live');
     labelEl.textContent = 'Countdown to Green';
+    qualCdEl.textContent = formatCountdownFull(qualifying - now);
+    qualCdEl.classList.remove('live');
   } else {
     dEl.textContent = '00'; hEl.textContent = '00'; mEl.textContent = '00'; sEl.textContent = '00';
     boxEl.classList.add('live');
     labelEl.textContent = '🔴 Race Weekend Is Live';
+    qualCdEl.textContent = now < end ? '🔴 Live now' : 'Completed';
+    qualCdEl.classList.add('live');
   }
 }
 updateNextRaceHero();
