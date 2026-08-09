@@ -2,6 +2,9 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rockford Racing League — Standings</title>
 <meta name="robots" content="noindex, nofollow">
@@ -220,6 +223,58 @@
      tables lands the visitor on the Compare page with that name preset. */
   .driver-cell, .team-cell{ color:inherit; text-decoration:none; }
   .driver-cell:hover, .team-cell:hover{ color:var(--cyan); text-decoration:underline; }
+  /* ---------- Season switcher (2026-08-09) ----------
+     Same custom-dropdown component as the Stats/Compare pages, plus the
+     column-sort affordance for the season-table headers — ported so past
+     seasons (not just the current in-progress one) can be viewed here too,
+     reusing the exact same live xlsx data source as Stats.html's Season
+     View. See the script block near the end of the page for the loading
+     logic (progressive — this page never blocks behind a loading screen
+     the way Stats.html does, since Season 10 needs no external data). */
+  .standings-toolbar{ display:flex; gap:14px; align-items:center; margin:0 auto 22px; flex-wrap:wrap; justify-content:center; }
+  .standings-toolbar .count{ color:var(--grey); font-size:12px; font-family:'Chakra Petch',sans-serif; letter-spacing:.03em; }
+  .cmp-select{ position:relative; min-width:220px; }
+  .cmp-select-btn{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.2); color:var(--white);
+    padding:12px 18px; border-radius:999px; font-family:'Chakra Petch',sans-serif; font-size:13px;
+    letter-spacing:.02em; cursor:pointer; text-align:left;
+  }
+  .cmp-select-btn:hover, .cmp-select.open .cmp-select-btn{ border-color:rgba(245,246,248,.4); }
+  .cmp-select-btn .cmp-select-value.placeholder{ color:var(--grey); }
+  .cmp-select-btn .arrow{ color:var(--grey); font-size:10px; transition:transform .15s ease; flex:0 0 auto; }
+  .cmp-select.open .cmp-select-btn .arrow{ transform:rotate(180deg); }
+  .cmp-select-panel{
+    position:absolute; top:calc(100% + 8px); left:0; right:0; background:#14161c;
+    border:1px solid rgba(245,246,248,.16); border-radius:16px; box-shadow:0 16px 40px rgba(0,0,0,.55);
+    z-index:60; overflow:hidden; text-align:left;
+  }
+  .cmp-select-search{ padding:10px; border-bottom:1px solid rgba(245,246,248,.1); }
+  .cmp-select-search input{
+    width:100%; background:rgba(245,246,248,.06); border:1px solid rgba(245,246,248,.16); color:var(--white);
+    border-radius:999px; padding:9px 14px; font-family:'Source Sans 3',sans-serif; font-size:13px;
+  }
+  .cmp-select-search input::placeholder{ color:rgba(199,204,212,.5); }
+  .cmp-select-options{
+    list-style:none; max-height:270px; overflow-y:auto; padding:6px; margin:0;
+    scrollbar-width:thin; scrollbar-color: rgba(245,246,248,.28) transparent;
+  }
+  .cmp-select-options::-webkit-scrollbar{ width:8px; }
+  .cmp-select-options::-webkit-scrollbar-track{ background:transparent; }
+  .cmp-select-options::-webkit-scrollbar-thumb{ background:rgba(245,246,248,.22); border-radius:4px; }
+  .cmp-select-options::-webkit-scrollbar-thumb:hover{ background:rgba(245,246,248,.35); }
+  .cmp-select-option{
+    padding:10px 14px; border-radius:10px; font-family:'Chakra Petch',sans-serif; font-size:13px;
+    color:var(--white); cursor:pointer;
+  }
+  .cmp-select-option.cmp-select-clear{ color:var(--grey); }
+  .cmp-select-option:hover, .cmp-select-option.hot{ background:rgba(62,225,232,.12); color:var(--cyan); }
+  .cmp-select-option.selected{ font-weight:700; color:var(--cyan); }
+  .cmp-select-empty{ padding:16px; color:var(--grey); font-size:12.5px; text-align:center; }
+  .season-table th{ cursor:pointer; }
+  .season-table th:hover{ color:var(--white); }
+  .season-table th.sorted::after{ content:" " attr(data-dir); color:var(--red); font-size:10px; }
+  .season-table td.num, .season-table th.num{ text-align:right; }
 
   /* ---------- Race calendar tiles ----------
      2026-08-06: 15 races, weekly on Sundays starting Aug 16 2026 (user-
@@ -498,110 +553,23 @@
 <div class="wrap">
 
   <section class="res-section" id="standings">
-    <p class="sub">Season 10 roster shown below — points and results populate after each race, starting Aug 16. Scroll a table sideways to see every column.</p>
+    <p class="sub">Season 10 roster shown below — points and results populate after each race, starting Aug 16. Scroll a table sideways to see every column, or use the season switcher below to look back at past seasons.</p>
+    <div class="standings-toolbar">
+      <div id="standingsSeasonSelect"></div>
+      <span class="count" id="standingsSeasonCount"></span>
+    </div>
     <nav class="subtabs">
       <button data-subtab="drivers" class="active">Drivers</button>
       <button data-subtab="teams">Teams</button>
     </nav>
     <div class="subpanel active" id="panel-drivers">
       <div class="table-card">
-        <table class="season-table">
-          <thead><tr>
-            <th>#</th>
-            <th>Driver</th>
-            <th>Team</th>
-            <th>Points</th>
-            <th>Diff</th>
-            <th>Races</th>
-            <th>Avg</th>
-            <th>Best Pos</th>
-            <th>Wins</th>
-            <th>Podium</th>
-            <th>Top 10</th>
-            <th>Top 20</th>
-            <th>Row 1</th>
-            <th>Row 3</th>
-            <th>Row 10</th>
-            <th>Poles</th>
-            <th>Hotlaps</th>
-            <th>DOTD</th>
-            <th>IOTD</th>
-            <th>Q/D</th>
-            <th>Com</th>
-            <th>Pen</th>
-            <th>Sub</th>
-            <th>Rating</th>
-          </tr></thead>
-          <tbody>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=BENELL">BENELL</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Benny%27s">Benny's</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=BLACKY">BLACKY</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Crowex">Crowex</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=BONEBREAKER">BONEBREAKER</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Benny%27s">Benny's</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=BRADL">BRADL</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=MeTV">MeTV</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=CHILLYNICO">CHILLYNICO</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=LS%20Customs">LS Customs</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=CSMALLOY">CSMALLOY</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Meinmacht">Meinmacht</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=DBCOOPER">DBCOOPER</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Xero%20Gas">Xero Gas</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=DIGLETT">DIGLETT</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Jackal">Jackal</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=GULASCHGERD">GULASCHGERD</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Redwood">Redwood</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=GUZTURBELS">GUZTURBELS</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Jackal">Jackal</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=HENRI">HENRI</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Atomic">Atomic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=JOHANSONICK">JOHANSONICK</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Globe%20Oil">Globe Oil</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=LUDGAMER">LUDGAMER</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Atomic">Atomic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=LYNXY">LYNXY</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Estancia">Estancia</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=MARLON">MARLON</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Maze%20Bank">Maze Bank</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=MEGAMUK">MEGAMUK</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=MeTV">MeTV</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=MOISTKITTY">MOISTKITTY</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Xero%20Gas">Xero Gas</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=MONK">MONK</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Maze%20Bank">Maze Bank</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=NIKITA">NIKITA</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Crowex">Crowex</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=OTTO">OTTO</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Redwood">Redwood</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=PACHA">PACHA</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pegasus">Pegasus</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=PARAMEDIC">PARAMEDIC</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pisswasser">Pisswasser</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=REZKIO">REZKIO</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Estancia">Estancia</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=ROBINATOR">ROBINATOR</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Globe%20Oil">Globe Oil</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=RUBBERDUCK">RUBBERDUCK</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Auto%20Exotic">Auto Exotic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=SCHNAGGELS">SCHNAGGELS</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=LS%20Customs">LS Customs</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=TINNY">TINNY</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Meinmacht">Meinmacht</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=VALKYRIE">VALKYRIE</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pisswasser">Pisswasser</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=ZEUS">ZEUS</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Auto%20Exotic">Auto Exotic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="driver-cell" href="compare.html?type=driver&amp;a=ZPM">ZPM</a></td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pegasus">Pegasus</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-          </tbody>
-        </table>
+        <table class="season-table" id="tblStandingsDrivers"></table>
       </div>
     </div>
     <div class="subpanel" id="panel-teams">
       <div class="table-card">
-        <table class="season-table">
-          <thead><tr>
-            <th>#</th>
-            <th>Team</th>
-            <th>Points</th>
-            <th>Diff</th>
-            <th>Races</th>
-            <th>Avg</th>
-            <th>Wins</th>
-            <th>Podium</th>
-            <th>Top 10</th>
-            <th>TOTD</th>
-            <th>IOTD</th>
-            <th>Rating</th>
-          </tr></thead>
-          <tbody>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Atomic">Atomic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Auto%20Exotic">Auto Exotic</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Benny%27s">Benny's</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Crowex">Crowex</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Estancia">Estancia</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Globe%20Oil">Globe Oil</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Jackal">Jackal</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=LS%20Customs">LS Customs</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Maze%20Bank">Maze Bank</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Meinmacht">Meinmacht</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=MeTV">MeTV</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pegasus">Pegasus</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Pisswasser">Pisswasser</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Redwood">Redwood</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-            <tr><td>–</td><td><a class="team-cell" href="compare.html?type=team&amp;a=Xero%20Gas">Xero Gas</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
-          </tbody>
-        </table>
+        <table class="season-table" id="tblStandingsTeams"></table>
       </div>
     </div>
   </section>
@@ -668,6 +636,312 @@ document.querySelectorAll('.subtabs button').forEach(btn=>{
     document.getElementById('panel-'+btn.dataset.subtab).classList.add('active');
   });
 });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ---------- Season switcher (2026-08-09) ----------
+// Ports the same live-xlsx data source + sortable-table system as the
+// Stats page's Season View, so this page can show past seasons too, not
+// just the current in-progress one — same master file, same column set
+// (this page already showed the Stats page's "full" column view even
+// before this, per the 2026-08-06 note above). Deliberately NOT gated
+// behind a loading overlay like Stats.html: Season 10 (the default) needs
+// no external data at all, so the page is fully usable immediately; past
+// seasons are simply added to the dropdown once the xlsx has loaded in
+// the background (and just never appear if it can't load — e.g. opened
+// directly from disk instead of hosted — same caveat as Stats.html).
+const STANDINGS_XLSX_PATH = "RRL_Datenbasis_bereinigt.xlsx";
+let STANDINGS_SEASON_DATA = null; // {driversSeason, teamsSeason} once the xlsx has loaded
+
+function stNum(v){
+  if (v === null || v === undefined || v === "" || v === "-") return null;
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+function stFmt(v, digits){
+  const n = stNum(v);
+  if (n === null) return "–";
+  if (digits !== undefined) return n.toFixed(digits);
+  return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+}
+function stScaleRating(raw){
+  const n = stNum(raw);
+  if (n === null) return null;
+  return n < 10 ? n * 10 : n;
+}
+function stFormatRating(raw){
+  const n = stScaleRating(raw);
+  return n === null ? "–" : Math.round(n).toString();
+}
+function stRatingCol(key, label){ return {key, label, num:true, render:r=>stFormatRating(r[key])}; }
+// Both driver and team names here link to compare.html (not team.html —
+// unlike stats.html's own teamCell), matching the explicit "landing on
+// Compare" request for this page's driver-cell/team-cell links above.
+function stDriverCell(name){
+  if (!name) return "–";
+  return `<a class="driver-cell" href="compare.html?type=driver&amp;a=${encodeURIComponent(name)}">${name}</a>`;
+}
+function stTeamCell(name){
+  if (!name) return "–";
+  return `<a class="team-cell" href="compare.html?type=team&amp;a=${encodeURIComponent(name)}">${name}</a>`;
+}
+
+// ---- Sortable table (verbatim port of the Stats page's component) ----
+function stMakeSortableTable(tableEl, rows, initialCols, opts){
+  opts = opts || {};
+  let cols = initialCols;
+  let sortKey = opts.defaultSort || cols[0].key;
+  let sortDir = opts.defaultDir || "desc";
+
+  function render(){
+    let data = rows.slice();
+    data.sort((a,b)=>{
+      const av = stNum(a[sortKey]), bv = stNum(b[sortKey]);
+      let cmp;
+      if (av === null && bv === null) cmp = 0;
+      else if (av === null) cmp = 1;
+      else if (bv === null) cmp = -1;
+      else cmp = av - bv;
+      if (cmp === 0){
+        const as = (a[sortKey]||"").toString(), bs = (b[sortKey]||"").toString();
+        cmp = as.localeCompare(bs);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    let thead = "<thead><tr>" + cols.map(c=>{
+      const isSorted = c.key === sortKey;
+      const dirArrow = isSorted ? (sortDir==="asc"?"▲":"▼") : "";
+      return `<th class="${c.num?'num':''} ${isSorted?'sorted':''}" data-dir="${dirArrow}" data-key="${c.key}">${c.label}</th>`;
+    }).join("") + "</tr></thead>";
+    let tbody = "<tbody>" + data.map(row=>{
+      return "<tr>" + cols.map(c=>{
+        const val = c.render ? c.render(row) : (row[c.key] ?? "–");
+        return `<td class="${c.num?'num':''}">${val}</td>`;
+      }).join("") + "</tr>";
+    }).join("") + "</tbody>";
+    tableEl.innerHTML = thead + tbody;
+    tableEl.querySelectorAll("thead th").forEach(th=>{
+      th.addEventListener("click", ()=>{
+        const key = th.getAttribute("data-key");
+        if (key === sortKey) sortDir = sortDir === "asc" ? "desc" : "asc";
+        else { sortKey = key; sortDir = "desc"; }
+        render();
+      });
+    });
+    if (opts.onRender) opts.onRender(data.length);
+  }
+  render();
+  return {
+    setRows(newRows){ rows = newRows; render(); },
+  };
+}
+
+// ---- Custom dropdown (verbatim port of the Stats/Compare page's component) ----
+function stInitCustomSelect(id, ariaLabel){
+  const root = document.getElementById(id);
+  root.classList.add('cmp-select');
+  root.innerHTML = `
+    <button type="button" class="cmp-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${ariaLabel}">
+      <span class="cmp-select-value placeholder">— Choose —</span>
+      <span class="arrow">▾</span>
+    </button>
+    <div class="cmp-select-panel" hidden>
+      <div class="cmp-select-search"><input type="text" placeholder="Search…" autocomplete="off"></div>
+      <ul class="cmp-select-options" role="listbox"></ul>
+    </div>`;
+
+  const btn = root.querySelector('.cmp-select-btn');
+  const btnLabel = root.querySelector('.cmp-select-value');
+  const panel = root.querySelector('.cmp-select-panel');
+  const search = root.querySelector('.cmp-select-search input');
+  const list = root.querySelector('.cmp-select-options');
+
+  let items = [];
+  let value = '';
+  let changeCb = null;
+
+  function normalize(newItems){
+    return (newItems || []).map(it => (typeof it === 'string') ? {value: it, label: it} : it);
+  }
+  function renderList(filterText){
+    const q = (filterText || '').trim().toLowerCase();
+    const filtered = q ? items.filter(it => (''+it.label).toLowerCase().includes(q)) : items;
+    const optList = filtered.map(it => `<li class="cmp-select-option${it.value===value ? ' selected' : ''}" data-value="${it.value}">${it.label}</li>`);
+    list.innerHTML = filtered.length || !q
+      ? optList.join('')
+      : optList.join('') + '<li class="cmp-select-empty">No matches</li>';
+  }
+  function setLabel(v){
+    const found = items.find(it => it.value === v);
+    btnLabel.textContent = found ? found.label : '— Choose —';
+    btnLabel.classList.toggle('placeholder', !found);
+  }
+  function open(){
+    panel.hidden = false;
+    root.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    search.value = '';
+    renderList('');
+    search.focus();
+  }
+  function close(){
+    panel.hidden = true;
+    root.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function select(v){
+    value = v;
+    setLabel(v);
+    close();
+    if (changeCb) changeCb(value);
+  }
+
+  btn.addEventListener('click', () => { panel.hidden ? open() : close(); });
+  search.addEventListener('input', () => renderList(search.value));
+  search.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){
+      const first = list.querySelector('.cmp-select-option');
+      select(first ? first.dataset.value : '');
+      e.preventDefault();
+    } else if (e.key === 'Escape'){
+      close();
+    }
+  });
+  list.addEventListener('click', e => {
+    const li = e.target.closest('.cmp-select-option');
+    if (li) select(li.dataset.value);
+  });
+  document.addEventListener('click', e => {
+    if (!root.contains(e.target)) close();
+  });
+
+  return {
+    setOptions(newItems){ items = normalize(newItems); },
+    setValue(v){ value = v || ''; setLabel(value); },
+    getValue(){ return value; },
+    onChange(cb){ changeCb = cb; },
+  };
+}
+
+// ---- Current Season 10 roster — no results yet, season starts Aug 16
+// (same 30 drivers / 15 teams as the previous static table; sourced from
+// the working folder, not invented). Every stat field is intentionally
+// left unset here: stFmt()/stNum() render any missing field as "–",
+// exactly matching the old hardcoded placeholder table. ----
+const SEASON10_DRIVERS = [
+  {fahrer:"BENELL", team:"Benny's"}, {fahrer:"BLACKY", team:"Crowex"},
+  {fahrer:"BONEBREAKER", team:"Benny's"}, {fahrer:"BRADL", team:"MeTV"},
+  {fahrer:"CHILLYNICO", team:"LS Customs"}, {fahrer:"CSMALLOY", team:"Meinmacht"},
+  {fahrer:"DBCOOPER", team:"Xero Gas"}, {fahrer:"DIGLETT", team:"Jackal"},
+  {fahrer:"GULASCHGERD", team:"Redwood"}, {fahrer:"GUZTURBELS", team:"Jackal"},
+  {fahrer:"HENRI", team:"Atomic"}, {fahrer:"JOHANSONICK", team:"Globe Oil"},
+  {fahrer:"LUDGAMER", team:"Atomic"}, {fahrer:"LYNXY", team:"Estancia"},
+  {fahrer:"MARLON", team:"Maze Bank"}, {fahrer:"MEGAMUK", team:"MeTV"},
+  {fahrer:"MOISTKITTY", team:"Xero Gas"}, {fahrer:"MONK", team:"Maze Bank"},
+  {fahrer:"NIKITA", team:"Crowex"}, {fahrer:"OTTO", team:"Redwood"},
+  {fahrer:"PACHA", team:"Pegasus"}, {fahrer:"PARAMEDIC", team:"Pisswasser"},
+  {fahrer:"REZKIO", team:"Estancia"}, {fahrer:"ROBINATOR", team:"Globe Oil"},
+  {fahrer:"RUBBERDUCK", team:"Auto Exotic"}, {fahrer:"SCHNAGGELS", team:"LS Customs"},
+  {fahrer:"TINNY", team:"Meinmacht"}, {fahrer:"VALKYRIE", team:"Pisswasser"},
+  {fahrer:"ZEUS", team:"Auto Exotic"}, {fahrer:"ZPM", team:"Pegasus"},
+];
+const SEASON10_TEAMS = [
+  {team:"Atomic"}, {team:"Auto Exotic"}, {team:"Benny's"}, {team:"Crowex"},
+  {team:"Estancia"}, {team:"Globe Oil"}, {team:"Jackal"}, {team:"LS Customs"},
+  {team:"Maze Bank"}, {team:"Meinmacht"}, {team:"MeTV"}, {team:"Pegasus"},
+  {team:"Pisswasser"}, {team:"Redwood"}, {team:"Xero Gas"},
+];
+
+// Identical column set to Stats.html's driverFull/teamFull (same field
+// names from the same master xlsx), just with local driver/team-cell
+// renderers so both link to compare.html on this page.
+const driverFullCols = [
+  {key:"platz", label:"#", num:true, render:r=>stFmt(r["platz"],0)},
+  {key:"fahrer", label:"Driver", render:r=>stDriverCell(r["fahrer"])},
+  {key:"team", label:"Team", render:r=>stTeamCell(r["team"])},
+  {key:"punkte", label:"Points", num:true, render:r=>stFmt(r["punkte"],0)},
+  {key:"dif", label:"Diff", num:true, render:r=>stFmt(r["dif"],0)},
+  {key:"rennen", label:"Races", num:true, render:r=>stFmt(r["rennen"],0)},
+  {key:"schnitt", label:"Avg", num:true, render:r=>stFmt(r["schnitt"],1)},
+  {key:"beste_pos", label:"Best Pos", num:true, render:r=>stFmt(r["beste_pos"],0)},
+  {key:"wins", label:"Wins", num:true, render:r=>stFmt(r["wins"],0)},
+  {key:"podium", label:"Podium", num:true, render:r=>stFmt(r["podium"],0)},
+  {key:"top10", label:"Top 10", num:true, render:r=>stFmt(r["top10"],0)},
+  {key:"top20", label:"Top 20", num:true, render:r=>stFmt(r["top20"],0)},
+  {key:"row1", label:"Row 1", num:true, render:r=>stFmt(r["row1"],0)},
+  {key:"row3", label:"Row 3", num:true, render:r=>stFmt(r["row3"],0)},
+  {key:"row10", label:"Row 10", num:true, render:r=>stFmt(r["row10"],0)},
+  {key:"poles", label:"Poles", num:true, render:r=>stFmt(r["poles"],0)},
+  {key:"hotlaps", label:"Hotlaps", num:true, render:r=>stFmt(r["hotlaps"],0)},
+  {key:"dotd", label:"DOTD", num:true, render:r=>stFmt(r["dotd"],0)},
+  {key:"iotd", label:"IOTD", num:true, render:r=>stFmt(r["iotd"],0)},
+  {key:"qd", label:"Q/D", num:true, render:r=>stFmt(r["qd"],0)},
+  {key:"com", label:"Com", num:true, render:r=>stFmt(r["com"],0)},
+  {key:"pen", label:"Pen", num:true, render:r=>stFmt(r["pen"],0)},
+  {key:"sub", label:"Sub", num:true, render:r=>stFmt(r["sub"],0)},
+  stRatingCol("rating","Rating"),
+];
+const teamFullCols = [
+  {key:"platz", label:"#", num:true, render:r=>stFmt(r["platz"],0)},
+  {key:"team", label:"Team", render:r=>stTeamCell(r["team"])},
+  {key:"punkte", label:"Points", num:true, render:r=>stFmt(r["punkte"],0)},
+  {key:"dif", label:"Diff", num:true, render:r=>stFmt(r["dif"],0)},
+  {key:"rennen", label:"Races", num:true, render:r=>stFmt(r["rennen"],0)},
+  {key:"schnitt", label:"Avg", num:true, render:r=>stFmt(r["schnitt"],1)},
+  {key:"wins", label:"Wins", num:true, render:r=>stFmt(r["wins"],0)},
+  {key:"podium", label:"Podium", num:true, render:r=>stFmt(r["podium"],0)},
+  {key:"top10", label:"Top 10", num:true, render:r=>stFmt(r["top10"],0)},
+  {key:"totd", label:"TOTD", num:true, render:r=>stFmt(r["totd"],0)},
+  {key:"iotd", label:"IOTD", num:true, render:r=>stFmt(r["iotd"],0)},
+  stRatingCol("rating","Rating"),
+];
+
+let standingsDriversTable, standingsTeamsTable;
+const standingsSeasonSel = stInitCustomSelect("standingsSeasonSelect", "Choose a season");
+standingsSeasonSel.setOptions([{value:"S10", label:"Season 10 (current)"}]);
+standingsSeasonSel.setValue("S10");
+
+function loadStandingsSeason(){
+  const s = standingsSeasonSel.getValue() || "S10";
+  const isCurrent = s === "S10";
+  const drows = isCurrent ? SEASON10_DRIVERS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.driversSeason.filter(r=>r.season===s) : []);
+  const trows = isCurrent ? SEASON10_TEAMS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.teamsSeason.filter(r=>r.season===s) : []);
+  standingsDriversTable = stMakeSortableTable(document.getElementById("tblStandingsDrivers"), drows, driverFullCols, {
+    defaultSort:"platz", defaultDir:"asc",
+    onRender:n=>document.getElementById("standingsSeasonCount").textContent = n + " drivers" + (isCurrent ? "" : " in " + s)
+  });
+  standingsTeamsTable = stMakeSortableTable(document.getElementById("tblStandingsTeams"), trows, teamFullCols, {
+    defaultSort:"platz", defaultDir:"asc"
+  });
+}
+standingsSeasonSel.onChange(loadStandingsSeason);
+loadStandingsSeason();
+
+// ---- Load past seasons from the xlsx in the background (non-blocking —
+// see the comment at the top of this script block) ----
+(async function loadPastStandingsSeasons(){
+  try {
+    const resp = await fetch(STANDINGS_XLSX_PATH, {cache:"no-store"});
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const buf = await resp.arrayBuffer();
+    const wb = XLSX.read(buf, {type:"array"});
+    const sheetToObjects = (name) => {
+      const ws = wb.Sheets[name];
+      return ws ? XLSX.utils.sheet_to_json(ws, {defval:""}) : [];
+    };
+    const driversSeason = sheetToObjects("Drivers_by_Season").map(r=>({...r, season:String(r.season)}));
+    const teamsSeason = sheetToObjects("Teams_by_Season").map(r=>({...r, season:String(r.season)}));
+    STANDINGS_SEASON_DATA = {driversSeason, teamsSeason};
+    const pastSeasons = Array.from(new Set(driversSeason.map(r=>r.season))).filter(Boolean).sort().reverse();
+    standingsSeasonSel.setOptions(
+      [{value:"S10", label:"Season 10 (current)"}].concat(pastSeasons.map(s=>({value:s, label:s})))
+    );
+  } catch(e){
+    // No past-season data available right now (e.g. opened directly from
+    // disk instead of hosted) — Season 10 stays the only option, and the
+    // rest of the page already works fine without it.
+  }
+})();
 </script>
 <script>
 // Content fade-on-scroll (2026-08-03) — keeps the .fade-content mask's

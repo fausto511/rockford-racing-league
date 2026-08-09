@@ -2,6 +2,9 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rockford Racing League — Schedule</title>
 <meta name="robots" content="noindex, nofollow">
@@ -548,14 +551,29 @@
   .race-card.live{ border-color:rgba(226,28,43,.55); }
   .race-card.completed{ opacity:.55; }
   /* 2026-08-08: uniform placeholder photo (same file on all 15 cards —
-     we don't have per-track photos) instead of the flag-gradient
-     placeholder + "Track TBA" label. 2026-08-09: dropped the tint gradient
-     over the photo — that was only there to add interest to the old empty
-     placeholder; a real photo doesn't need it. */
+     we don't have per-track photos). 2026-08-09: dropped the tint gradient
+     over the photo — a real photo doesn't need one on its own. 2026-08-09
+     (later, same day): brought the "Track TBA" icon+label back on top of
+     the photo per explicit feedback — tracks genuinely aren't announced
+     yet, so the photo alone was misleading. A light, flat dark tint
+     (not a gradient) keeps the label legible while leaving the photo
+     clearly recognisable underneath. */
   .race-card-img{
-    height:100px;
+    position:relative; height:100px; overflow:hidden;
     background:url('assets/backgrounds/race-card-bg.jpg');
     background-size:cover; background-position:center; background-repeat:no-repeat;
+  }
+  .race-card-img::before{
+    content:''; position:absolute; inset:0; background:rgba(11,12,16,.45);
+  }
+  .race-card-img-label{
+    position:relative; z-index:1; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  }
+  .race-card-img-label svg{ width:24px; height:24px; fill:none; stroke:rgba(245,246,248,.8); stroke-width:1.6; }
+  .race-card-img-label span{
+    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:rgba(245,246,248,.85); text-shadow:0 1px 4px rgba(0,0,0,.5);
   }
   .race-card-body{ padding:16px 18px 18px; }
   .race-round{
@@ -1130,11 +1148,17 @@ function formatCountdownFull(ms){
 }
 function pad2(n){ return String(n).padStart(2,'0'); }
 
+// 2026-08-09: track name isn't known until shortly before qualifying (per
+// the rules page) — the same flag/track icon + "Track TBA" label used
+// before the real photo backgrounds were added, now shown on top of the
+// photo instead of instead of it.
+const TRACK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4l16 5.5L4 15"/></svg>';
+
 function raceCardHtml(r){
   const localQ = formatLocalTime(new Date(r.qualifying).getTime());
   const wx = weatherPresentation(r.qualifying, r.end);
   return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">
-    <div class="race-card-img" aria-hidden="true"></div>
+    <div class="race-card-img"><div class="race-card-img-label">${TRACK_ICON}<span>Track TBA</span></div></div>
     <div class="race-card-body">
       <div class="race-round">Race ${r.round} of ${RACES.length}</div>
       <div class="race-date">${r.dateLabel}</div>

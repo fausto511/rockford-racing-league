@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rockford Racing League — GTA V Racing League</title>
 <meta name="robots" content="noindex, nofollow">
@@ -1023,13 +1026,15 @@
     {round:15, dateLabel:'Sun, Nov 22, 2026', qualifying:'2026-11-22T19:45:00+01:00', end:'2026-11-22T21:15:00+01:00'},
   ];
 
+  // 2026-08-09: always show seconds now (was dropped once days > 0),
+  // matching the always-4-unit countdown format used on schedule.html.
   function formatNextRaceCountdown(ms){
     const totalSec = Math.max(0, Math.floor(ms/1000));
     const d = Math.floor(totalSec/86400);
     const h = Math.floor((totalSec%86400)/3600);
     const m = Math.floor((totalSec%3600)/60);
-    if (d > 0) return `${d}d ${h}h ${m}m`;
     const s = totalSec%60;
+    if (d > 0) return `${d}d ${h}h ${m}m ${s}s`;
     if (h > 0) return `${h}h ${m}m ${s}s`;
     return `${m}m ${s}s`;
   }

@@ -2,6 +2,9 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rockford Racing League — Driver &amp; Team Stats</title>
 <meta name="robots" content="noindex, nofollow">
@@ -585,16 +588,21 @@
 </section>
 
 <div class="wrap">
+  <!-- 2026-08-09: reordered (All-Time Drivers / All-Time Teams / Season
+       View / Cups) with All-Time Drivers as the new default tab, on
+       explicit request — Season View now duplicates the dedicated
+       Standings page, so it no longer makes sense as the first thing a
+       visitor sees here. -->
   <nav class="tabs">
-    <button data-tab="season" class="active">Season View</button>
-    <button data-tab="alltime-drivers">All-Time Drivers</button>
+    <button data-tab="alltime-drivers" class="active">All-Time Drivers</button>
     <button data-tab="alltime-teams">All-Time Teams</button>
+    <button data-tab="season">Season View</button>
     <button data-tab="cups">Cups</button>
   </nav>
 
   <div class="kpis" id="kpis"></div>
 
-  <section class="panel active" id="panel-season">
+  <section class="panel" id="panel-season">
     <div class="toolbar">
       <div id="seasonSelect"></div>
       <input type="text" id="filterSeason" placeholder="Search driver or team…">
@@ -631,7 +639,7 @@
     </div>
   </section>
 
-  <section class="panel" id="panel-alltime-drivers">
+  <section class="panel active" id="panel-alltime-drivers">
     <div class="bar-wrap">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
         <h3 style="margin:0" id="topBarTitle">Top 10 by All-Time Points</h3>
