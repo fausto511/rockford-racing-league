@@ -460,16 +460,27 @@
     transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
   }
   .fv-tile.in-view{ opacity:1; transform:translateY(0); }
-  .fv-thumb-wrap{
-    position:relative; overflow:hidden; border-radius:20px; aspect-ratio:16/9;
-    /* Neutral dark placeholder gradient — stands in for a real video
-       thumbnail until one is provided; deliberately looks "empty", not
-       like a broken image. */
-    background:linear-gradient(135deg, rgba(245,246,248,.08), rgba(245,246,248,.02) 60%), var(--bg);
+  /* 2026-08-09: tiles are now one unified card (thumbnail + footer text on
+     a shared dark panel), per user reference screenshot — instead of the
+     thumbnail sitting on its own with plain page-background text below.
+     Also now backs a 10-video pool that rotates: 3 random videos shown per
+     page load, auto-advancing to a different 3 every ROTATE_INTERVAL_MS
+     (see the script block near the end of the page). */
+  .fv-tile-card{
+    position:relative; border-radius:20px; overflow:hidden;
+    background:rgba(245,246,248,.04);
     border:1px solid rgba(245,246,248,.12);
-    transition:border-color .3s ease;
+    transition:border-color .3s ease, opacity .35s ease;
   }
-  .fv-tile:hover .fv-thumb-wrap{ border-color:rgba(245,246,248,.28); }
+  .fv-tile:hover .fv-tile-card{ border-color:rgba(245,246,248,.28); }
+  .fv-tile-card.fv-fading{ opacity:.12; }
+  .fv-thumb-wrap{
+    position:relative; overflow:hidden; aspect-ratio:16/9;
+    /* Neutral dark placeholder gradient — shows while a thumbnail image is
+       still loading (or if one ever fails to load), so it never looks like
+       a broken image. */
+    background:linear-gradient(135deg, rgba(245,246,248,.08), rgba(245,246,248,.02) 60%), var(--bg);
+  }
   .fv-thumb-wrap img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
   /* Play badge — same white-circle-with-cutout-triangle recipe as the
      Media page's .media-play-badge (shared <mask id="playMask"> defined
@@ -484,13 +495,15 @@
     transition:transform .18s ease, opacity .18s ease;
   }
   .fv-tile:hover .fv-play svg{ transform:scale(1.08); opacity:1; }
+  .fv-tile-footer{ padding:16px 18px 18px; }
   .fv-title{
-    margin-top:22px; font-family:'Chakra Petch',sans-serif; font-weight:700;
-    text-transform:uppercase; letter-spacing:.04em; font-size:clamp(17px,2.1vw,21px);
-    color:var(--white);
+    margin:0; font-family:'Chakra Petch',sans-serif; font-weight:700;
+    text-transform:uppercase; letter-spacing:.04em; font-size:clamp(15px,1.8vw,18px);
+    color:var(--white); line-height:1.3;
   }
   .fv-text{
-    margin-top:10px; max-width:520px; color:var(--grey); font-size:14.5px; line-height:1.62;
+    margin:6px 0 0; color:var(--grey); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase;
+    font-family:'Chakra Petch',sans-serif; font-weight:600;
   }
   /* 2026-08-06: restyled from a pill button to a muted text link (matches
      .cmp-alltime-link on the Compare page) — two pill CTAs stacked right
@@ -904,28 +917,40 @@
   </div>
   <div class="fv-grid">
     <a class="fv-tile" href="https://www.youtube.com/watch?v=38PikMiKml8" target="_blank" rel="noopener">
-      <div class="fv-thumb-wrap">
-        <img src="https://img.youtube.com/vi/38PikMiKml8/hqdefault.jpg" alt="RRL20 Trailer thumbnail" loading="lazy">
-        <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+      <div class="fv-tile-card">
+        <div class="fv-thumb-wrap">
+          <img src="https://img.youtube.com/vi/38PikMiKml8/hqdefault.jpg" alt="RRL20 Trailer thumbnail" loading="lazy">
+          <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+        </div>
+        <div class="fv-tile-footer">
+          <h3 class="fv-title">RRL20 Trailer</h3>
+          <p class="fv-text">Trailer</p>
+        </div>
       </div>
-      <h3 class="fv-title">RRL20 Trailer</h3>
-      <p class="fv-text">Trailer</p>
     </a>
     <a class="fv-tile" href="https://www.youtube.com/watch?v=4bRgCF4QlNU" target="_blank" rel="noopener">
-      <div class="fv-thumb-wrap">
-        <img src="https://img.youtube.com/vi/4bRgCF4QlNU/hqdefault.jpg" alt="RRL22 - Race 4 Highlights thumbnail" loading="lazy">
-        <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+      <div class="fv-tile-card">
+        <div class="fv-thumb-wrap">
+          <img src="https://img.youtube.com/vi/4bRgCF4QlNU/hqdefault.jpg" alt="RRL22 - Race 4 Highlights thumbnail" loading="lazy">
+          <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+        </div>
+        <div class="fv-tile-footer">
+          <h3 class="fv-title">RRL22 - Race 4 Highlights</h3>
+          <p class="fv-text">Highlight</p>
+        </div>
       </div>
-      <h3 class="fv-title">RRL22 - Race 4 Highlights</h3>
-      <p class="fv-text">Highlight</p>
     </a>
     <a class="fv-tile" href="https://www.youtube.com/watch?v=vktXS1ain_Q" target="_blank" rel="noopener">
-      <div class="fv-thumb-wrap">
-        <img src="https://img.youtube.com/vi/vktXS1ain_Q/hqdefault.jpg" alt="Broughy Tiers Zerstört thumbnail" loading="lazy">
-        <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+      <div class="fv-tile-card">
+        <div class="fv-thumb-wrap">
+          <img src="https://img.youtube.com/vi/vktXS1ain_Q/hqdefault.jpg" alt="Broughy Tiers Zerstört thumbnail" loading="lazy">
+          <span class="fv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--white)" mask="url(#playMask)"/></svg></span>
+        </div>
+        <div class="fv-tile-footer">
+          <h3 class="fv-title">Broughy Tiers Zerstört</h3>
+          <p class="fv-text">Special</p>
+        </div>
       </div>
-      <h3 class="fv-title">Broughy Tiers Zerstört</h3>
-      <p class="fv-text">Special</p>
     </a>
   </div>
   <div class="fv-more">
@@ -1356,8 +1381,86 @@
     }
   })();
 
+  // Featured Videos rotation (2026-08-09, user request): 10-video pool —
+  // the original 3 plus 7 full-race videos the user supplied — 3 shown per
+  // page load (randomized, no repeats within a draw), auto-advancing to a
+  // different 3 every ROTATE_INTERVAL_MS. Real YouTube IDs/titles from the
+  // user, nothing invented. Thumbnails load straight from YouTube's own
+  // CDN (img.youtube.com/vi/<id>/hqdefault.jpg) — no local image files.
+  // Runs before the reveal-on-scroll IIFE below so the first paint already
+  // shows a random selection, not the hardcoded HTML fallback.
+  (function initFeaturedVideoRotation(){
+    const FEATURED_VIDEOS = [
+      {id:"38PikMiKml8", title:"RRL20 Trailer", tag:"Trailer"},
+      {id:"4bRgCF4QlNU", title:"RRL22 - Race 4 Highlights", tag:"Highlight"},
+      {id:"vktXS1ain_Q", title:"Broughy Tiers Zerstört", tag:"Special"},
+      {id:"hkX3DvV4bB8", title:"RRL25 - Race 9", tag:"Race"},
+      {id:"VFTQ7yz6n40", title:"RRL24 - Race 8", tag:"Race"},
+      {id:"G_X9WPZzV_Y", title:"RRL25 - Race 4", tag:"Race"},
+      {id:"YlOcjmhYbPA", title:"RRL25 - Race 6", tag:"Race"},
+      {id:"nzYD5z8ycoE", title:"RRL24 - Race 3", tag:"Race"},
+      {id:"2TbSOokBI-0", title:"RRL25 - Race 7", tag:"Race"},
+      {id:"jdkd-doIunE", title:"RRL24 - Race 13", tag:"Race"},
+    ];
+    const ROTATE_INTERVAL_MS = 8000;
+
+    const tiles = Array.from(document.querySelectorAll('.fv-tile'));
+    if (!tiles.length) return;
+
+    function shuffle(arr){
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Hand out 3 indices at a time from a shuffled draw of all 10, so a
+    // video never repeats until the whole pool has been shown once.
+    let order = shuffle(FEATURED_VIDEOS.map((_, i) => i));
+    let pos = 0;
+    function nextBatch(){
+      if (pos + tiles.length > order.length){
+        order = shuffle(FEATURED_VIDEOS.map((_, i) => i));
+        pos = 0;
+      }
+      const batch = order.slice(pos, pos + tiles.length);
+      pos += tiles.length;
+      return batch;
+    }
+
+    function renderBatch(indices){
+      indices.forEach((videoIdx, slot) => {
+        const tile = tiles[slot];
+        if (!tile) return;
+        const v = FEATURED_VIDEOS[videoIdx];
+        const img = tile.querySelector('.fv-thumb-wrap img');
+        const titleEl = tile.querySelector('.fv-title');
+        const textEl = tile.querySelector('.fv-text');
+        tile.href = "https://www.youtube.com/watch?v=" + v.id;
+        if (img){ img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg"; img.alt = v.title + " thumbnail"; }
+        if (titleEl) titleEl.textContent = v.title;
+        if (textEl) textEl.textContent = v.tag;
+      });
+    }
+
+    renderBatch(nextBatch());
+
+    if (reduceMotion) return; // no continual auto-rotation for reduced-motion users
+
+    setInterval(() => {
+      const cards = tiles.map(t => t.querySelector('.fv-tile-card')).filter(Boolean);
+      cards.forEach(c => c.classList.add('fv-fading'));
+      setTimeout(() => {
+        renderBatch(nextBatch());
+        cards.forEach(c => c.classList.remove('fv-fading'));
+      }, 350);
+    }, ROTATE_INTERVAL_MS);
+  })();
+
   // Featured Video (2026-08-04): same fade+rise-once pattern as the USP
-  // tiles above (see initFinale) — heading first, then the two tiles,
+  // tiles above (see initFinale) — heading first, then the three tiles,
   // staggered 120ms apart.
   (function initFeaturedVideo(){
     const head = document.querySelector('.fv-head');
