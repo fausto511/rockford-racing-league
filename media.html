@@ -69,24 +69,49 @@
   .burger{display:none; background:none; border:none; cursor:pointer;}
   .burger span{display:block; width:22px; height:2px; background:var(--white); margin:5px 0;}
 
-  /* ---------- Hero: real background photo (reuses the same trailer frame
-     as the Homepage finale), modeled on the reference layout the user gave
-     (rockstargames.com/VI/media — big photo hero, rows of tiles below).
-     Structurally the same recipe as the Team-Detailseite's .team-hero
-     (bg + scrim + centered text), just without the logo/status/stat-bar
-     pieces this page doesn't need. ---------- */
+  /* ---------- Hero: real background video, modeled on the reference layout
+     the user gave (rockstargames.com/VI/media — big photo hero, rows of
+     tiles below). Structurally the same recipe as the Team-Detailseite's
+     .team-hero (bg + scrim + centered text), just without the
+     logo/status/stat-bar pieces this page doesn't need.
+
+     2026-08-10 (user report, 2nd pass): the previous "let the video bleed
+     past the hero's own box into the Featured Races section" approach
+     (.media-top-visual sitting behind the content, video/scrim taller than
+     the hero and overflowing into the next section) caused a visible hard
+     seam/stripe where the video's own rectangular bottom edge fell across
+     the page, and needed z-index gymnastics to keep Featured Races' own
+     heading readable above it. User's fix instruction: "mach's einfach
+     genau wie auf der Homepage" — so this now mirrors main.hero/.bg-layer
+     exactly: video+scrim live INSIDE .media-hero (position:relative,
+     overflow:hidden), fully self-contained, nothing overflows into the
+     next section. The video itself (not just the scrim) now carries its
+     own mask-image fading it to transparent before the hero's bottom edge
+     (same 0%/48%/92% stops as .bg-layer on index.html) — that's what
+     avoids the old hard-cut: by the time the scrim reaches full opacity at
+     100%, the video underneath has already faded to nothing, so there's no
+     sudden edge to see. Featured Races begins in plain, unfaded flow
+     directly after, exactly like the homepage's next section after
+     main.hero. --hero-h controls both the video/scrim height and the
+     hero's own min-height from one place so they can't drift out of sync
+     (kept as explicit vh rather than % on the children, since % sizing on
+     an absolutely-positioned child needs a definite-height ancestor and
+     min-height alone doesn't reliably count as one — bit us earlier in
+     this same rebuild). */
   .media-hero{
-    position:relative; min-height:56vh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center;
-    padding:170px 24px 56px; overflow:hidden; z-index:2;
+    position:relative; overflow:hidden; z-index:2; text-align:center;
+    --hero-h:38vh;
+    min-height:var(--hero-h);
+    padding:140px 24px 40px;
   }
   .media-hero-bg{
-    position:absolute; inset:-4%; z-index:0;
-    width:calc(100% + 8%); height:calc(100% + 8%);
-    object-fit:cover; object-position:center 40%;
-    /* No filter at all — matches the homepage's TOP hero slideshow (.bg-slide),
-       which shows its photos at full, unfiltered brightness. User specifically
-       meant that top slideshow, not the finale section further down. */
+    position:absolute; top:0; left:0; width:100%; height:var(--hero-h);
+    object-fit:cover; object-position:center 40%; z-index:0; transform:scale(1.04);
+    -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 48%, transparent 92%);
+    mask-image:linear-gradient(to bottom, #000 0%, #000 48%, transparent 92%);
+    /* No filter/darkening on the video itself beyond the mask fade — matches
+       the homepage's TOP hero slideshow (.bg-slide), full unfiltered
+       brightness. The 1.04 scale is a small safety margin against edge gaps. */
   }
   /* 2026-08-06: hero swapped from a static photo to a looping background
      video, as a trial (user's words: "können wir das mal ausprobieren, wie
@@ -101,11 +126,17 @@
      (no separate browser caching, no progressive buffering, and it would
      have bloated this page by ~4MB on every load). */
   .media-hero-scrim{
-    position:absolute; inset:0; z-index:1;
-    /* Same single linear gradient as the homepage top hero's .scrim (no radial
-       vignette) — lighter overall than the finale-style scrim tried before. */
-    background:
-      linear-gradient(180deg, rgba(11,12,16,.75) 0%, rgba(11,12,16,.35) 32%, rgba(11,12,16,.6) 70%, rgba(11,12,16,1) 100%);
+    position:absolute; top:0; left:0; width:100%; height:var(--hero-h); z-index:1;
+    /* Same monotonic curve as index.html's .scrim — lighter at the top
+       (.32, more of the video visible), reaching full opacity only at the
+       hero's own bottom edge (100%), which by then overlaps the
+       already-transparent tail of the video's mask above. */
+    background: linear-gradient(180deg,
+      rgba(11,12,16,.32) 0%,
+      rgba(11,12,16,.38) 22%,
+      rgba(11,12,16,.58) 50%,
+      rgba(11,12,16,.84) 78%,
+      rgba(11,12,16,1) 100%);
   }
   .media-hero .eyebrow{
     position:relative; z-index:2; font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:13px;
@@ -156,7 +187,9 @@
     font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
     font-size:clamp(24px,3vw,32px); letter-spacing:.02em; margin:0;
   }
-  .media-row .sub{ color:var(--grey); font-size:13px; margin:2px 0 18px; max-width:850px; }
+  .media-row .sub{
+    color:var(--grey); font-size:13px; margin:2px 0 18px; max-width:850px;
+  }
 
   .media-carousel-wrap{ position:relative; }
   .media-track{
@@ -346,7 +379,9 @@
     header{padding:14px 18px;}
     nav.desktop-nav{display:none;} .burger{display:block;}
     .wrap{padding:0 16px 20px;}
-    .media-hero{padding:120px 20px 40px; min-height:44vh;}
+    /* Shorter visual layer on mobile — the video never actually loads
+       here (see initHeroVideo(), ≤760px keeps the static poster). */
+    .media-hero{ --hero-h:32vh; padding:100px 20px 20px; }
     /* 2026-08-10 (user feedback): show ~2.5 cards per row on mobile (2 full
        + a peek of the 3rd) instead of a fixed 210px card — same "there's
        more" cue as YouTube's mobile rows, which makes the arrow buttons
