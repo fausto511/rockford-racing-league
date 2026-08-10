@@ -344,7 +344,9 @@
   }
   .dropdown-menu a:hover, .dropdown-menu a:focus-visible{ background:rgba(245,246,248,.08); color:var(--cyan); }
   .dropdown-menu a.current{ color:var(--red); }
-  .dropdown-menu .ext-icon{ font-size:11px; opacity:.65; }
+  .ext-icon{ display:inline-flex; align-items:center; vertical-align:-1px; }
+  .ext-icon svg{ width:11px; height:11px; display:block; }
+  .dropdown-menu .ext-icon{ opacity:.65; }
 
   /* ---------- Content fade-on-scroll (2026-08-03) — prevents page content
      from visually clashing with the header's semi-transparent background
@@ -444,8 +446,8 @@
       <a href="resources.html" class="dropdown-trigger">Resources <span class="chevron" aria-hidden="true"></span></a>
       <div class="dropdown-menu">
         <a href="resources.html">Rules</a>
-        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon">↗</span></a>
-        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon">↗</span></a>
+        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
         <a href="rainforecast.html">Rain Forecast</a>
         <a href="faq.html">FAQ</a>
       </div>
@@ -467,8 +469,8 @@
   <div class="mobile-nav-group">
     <span class="mobile-nav-heading">Resources</span>
     <a href="resources.html">Rules</a>
-    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes ↗</a>
-    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks ↗</a>
+    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
     <a href="rainforecast.html">Rain Forecast</a>
     <a href="faq.html">FAQ</a>
   </div>

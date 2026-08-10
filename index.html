@@ -374,6 +374,27 @@
   }
   @media (max-width: 600px){
     .testi-page{ grid-template-columns:minmax(0,340px); }
+    /* 2026-08-10 (user report, verified): the mobile carousel had no
+       physical scroll track — .testi-stage stacked every .testi-page on
+       top of itself (grid-area:1/1) and pages crossfaded via opacity; the
+       touchstart/touchend handler below just measured swipe distance and
+       jumped a page, same as clicking a dot. Nothing tracked the finger, so
+       it felt like a trigger, not a drag. Below 600px (where pageSize() is
+       1 — one card per page) this switches to a real horizontally
+       scrollable, snapping row instead, same technique already used for
+       the Featured Videos/Media/team-photo rows on this site — dragging is
+       then handled natively by the browser. Desktop (2-3 cards/page,
+       click-only dots) is untouched. */
+    .testi-stage{
+      display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none;
+    }
+    .testi-stage::-webkit-scrollbar{ display:none; height:0; }
+    .testi-page{
+      grid-area:auto; flex:0 0 100%; scroll-snap-align:start;
+      opacity:1 !important; visibility:visible !important; z-index:auto;
+    }
+    .testi-card{ opacity:1 !important; transform:none !important; }
   }
 
   /* ---------- USP tiles: replaces the old video/logo Season-10 finale
@@ -560,6 +581,26 @@
     }
     .fv-grid::-webkit-scrollbar{ display:none; height:0; }
     .fv-tile{ flex:0 0 calc((100vw - 48px - 32px) / 2.5); scroll-snap-align:start; }
+    /* 2026-08-10 (user report, verified): mobile tiles looked noticeably
+       more "portrait" than the equivalent cards on the Media page, even
+       though both use the identical 16/9 thumbnail aspect-ratio — measured
+       with Playwright, the difference was entirely in the footer text
+       block (more padding + a bigger title here). Shrinking padding/font
+       to match Media's .cap/.title/.meta metrics closes most of the gap;
+       matching card proportions verified at 124x130px here vs. 130x139px
+       on Media (was 124x164px before this fix).
+       min-width:0 is required, not cosmetic: once the title is forced to
+       one line below, its un-wrapped text becomes wider than the intended
+       124px flex-basis, and a flex item's automatic minimum size defaults
+       to its content's min-content width — without min-width:0 that pushes
+       the tile wider than intended (measured 132px instead of 124px). */
+    .fv-tile{ min-width:0; }
+    .fv-tile-footer{ padding:12px 14px 14px; }
+    .fv-title{
+      font-size:13px; letter-spacing:.01em;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .fv-text{ margin-top:4px; font-size:11px; }
   }
 
   /* Wraps the CTA + social row below the tile grid so they can be centered
@@ -686,7 +727,17 @@
     nav.desktop-nav{display:none;} .burger{display:block;}
   }
   @media (max-width: 480px){
-    header{padding:14px 18px;} main.hero{padding:126px 18px 60px;}
+    /* 2026-08-10 (user report, verified): on short mobile viewports (~700px
+       visible height or less — most phones once the browser chrome is
+       counted) main.hero's min-height:100vh grows to fit its content
+       instead of clipping, and .scroll-cue (position:absolute; bottom:22px)
+       hangs off the hero's own bottom edge, not off .stat-bar. That makes
+       the gap between the three stat numbers and the "Scroll" hint depend
+       only on this padding-bottom value, not on anything above the stats —
+       measured a real overlap at 60px (stat numbers under the "Scroll"
+       text). Raised to 92px, which keeps a ~24px+ gap even at the shortest
+       tested heights. */
+    header{padding:14px 18px;} main.hero{padding:126px 18px 92px;}
     .eyebrow{font-size:11px; letter-spacing:.18em;}
     section.testimonials{padding:56px 18px 34px;}
   }
@@ -734,7 +785,9 @@
   }
   .dropdown-menu a:hover, .dropdown-menu a:focus-visible{ background:rgba(245,246,248,.08); color:var(--cyan); }
   .dropdown-menu a.current{ color:var(--red); }
-  .dropdown-menu .ext-icon{ font-size:11px; opacity:.65; }
+  .ext-icon{ display:inline-flex; align-items:center; vertical-align:-1px; }
+  .ext-icon svg{ width:11px; height:11px; display:block; }
+  .dropdown-menu .ext-icon{ opacity:.65; }
 
   /* ---------- Content fade-on-scroll (2026-08-03) — prevents page content
      from visually clashing with the header's semi-transparent background
@@ -828,8 +881,8 @@
       <a href="resources.html" class="dropdown-trigger">Resources <span class="chevron" aria-hidden="true"></span></a>
       <div class="dropdown-menu">
         <a href="resources.html">Rules</a>
-        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon">↗</span></a>
-        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon">↗</span></a>
+        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
         <a href="rainforecast.html">Rain Forecast</a>
         <a href="faq.html">FAQ</a>
       </div>
@@ -851,8 +904,8 @@
   <div class="mobile-nav-group">
     <span class="mobile-nav-heading">Resources</span>
     <a href="resources.html">Rules</a>
-    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes ↗</a>
-    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks ↗</a>
+    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
     <a href="rainforecast.html">Rain Forecast</a>
     <a href="faq.html">FAQ</a>
   </div>
@@ -1350,11 +1403,32 @@
     function pagesEls(){ return Array.from(stage.querySelectorAll('.testi-page')); }
     function dotsEls(){ return Array.from(dotsWrap.children); }
 
+    // 2026-08-10 (user report, verified): below 600px there's exactly one
+    // card per page (see pageSize() above), and that's the breakpoint where
+    // .testi-stage switches to a real horizontally-scrollable snap row (see
+    // the CSS above) instead of crossfading stacked layers — this flag
+    // picks which behavior show()/the touch handler below should use.
+    function isMobileSwipeMode(){ return window.matchMedia('(max-width:600px)').matches; }
+
+    // True while a scrollTo() we triggered ourselves (show(), in mobile
+    // swipe mode) is still animating, so the scroll listener below doesn't
+    // mistake our own smooth-scroll for a manual drag and fight it.
+    let programmaticScroll = false;
+
     function show(i){
       const pages = pagesEls(), dots = dotsEls();
-      pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
-      dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
       current = i;
+      if(isMobileSwipeMode()){
+        programmaticScroll = true;
+        stage.scrollTo({ left: i * stage.clientWidth, behavior: 'smooth' });
+        // scrollend isn't available on every mobile browser yet — a short
+        // timeout is a safe enough fallback to clear the flag again.
+        clearTimeout(show._clearTimer);
+        show._clearTimer = setTimeout(() => { programmaticScroll = false; }, 500);
+      } else {
+        pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
+      }
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
     }
     function goTo(i){ const pages = pagesEls(); show((i + pages.length) % pages.length); }
     function next(){ goTo(current + 1); }
@@ -1363,18 +1437,44 @@
     function stop(){ if(timer){ clearInterval(timer); timer = null; } }
     function restart(){ start(); }
 
+    // Syncs current/dots after a manual drag in mobile swipe mode (native
+    // scroll — nothing here calls scrollTo, that would fight the user's own
+    // gesture). Debounced so it only settles once scrolling actually stops.
+    let scrollSyncTimer = null;
+    stage.addEventListener('scroll', () => {
+      if(!isMobileSwipeMode() || programmaticScroll) return;
+      clearTimeout(scrollSyncTimer);
+      scrollSyncTimer = setTimeout(() => {
+        const width = stage.clientWidth;
+        if(!width) return;
+        const idx = Math.round(stage.scrollLeft / width);
+        if(idx !== current){
+          current = idx;
+          dotsEls().forEach((d, i) => d.classList.toggle('active', i === idx));
+        }
+        restart();
+      }, 120);
+    }, { passive: true });
+
     // 2026-08-10 (user feedback): the cards weren't swipeable on mobile —
     // only the dots could change page. Pages crossfade rather than scroll
     // physically, so this is threshold-based (not a live drag): a touch that
     // moves clearly more horizontally than vertically past 40px advances or
     // reverses one page, same as clicking a dot. passive:true and no
     // preventDefault, so normal vertical page-scrolling is never intercepted.
+    // 2026-08-10 (later same day, user report): superseded on mobile by the
+    // native scroll-snap row above — this threshold-jump would otherwise
+    // double-fire alongside a real drag once the finger passes 40px. Left
+    // in place for desktop-with-touchscreen edge cases (pageSize > 1, where
+    // there's no physical scroll track and this is still the only way to
+    // swipe between pages).
     let touchStartX = 0, touchStartY = 0;
     stage.addEventListener('touchstart', (e) => {
       const t = e.changedTouches[0];
       touchStartX = t.clientX; touchStartY = t.clientY;
     }, { passive: true });
     stage.addEventListener('touchend', (e) => {
+      if(isMobileSwipeMode()) return;
       const t = e.changedTouches[0];
       const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
       if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){

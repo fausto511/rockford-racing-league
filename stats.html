@@ -232,12 +232,6 @@
   .subpanel{display:none;}
   .subpanel.active{display:block;}
 
-  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:26px; position:relative; z-index:2;}
-  .kpi{background:var(--surface-1); border:1px solid rgba(245,246,248,.09); border-radius:18px; padding:18px 20px;}
-  .kpi .val{font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:.01em; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .kpi .kpi-sub{font-size:12.5px; color:var(--text-secondary); margin-top:3px;}
-  .kpi .lbl{font-family:'Chakra Petch',sans-serif; font-size:11px; color:var(--text-muted); margin-top:8px; text-transform:uppercase; letter-spacing:.05em;}
-
   .panel{display:none; position:relative; z-index:2;}
   .panel.active{display:block;}
 
@@ -413,8 +407,7 @@
     /* Was previously one big pill-shaped flex container that wrapped its 4
        buttons onto two lines (looked like an oversized blob). Now each tab
        is its own individual pill in a fixed 2-column grid — always a clean
-       2x2 (now 2x3 with the Cups tab still 4 total, unaffected by the KPI
-       tile-count change below), never a lopsided wrap. */
+       2x2 (now 2x3 with the Cups tab still 4 total), never a lopsided wrap. */
     nav.tabs{
       display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; width:100%;
       background:none; border:none; padding:0; border-radius:0;
@@ -424,16 +417,6 @@
       background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.14); border-radius:999px;
     }
     nav.tabs button.active{border-color:var(--red);}
-    /* KPI tiles: expanded from 4 to 6 (2026-07-27, user's own choice between
-       "6 tiles" or "remove entirely" — 6 divides evenly into a fixed 2-col
-       grid with no lone leftover tile in the last row, unlike the old
-       auto-fit(140px) which could leave an odd single wide tile depending on
-       viewport width). */
-    /* minmax(0,1fr), not plain 1fr — a long driver/team name in one tile
-       must not push that column wider than its neighbor; both columns need
-       to stay perfectly even regardless of content length. */
-    .kpis{grid-template-columns:repeat(2, minmax(0,1fr));}
-    .kpi .val{font-size:22px;}
     .bar-row{grid-template-columns:96px 1fr 46px;}
   }
 
@@ -468,7 +451,9 @@
   }
   .dropdown-menu a:hover, .dropdown-menu a:focus-visible{ background:rgba(245,246,248,.08); color:var(--cyan); }
   .dropdown-menu a.current{ color:var(--red); }
-  .dropdown-menu .ext-icon{ font-size:11px; opacity:.65; }
+  .ext-icon{ display:inline-flex; align-items:center; vertical-align:-1px; }
+  .ext-icon svg{ width:11px; height:11px; display:block; }
+  .dropdown-menu .ext-icon{ opacity:.65; }
   /* ---------- Content fade-on-scroll (2026-08-03) — prevents page content
      from visually clashing with the header's semi-transparent background
      while scrolling (user-reported issue). A CSS mask makes the content's
@@ -574,8 +559,8 @@
       <a href="resources.html" class="dropdown-trigger">Resources <span class="chevron" aria-hidden="true"></span></a>
       <div class="dropdown-menu">
         <a href="resources.html">Rules</a>
-        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon">↗</span></a>
-        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon">↗</span></a>
+        <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+        <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
         <a href="rainforecast.html">Rain Forecast</a>
         <a href="faq.html">FAQ</a>
       </div>
@@ -597,8 +582,8 @@
   <div class="mobile-nav-group">
     <span class="mobile-nav-heading">Resources</span>
     <a href="resources.html">Rules</a>
-    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes ↗</a>
-    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks ↗</a>
+    <a href="https://docs.google.com/spreadsheets/d/171gBsYMMfVy8OkA3f900sQH43mfRplt8pmWH2YTW1Hc/edit?usp=sharing" target="_blank" rel="noopener">Vehicle Classes <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
+    <a href="https://docs.google.com/spreadsheets/d/1iBJnL99auo67o0sz8e2xW78ZaDJw9DyhSvwLACN0MNA/edit?usp=sharing" target="_blank" rel="noopener">Tracks <span class="ext-icon"><svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg></span></a>
     <a href="rainforecast.html">Rain Forecast</a>
     <a href="faq.html">FAQ</a>
   </div>
@@ -628,8 +613,6 @@
     <button data-tab="season">Season View</button>
     <button data-tab="cups">Cups</button>
   </nav>
-
-  <div class="kpis" id="kpis"></div>
 
   <section class="panel" id="panel-season">
     <div class="toolbar">
@@ -1247,7 +1230,6 @@ async function init(){
 }
 
 function startApp(){
-renderKpis();
 renderTopBar();
 renderTopTeamBar();
 renderAllTimeDrivers();
@@ -1268,69 +1250,6 @@ function activateTabFromHash(){
   if (!id) return;
   const btn = document.querySelector(`nav.tabs button[data-tab="${id}"]`);
   if (btn) btn.click();
-}
-
-// ---------- KPI tiles ----------
-// Champion/record tiles instead of plain summary counts (2026-07-24, on user
-// request — the old counts "were nice info but had no real informational
-// value"). All six are computed live from the data, not hardcoded, so they
-// stay correct as new seasons/records are added.
-// Expanded from 4 to 6 tiles on 2026-07-27 (user's own choice, between
-// "add two more" or "remove the row entirely" — 6 divides evenly into a
-// fixed 2-column mobile grid with no lone leftover tile in the last row,
-// which is what made 4 tiles look bad when they wrapped on narrow/mid-width
-// viewports). The two new tiles reuse fields already shown elsewhere on
-// this page (All-Time "PODIUMS" and "C" = Championships), not invented.
-function renderKpis(){
-  const seasons = DATA.driversSeason.map(r=>r.season).filter(Boolean);
-  const latestSeason = seasons.length ? seasons.slice().sort((a,b)=>Number(a)-Number(b)).pop() : null;
-
-  const driverChampRow = latestSeason
-    ? DATA.driversSeason.find(r=>r.season===latestSeason && num(r.platz)===1)
-    : null;
-  const teamChampRow = latestSeason
-    ? DATA.teamsSeason.find(r=>r.season===latestSeason && num(r.platz)===1)
-    : null;
-
-  const pointsRecord = DATA.atDrivers.filter(r=>num(r["P"])!==null)
-    .sort((a,b)=>num(b["P"])-num(a["P"]))[0];
-  const winsRecord = DATA.atDrivers.filter(r=>num(r["WINS"])!==null)
-    .sort((a,b)=>num(b["WINS"])-num(a["WINS"]))[0];
-  const podiumsRecord = DATA.atDrivers.filter(r=>num(r["PODIUMS"])!==null)
-    .sort((a,b)=>num(b["PODIUMS"])-num(a["PODIUMS"]))[0];
-  const championshipsRecord = DATA.atDrivers.filter(r=>num(r["C"])!==null)
-    .sort((a,b)=>num(b["C"])-num(a["C"]))[0];
-
-  // 2026-07-28 (user request): down from 6 tiles to 4 — the two season-
-  // specific tiles ("Champion <season>" / "Team Champion <season>") are
-  // dropped, and the remaining 4 all-time-record tiles are reordered so
-  // "Most Championships" (previously last) now comes first, followed by
-  // Points/Win/Podium record in their original relative order.
-  const kpis = [
-    {
-      val: championshipsRecord ? championshipsRecord["DRIVER"] : "–",
-      sub: championshipsRecord ? fmt(championshipsRecord["C"],0) + " titles" : "",
-      lbl: "Most Championships"
-    },
-    {
-      val: pointsRecord ? pointsRecord["DRIVER"] : "–",
-      sub: pointsRecord ? fmt(pointsRecord["P"],0) + " pts" : "",
-      lbl: "All-Time Points Record"
-    },
-    {
-      val: winsRecord ? winsRecord["DRIVER"] : "–",
-      sub: winsRecord ? fmt(winsRecord["WINS"],0) + " wins" : "",
-      lbl: "All-Time Win Record"
-    },
-    {
-      val: podiumsRecord ? podiumsRecord["DRIVER"] : "–",
-      sub: podiumsRecord ? fmt(podiumsRecord["PODIUMS"],0) + " podiums" : "",
-      lbl: "All-Time Podium Record"
-    },
-  ];
-  document.getElementById("kpis").innerHTML = kpis.map(k=>
-    `<div class="kpi"><div class="val">${k.val}</div>${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ""}<div class="lbl">${k.lbl}</div></div>`
-  ).join("");
 }
 
 // ---------- Top 10 bar chart (All-Time drivers, switchable metric) ----------
