@@ -623,6 +623,13 @@
     color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
     font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 16px;
     border-radius:999px; border:1px solid rgba(245,246,248,.28); transition:all .18s ease;
+    /* 2026-08-10 (user feedback): text sat slightly high in the pill.
+       Tested several line-height values against the actual rendered glyph
+       box (not just the CSS line box): the inherited numeric line-height
+       left a small asymmetry, and line-height:1 made it slightly worse —
+       line-height:normal (uses the font's own metrics instead of an
+       arbitrary multiplier) is what measured perfectly symmetric. */
+    line-height:normal;
   }
   .race-join-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
 
@@ -687,6 +694,7 @@
     color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
     font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 16px;
     border-radius:999px; border:1px solid rgba(245,246,248,.28); transition:all .18s ease;
+    line-height:normal;
   }
   .nrh-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
   .nrh-media{ position:relative; }

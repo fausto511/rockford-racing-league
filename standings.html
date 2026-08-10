@@ -207,6 +207,21 @@
     font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
     font-size:20px; letter-spacing:.02em; margin:0 0 14px;
   }
+  .table-card{ scrollbar-width:none; -ms-overflow-style:none; -webkit-overflow-scrolling:touch; }
+  .table-card::-webkit-scrollbar{ display:none; height:0; }
+  /* 2026-08-10 (user feedback): replaces the native scrollbar with the
+     same thin progress-track/cyan-thumb marker used on the Team page's
+     Season History table — nicer-looking and always visible, not just
+     while actively scrolling. Shown at every width, not just mobile,
+     since these tables scroll on desktop too (too many columns to fit). */
+  .scroll-indicator{ margin-top:10px; }
+  .scroll-indicator .track{
+    height:4px; background:rgba(245,246,248,.12); border-radius:2px; overflow:hidden;
+  }
+  .scroll-indicator .thumb{
+    height:100%; width:30%; background:var(--cyan); border-radius:2px;
+    transform:translateX(0); will-change:transform;
+  }
   .season-table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
   .season-table th{
     text-align:left; padding:8px 10px; font-family:'Chakra Petch',sans-serif; font-size:10.5px;
@@ -566,11 +581,13 @@
       <div class="table-card">
         <table class="season-table" id="tblStandingsDrivers"></table>
       </div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsDrivers"></div></div></div>
     </div>
     <div class="subpanel" id="panel-teams">
       <div class="table-card">
         <table class="season-table" id="tblStandingsTeams"></table>
       </div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsTeams"></div></div></div>
     </div>
   </section>
 
@@ -634,6 +651,14 @@ document.querySelectorAll('.subtabs button').forEach(btn=>{
     document.querySelectorAll('.subpanel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-'+btn.dataset.subtab).classList.add('active');
+    // Re-measure the scroll-indicator thumbs: the panel that just became
+    // visible may hold a table whose thumb was never correctly sized while
+    // hidden (update() no-ops when its track has zero width). Both update
+    // functions are defined further down this page but already exist by
+    // the time a real click happens (classic scripts share global scope).
+    if (typeof updateStandingsDriversThumb === "function" && typeof updateStandingsTeamsThumb === "function"){
+      requestAnimationFrame(() => { updateStandingsDriversThumb(); updateStandingsTeamsThumb(); });
+    }
   });
 });
 </script>
@@ -694,7 +719,7 @@ function stDriverCell(name){
 function stTeamCell(name){
   if (!name) return "–";
   const m = stTeamMeta(name);
-  return `<a class="team-cell" href="compare.html?type=team&amp;a=${encodeURIComponent(name)}"><span class="dot" style="background:${m.primary}"></span>${name}</a>`;
+  return `<a class="team-cell" href="compare.html?type=team&amp;a=${encodeURIComponent(name)}"><span class="dot" style="background:${m.primary}"></span>${m.name}</a>`;
 }
 
 // ---- Sortable table (verbatim port of the Stats page's component) ----
@@ -894,6 +919,46 @@ const teamFullCols = [
   stRatingCol("rating","Rating"),
 ];
 
+// ---- Scroll-position indicator (verbatim port of the Team page's Season
+// History track/thumb) — a thin progress track with a cyan thumb tracking
+// scroll position/width, replacing the native scrollbar. Generalized here
+// (the Team page version was wired to one fixed table) since Standings has
+// two tables and Stats has several more using this same pattern. Returns
+// the update function so callers can force a re-check after rebuilding a
+// table's contents (e.g. on season switch). */
+function stWireScrollThumb(cardEl, thumbEl){
+  if (!cardEl || !thumbEl) return function(){};
+  function update(){
+    const track = thumbEl.parentElement;
+    const trackWidth = track.clientWidth;
+    if (trackWidth === 0) return;
+    const scrollable = cardEl.scrollWidth > cardEl.clientWidth + 1;
+    if (!scrollable){
+      thumbEl.style.width = '100%';
+      thumbEl.style.transform = 'translateX(0)';
+      return;
+    }
+    const thumbWidthPx = Math.max(24, trackWidth * (cardEl.clientWidth / cardEl.scrollWidth));
+    const maxScroll = cardEl.scrollWidth - cardEl.clientWidth;
+    const scrollFrac = maxScroll > 0 ? cardEl.scrollLeft / maxScroll : 0;
+    thumbEl.style.width = thumbWidthPx + 'px';
+    thumbEl.style.transform = `translateX(${scrollFrac * (trackWidth - thumbWidthPx)}px)`;
+  }
+  cardEl.addEventListener('scroll', update, {passive:true});
+  cardEl.addEventListener('touchmove', update, {passive:true});
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  if (document.fonts && document.fonts.ready){ document.fonts.ready.then(update).catch(()=>{}); }
+  update();
+  return update;
+}
+const updateStandingsDriversThumb = stWireScrollThumb(
+  document.getElementById("tblStandingsDrivers").closest(".table-card"), document.getElementById("thumbStandingsDrivers")
+);
+const updateStandingsTeamsThumb = stWireScrollThumb(
+  document.getElementById("tblStandingsTeams").closest(".table-card"), document.getElementById("thumbStandingsTeams")
+);
+
 let standingsDriversTable, standingsTeamsTable;
 const standingsSeasonSel = stInitCustomSelect("standingsSeasonSelect", "Choose a season");
 standingsSeasonSel.setOptions([{value:"S10", label:"Season 10 (2026)"}]);
@@ -910,6 +975,8 @@ function loadStandingsSeason(){
   standingsTeamsTable = stMakeSortableTable(document.getElementById("tblStandingsTeams"), trows, teamFullCols, {
     defaultSort:"platz", defaultDir:"asc"
   });
+  updateStandingsDriversThumb();
+  updateStandingsTeamsThumb();
 }
 standingsSeasonSel.onChange(loadStandingsSeason);
 loadStandingsSeason();

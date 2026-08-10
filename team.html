@@ -410,7 +410,11 @@
     .stat-grid::-webkit-scrollbar, .roster-grid:not(.roster-grid-current)::-webkit-scrollbar{ display:none; height:0; }
     .stat-grid .stat-card{ flex:0 0 132px; scroll-snap-align:start; }
     .roster-grid:not(.roster-grid-current) .driver-card{ flex:0 0 148px; scroll-snap-align:start; }
-    .carousel-wrap .carousel-arrow{ display:flex; }
+    /* 2026-08-10 (user feedback): both strips above already show a peek of
+       the next card (fixed flex-basis narrower than the viewport), which
+       communicates "swipe for more" on its own — the arrow buttons on top
+       of that were redundant, so they stay hidden on mobile now (base rule
+       is display:none; this block used to re-enable them here). */
     .roster-grid-current{ display:flex; flex-wrap:wrap; gap:14px; }
     .roster-grid-current .driver-card{ flex:1 1 140px; }
 
@@ -420,9 +424,19 @@
     .history-wrap::-webkit-scrollbar{ display:none; height:0; }
     .history-scroll-indicator{ display:block; }
 
-    /* Photo Reel: only the first slot shows on mobile (fine on a narrow
-       screen) — desktop shows every populated slot (up to 5) side by side. */
-    .reel-slot:nth-child(n+2){ display:none; }
+    /* Photo Reel (2026-08-10, user feedback): was "first slot only, rest
+       hidden" — teams with multiple photos (e.g. Redwood) had no way to
+       see them on mobile at all. Now a horizontally-swipeable strip sized
+       so ~2.5 photos are visible (2 full + a peek of the 3rd), same cue as
+       the video rows elsewhere; no dots, the peek alone signals swipe.
+       Desktop is untouched (explicit user request) — still every photo
+       shown side by side, no scrolling. */
+    .photo-reel{
+      overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none; padding-bottom:2px;
+    }
+    .photo-reel::-webkit-scrollbar{ display:none; height:0; }
+    .reel-slot{ flex:0 0 calc((100vw - 64px) / 2.5); scroll-snap-align:start; }
   }
 
   /* ---------- Resources nav dropdown (2026-08-03) — desktop hover +

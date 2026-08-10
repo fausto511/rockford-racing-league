@@ -263,7 +263,20 @@
   .col-toggle:hover{border-color:rgba(245,246,248,.4); color:var(--white);}
   .col-toggle .dot{width:7px; height:7px; border-radius:50%; background:var(--red); border:none;}
 
-  .table-card{background:var(--surface-1); border:1px solid rgba(245,246,248,.09); border-radius:var(--radius); overflow:auto;}
+  .table-card{background:var(--surface-1); border:1px solid rgba(245,246,248,.09); border-radius:var(--radius); overflow:auto; scrollbar-width:none; -ms-overflow-style:none; -webkit-overflow-scrolling:touch;}
+  .table-card::-webkit-scrollbar{ display:none; height:0; }
+  /* 2026-08-10 (user feedback): same thin progress-track/cyan-thumb marker
+     as the Team page's Season History table, ported here for all 7
+     scrollable tables — replaces the native scrollbar, shown at every
+     width (not just mobile) since these tables scroll on desktop too. */
+  .scroll-indicator{ margin-top:10px; }
+  .scroll-indicator .track{
+    height:4px; background:rgba(245,246,248,.12); border-radius:2px; overflow:hidden;
+  }
+  .scroll-indicator .thumb{
+    height:100%; width:30%; background:var(--cyan); border-radius:2px;
+    transform:translateX(0); will-change:transform;
+  }
   table{border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums;}
   thead th{
     position:sticky; top:0; background:var(--surface-2); color:var(--text-secondary);
@@ -617,9 +630,11 @@
     </div>
     <div class="subpanel active" id="seasonpanel-drivers">
       <div class="table-card"><table id="tblSeasonDrivers"></table></div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbSeasonDrivers"></div></div></div>
     </div>
     <div class="subpanel" id="seasonpanel-teams">
       <div class="table-card"><table id="tblSeasonTeams"></table></div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbSeasonTeams"></div></div></div>
     </div>
     <div class="subpanel" id="seasonpanel-awards">
       <div class="award-grid">
@@ -654,6 +669,7 @@
       <button class="col-toggle" id="toggleDriversCols"><span class="dot"></span>All columns</button>
     </div>
     <div class="table-card"><table id="tblDrivers"></table></div>
+    <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbDrivers"></div></div></div>
   </section>
 
   <section class="panel" id="panel-alltime-teams">
@@ -671,6 +687,7 @@
       <button class="col-toggle" id="toggleTeamsCols"><span class="dot"></span>All columns</button>
     </div>
     <div class="table-card"><table id="tblTeams"></table></div>
+    <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbTeams"></div></div></div>
   </section>
 
   <section class="panel" id="panel-cups">
@@ -685,6 +702,7 @@
         <span class="count" id="countCupDrivers"></span>
       </div>
       <div class="table-card"><table id="tblCupDriverStats"></table></div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbCupDriverStats"></div></div></div>
     </div>
     <div class="subpanel" id="cupspanel-teamstats">
       <div class="toolbar">
@@ -692,6 +710,7 @@
         <span class="count" id="countCupTeams"></span>
       </div>
       <div class="table-card"><table id="tblCupTeamStats"></table></div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbCupTeamStats"></div></div></div>
     </div>
     <div class="subpanel" id="cupspanel-winners">
       <div class="toolbar">
@@ -700,6 +719,7 @@
         <span class="count" id="countCups"></span>
       </div>
       <div class="table-card"><table id="tblCups"></table></div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbCups"></div></div></div>
     </div>
   </section>
 
@@ -760,6 +780,62 @@
 const XLSX_PATH = "RRL_Datenbasis_bereinigt.xlsx";
 const TEAMS_META = {"PEGASUS": {"name": "Pegasus", "primary": "#16174a", "secondary": "#f9f8f9", "status": "bestaetigt_2026-07-24"}, "XEROGAS": {"name": "Xero Gas", "primary": "#00a9ca", "secondary": "#d51e25", "status": "bestaetigt_2026-07-24"}, "ATOMIC": {"name": "Atomic", "primary": "#004e96", "secondary": "#f3e100", "status": "bestaetigt_2026-07-24"}, "AMMUNATION": {"name": "Ammunation", "primary": "#c80000", "secondary": "#ffffff", "status": "bestaetigt_2026-07-24"}, "LOGGER": {"name": "Logger", "primary": "#6b4423", "secondary": "#6b1220", "status": "Unpassend"}, "AUTOEXOTIC": {"name": "Auto Exotic", "primary": "#134884", "secondary": "#fefbfb", "status": "bestaetigt_2026-07-24"}, "BENNY'S": {"name": "Benny's", "primary": "#174674", "secondary": "#8d2327", "status": "bestaetigt_2026-07-24"}, "CHEPALLE": {"name": "Chepalle", "primary": "#f1d30f", "secondary": "#01853c", "status": "bestaetigt_2026-07-24"}, "PISSWASSER": {"name": "Pisswasser", "primary": "#e0b243", "secondary": "#ec372f", "status": "bestaetigt_2026-07-24"}, "CROWEX": {"name": "Crowex", "primary": "#093310", "secondary": "#c38d22", "status": "bestaetigt_2026-07-24"}, "JACKAL": {"name": "Jackal", "primary": "#0794bd", "secondary": "#c4fd00", "status": "bestaetigt_2026-07-24"}, "SPRUNK": {"name": "Sprunk", "primary": "#34d721", "secondary": "#003e21", "status": "bestaetigt_2026-07-24"}, "EGOCHASER": {"name": "EgoChaser", "primary": "#01998a", "secondary": "#e3bc16", "status": "bestaetigt_2026-07-24"}, "WARSTOCK": {"name": "Warstock", "primary": "#33513b", "secondary": "#c5c5c5", "status": "bestaetigt_2026-07-24"}, "LSCUSTOMS": {"name": "LS Customs", "primary": "#604c93", "secondary": "#ffffff", "status": "bestaetigt_2026-07-24"}, "PROLAPS": {"name": "Pro Laps", "primary": "#e0572b", "secondary": "#ffffff", "status": "bestaetigt_2026-07-24"}, "JUNK": {"name": "Junk", "primary": "#ff8400", "secondary": "#ca0d00", "status": "bestaetigt_2026-07-24"}, "METV": {"name": "MeTV", "primary": "#f000a9", "secondary": "#fed41e", "status": "bestaetigt_2026-07-24"}, "VANILLAUNICORN": {"name": "Vanilla Unicorn", "primary": "#ec4899", "secondary": "#d4af37", "status": "Unpassend"}, "ECOLA": {"name": "eCola", "primary": "#cb0605", "secondary": "#ffffff", "status": "bestaetigt_2026-07-24"}, "REDWOOD": {"name": "Redwood", "primary": "#840c11", "secondary": "#c09b5d", "status": "bestaetigt_2026-07-24"}, "GLOBEOIL": {"name": "Globe Oil", "primary": "#fffefb", "secondary": "#b60001", "status": "bestaetigt_2026-07-24"}, "ESTANCIA": {"name": "Estancia", "primary": "#5a4723", "secondary": "#ceae52", "status": "bestaetigt_2026-07-24"}, "MEINMACHT": {"name": "Meinmacht", "primary": "#393a39", "secondary": "#3480ff", "status": "bestaetigt_2026-07-24"}, "FUKARU": {"name": "Fukaru", "primary": "#b41e29", "secondary": "#000000", "status": "bestaetigt_2026-07-24"}, "MAZEBANK": {"name": "Maze Bank", "primary": "#e62327", "secondary": "#ffffff", "status": "bestaetigt_2026-07-24"}, "DIAMOND": {"name": "Diamond", "primary": "#3ac6e0", "secondary": "#7b3fa0", "status": "Unpassend"}, "KRONOS": {"name": "Kronos", "primary": "#b16c21", "secondary": "#000000", "status": "bestaetigt_2026-07-24"}, "SHARK": {"name": "Shark", "primary": "#afafaf", "secondary": "#327dd0", "status": "bestaetigt_2026-07-24"}, "MERRYWEATHER": {"name": "Merryweather", "primary": "#c5c5c5", "secondary": "#000000", "status": "bestaetigt_2026-07-24"}, "ERSATZFAHRER": {"name": "Substitutes", "primary": "#6b7280", "secondary": "#3f3f46", "status": "unbekannt"}, "GRN": {"name": "Green", "primary": "#2e9e44", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "BLAU": {"name": "Blue", "primary": "#2a6fdb", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "ROT": {"name": "Red", "primary": "#d32f2f", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "WEISS": {"name": "White", "primary": "#e9e9e9", "secondary": "#1a1a1a", "status": "Farbteam 2017"}, "SCHWARZ": {"name": "Black", "primary": "#1a1a1a", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "HELLBLAU": {"name": "Light Blue", "primary": "#7ec8e3", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "LILA": {"name": "Purple", "primary": "#7b3fa0", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "HELLGRN": {"name": "Light Green", "primary": "#8bd17c", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "ORANGE": {"name": "Orange", "primary": "#ff8c00", "secondary": "#e9e9e9", "status": "Farbteam 2017"}, "GOLD": {"name": "Gold", "primary": "#d4af37", "secondary": "#1a1a1a", "status": "Farbteam 2017"}};
 let DATA = null;
+
+// ---- Scroll-position indicator (verbatim port of the Team page's Season
+// History track/thumb) — a thin progress track with a cyan thumb tracking
+// scroll position/width, replacing the native scrollbar. Wired to all 7
+// tables on this page. A MutationObserver (not just calling update() after
+// each render) is used because these tables are rebuilt from many
+// different places — search filters, column toggles, sort clicks, subtab
+// switches, cup year select — safer than trying to hook every call site. */
+function wireScrollThumb(cardEl, thumbEl){
+  if (!cardEl || !thumbEl) return function(){};
+  function update(){
+    const track = thumbEl.parentElement;
+    const trackWidth = track.clientWidth;
+    if (trackWidth === 0) return;
+    const scrollable = cardEl.scrollWidth > cardEl.clientWidth + 1;
+    if (!scrollable){
+      thumbEl.style.width = '100%';
+      thumbEl.style.transform = 'translateX(0)';
+      return;
+    }
+    const thumbWidthPx = Math.max(24, trackWidth * (cardEl.clientWidth / cardEl.scrollWidth));
+    const maxScroll = cardEl.scrollWidth - cardEl.clientWidth;
+    const scrollFrac = maxScroll > 0 ? cardEl.scrollLeft / maxScroll : 0;
+    thumbEl.style.width = thumbWidthPx + 'px';
+    thumbEl.style.transform = `translateX(${scrollFrac * (trackWidth - thumbWidthPx)}px)`;
+  }
+  cardEl.addEventListener('scroll', update, {passive:true});
+  cardEl.addEventListener('touchmove', update, {passive:true});
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  if (document.fonts && document.fonts.ready){ document.fonts.ready.then(update).catch(()=>{}); }
+  const table = cardEl.querySelector('table');
+  if (table && window.MutationObserver){
+    new MutationObserver(update).observe(table, {childList:true, subtree:true});
+  }
+  update();
+  return update;
+}
+// Collected so tab/sub-tab switches can re-run every thumb's update() —
+// MutationObserver only fires on actual content rebuilds, not on a panel
+// going from display:none to visible, so a table built once while hidden
+// (or simply not yet re-rendered since becoming visible) would otherwise
+// keep a stale/default thumb size until the user manually scrolls or
+// resizes. Cheap to call all of them: hidden panels' updates just no-op
+// (trackWidth is 0), only the now-visible table's thumb actually changes.
+const scrollThumbUpdates = [];
+[
+  ["tblSeasonDrivers","thumbSeasonDrivers"], ["tblSeasonTeams","thumbSeasonTeams"],
+  ["tblDrivers","thumbDrivers"], ["tblTeams","thumbTeams"],
+  ["tblCupDriverStats","thumbCupDriverStats"], ["tblCupTeamStats","thumbCupTeamStats"],
+  ["tblCups","thumbCups"],
+].forEach(([tableId, thumbId]) => {
+  const tableEl = document.getElementById(tableId);
+  if (tableEl) scrollThumbUpdates.push(wireScrollThumb(tableEl.closest(".table-card"), document.getElementById(thumbId)));
+});
+function updateAllScrollThumbs(){ scrollThumbUpdates.forEach(fn => fn()); }
 
 function num(v){
   if (v === null || v === undefined || v === "" || v === "-") return null;
@@ -1623,6 +1699,11 @@ function wireSubtabs(){
         panel.querySelectorAll(".subpanel").forEach(p=>p.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById(prefix+btn.dataset.subtab).classList.add("active");
+        // Re-measure scroll thumbs: the panel that just became visible may
+        // hold a table whose thumb was never correctly sized while hidden.
+        if (typeof updateAllScrollThumbs === "function"){
+          requestAnimationFrame(updateAllScrollThumbs);
+        }
       });
     });
   });
@@ -1636,6 +1717,10 @@ function wireTabs(){
       document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+      // Re-measure scroll thumbs: same reason as in wireSubtabs above.
+      if (typeof updateAllScrollThumbs === "function"){
+        requestAnimationFrame(updateAllScrollThumbs);
+      }
     });
   });
 }
