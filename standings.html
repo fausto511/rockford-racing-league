@@ -199,6 +199,53 @@
      too wide for a 2-column layout to make sense; horizontal scroll on the
      .table-card itself handles the width instead. */
   .season-standings-grid{ display:flex; flex-direction:column; gap:20px; }
+
+  /* 2026-08-10 (user report): Standings had no search field and no
+     Compact/All-columns toggle at all -- ported verbatim from the Stats
+     page's Season View toolbar/col-toggle (same feature, this page just
+     never had it), with this page's own color values (--white/--grey/
+     rgba(245,246,248,X) instead of Stats' --text-primary/--text-muted/
+     --border custom properties, which don't exist on this page). */
+  .toolbar{display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
+  .toolbar input[type=text]{
+    background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.2); color:var(--white);
+    padding:10px 16px; border-radius:999px; font-family:'Source Sans 3',sans-serif; font-size:13px; min-width:220px;
+  }
+  .toolbar input[type=text]::placeholder{ color:rgba(199,204,212,.55); }
+  .toolbar input[type=text]:focus{ outline:2px solid var(--cyan); outline-offset:1px; }
+  .toolbar .count{color:rgba(199,204,212,.55); font-size:12px; font-family:'Chakra Petch',sans-serif; letter-spacing:.03em;}
+  .toolbar .spacer{flex:1;}
+  .col-toggle{
+    background:transparent; border:1px solid rgba(245,246,248,.14); color:var(--grey);
+    padding:8px 16px; border-radius:999px; font-family:'Chakra Petch',sans-serif; font-size:11.5px;
+    letter-spacing:.05em; text-transform:uppercase; cursor:pointer; font-weight:600;
+    display:flex; align-items:center; gap:7px; transition:all .18s ease;
+  }
+  .col-toggle:hover{border-color:rgba(245,246,248,.4); color:var(--white);}
+  .col-toggle .dot{width:7px; height:7px; border-radius:50%; background:var(--red); border:none;}
+
+  /* Awards subtab (2026-08-10, user request): Standings represents "Season
+     View, defaulting to the live season" (per Fausto — Stats' Season View
+     exists to look up finished seasons, Standings is the same content but
+     defaults to the current one), so it gets the same Awards tab as Stats'
+     Season View. Ported verbatim from there (award-grid/award-card/
+     award-list), same color adaptation as the toolbar above. For the
+     current, still-running season this correctly shows "No data for this
+     season" for Top 3 Drivers/Teams (no official classification yet) and
+     "–" placeholders for each Season Award category -- i.e. the award
+     categories are visible before they're decided, which is the point:
+     drivers can see what's up for grabs. */
+  .award-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:26px;}
+  .award-card{background:rgba(245,246,248,.04); border:1px solid rgba(245,246,248,.09); border-radius:14px; padding:18px 20px;}
+  .award-card h3{margin:0 0 12px; font-family:'Chakra Petch',sans-serif; font-size:12.5px; color:var(--grey); font-weight:600; text-transform:uppercase; letter-spacing:.05em;}
+  .award-card ol{margin:0; padding-left:20px;}
+  .award-card li{padding:5px 0; font-size:14px;}
+  .award-card .empty{color:rgba(199,204,212,.55); font-size:13px;}
+  .award-list{list-style:none; margin:0; padding:0;}
+  .award-list li{padding:6px 0; border-bottom:1px solid rgba(245,246,248,.08); font-size:13px; display:flex; justify-content:space-between; gap:10px;}
+  .award-list li:last-child{border-bottom:none;}
+  .award-list .who{color:var(--white); font-weight:600;}
+
   .table-card{
     background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:16px;
     padding:20px; overflow-x:auto;
@@ -593,19 +640,48 @@
       <nav class="subtabs">
         <button data-subtab="drivers" class="active">Drivers</button>
         <button data-subtab="teams">Teams</button>
+        <button data-subtab="awards">Awards</button>
       </nav>
     </div>
     <div class="subpanel active" id="panel-drivers">
+      <div class="toolbar">
+        <input type="text" id="filterStandingsDrivers" placeholder="Search driver or team…">
+        <span class="count" id="countStandingsDrivers"></span>
+        <span class="spacer"></span>
+        <button class="col-toggle" id="toggleStandingsCols"><span class="dot"></span>All columns</button>
+      </div>
       <div class="table-card">
         <table class="season-table" id="tblStandingsDrivers"></table>
       </div>
       <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsDrivers"></div></div></div>
     </div>
     <div class="subpanel" id="panel-teams">
+      <div class="toolbar">
+        <input type="text" id="filterStandingsTeams" placeholder="Search team…">
+        <span class="count" id="countStandingsTeams"></span>
+        <span class="spacer"></span>
+        <button class="col-toggle" id="toggleStandingsColsTeams"><span class="dot"></span>All columns</button>
+      </div>
       <div class="table-card">
         <table class="season-table" id="tblStandingsTeams"></table>
       </div>
       <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsTeams"></div></div></div>
+    </div>
+    <div class="subpanel" id="panel-awards">
+      <div class="award-grid">
+        <div class="award-card">
+          <h3>Top 3 Drivers</h3>
+          <ol id="standingsAwardTop3Drivers"></ol>
+        </div>
+        <div class="award-card">
+          <h3>Top 3 Teams</h3>
+          <ol id="standingsAwardTop3Teams"></ol>
+        </div>
+        <div class="award-card">
+          <h3>Season Awards</h3>
+          <ul class="award-list" id="standingsAwardSeasonAwards"></ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -937,6 +1013,34 @@ const teamFullCols = [
   stRatingCol("rating","Rating"),
 ];
 
+// 2026-08-10 (user request): compact column sets, identical to Stats'
+// Season View driverCompact/teamCompact -- same underlying data (same
+// master xlsx, same field names), so this reuses that already-settled
+// set rather than designing a new one from scratch.
+const driverCompactCols = [
+  {key:"platz", label:"#", num:true, render:r=>stFmt(r["platz"],0)},
+  {key:"fahrer", label:"Driver", render:r=>stDriverCell(r["fahrer"])},
+  {key:"team", label:"Team", render:r=>stTeamCell(r["team"])},
+  {key:"punkte", label:"Points", num:true, render:r=>stFmt(r["punkte"],0)},
+  {key:"rennen", label:"Races", num:true, render:r=>stFmt(r["rennen"],0)},
+  {key:"schnitt", label:"Avg", num:true, render:r=>stFmt(r["schnitt"],1)},
+  {key:"wins", label:"Wins", num:true, render:r=>stFmt(r["wins"],0)},
+  {key:"podium", label:"Podium", num:true, render:r=>stFmt(r["podium"],0)},
+  {key:"top10", label:"Top 10", num:true, render:r=>stFmt(r["top10"],0)},
+  stRatingCol("rating","Rating"),
+];
+const teamCompactCols = [
+  {key:"platz", label:"#", num:true, render:r=>stFmt(r["platz"],0)},
+  {key:"team", label:"Team", render:r=>stTeamCell(r["team"])},
+  {key:"punkte", label:"Points", num:true, render:r=>stFmt(r["punkte"],0)},
+  {key:"rennen", label:"Races", num:true, render:r=>stFmt(r["rennen"],0)},
+  {key:"schnitt", label:"Avg", num:true, render:r=>stFmt(r["schnitt"],1)},
+  {key:"wins", label:"Wins", num:true, render:r=>stFmt(r["wins"],0)},
+  {key:"podium", label:"Podium", num:true, render:r=>stFmt(r["podium"],0)},
+  {key:"top10", label:"Top 10", num:true, render:r=>stFmt(r["top10"],0)},
+  stRatingCol("rating","Rating"),
+];
+
 // ---- Scroll-position indicator (verbatim port of the Team page's Season
 // History track/thumb) — a thin progress track with a cyan thumb tracking
 // scroll position/width, replacing the native scrollbar. Generalized here
@@ -1022,20 +1126,99 @@ const standingsSeasonSel = stInitCustomSelect("standingsSeasonSelect", "Choose a
 standingsSeasonSel.setOptions([{value:"S10", label:"Season 10 (2026)"}]);
 standingsSeasonSel.setValue("S10");
 
+// 2026-08-10 (user request): defaults to compact, same as Stats' Season
+// View -- Fausto's framing is that this page IS Season View (same content,
+// same behavior), just defaulting to the live season instead of the most
+// recently finished one, so it should default the same way too.
+let showingFullStandings = false;
+
 function loadStandingsSeason(){
   const s = standingsSeasonSel.getValue() || "S10";
   const isCurrent = s === "S10";
   const drows = isCurrent ? SEASON10_DRIVERS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.driversSeason.filter(r=>r.season===s) : []);
   const trows = isCurrent ? SEASON10_TEAMS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.teamsSeason.filter(r=>r.season===s) : []);
-  standingsDriversTable = stMakeSortableTable(document.getElementById("tblStandingsDrivers"), drows, driverFullCols, {
-    defaultSort:"platz", defaultDir:"asc"
+  const dCols = showingFullStandings ? driverFullCols : driverCompactCols;
+  const tCols = showingFullStandings ? teamFullCols : teamCompactCols;
+  standingsDriversTable = stMakeSortableTable(document.getElementById("tblStandingsDrivers"), drows, dCols, {
+    defaultSort:"platz", defaultDir:"asc",
+    onRender:n=>document.getElementById("countStandingsDrivers").textContent = n + " drivers"
   });
-  standingsTeamsTable = stMakeSortableTable(document.getElementById("tblStandingsTeams"), trows, teamFullCols, {
-    defaultSort:"platz", defaultDir:"asc"
+  standingsTeamsTable = stMakeSortableTable(document.getElementById("tblStandingsTeams"), trows, tCols, {
+    defaultSort:"platz", defaultDir:"asc",
+    onRender:n=>document.getElementById("countStandingsTeams").textContent = n + " teams"
   });
+  renderStandingsAwards(s, drows, trows);
   updateStandingsDriversThumb();
   updateStandingsTeamsThumb();
 }
+
+// Same Top 3 / Season Awards layout as Stats' Season View Awards tab,
+// ported with this page's own element ids (standingsAward... instead of
+// award...) so both pages can be open without id collisions. For "S10"
+// (the live season) drows/trows never have a "platz" (official
+// classification isn't decided mid-season) and STANDINGS_SEASON_DATA's
+// seasonAwards sheet has no rows for "S10" either -- both cases already
+// degrade correctly on their own (empty award lists / "–" placeholders),
+// which is the point: the award categories are visible before they're
+// decided, so drivers can see what's up for grabs.
+function renderStandingsAwards(s, drows, trows){
+  const top3d = drows.slice().filter(r=>stNum(r.platz)!==null)
+    .sort((a,b)=>stNum(a.platz)-stNum(b.platz)).slice(0,3);
+  const top3t = trows.slice().filter(r=>stNum(r.platz)!==null)
+    .sort((a,b)=>stNum(a.platz)-stNum(b.platz)).slice(0,3);
+  document.getElementById("standingsAwardTop3Drivers").innerHTML = top3d.length
+    ? top3d.map(r=>`<li>${r.fahrer} <span style="color:rgba(199,204,212,.55)">(${stTeamMeta(r.team).name})</span> <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte,0)} pts</span></li>`).join("")
+    : `<li class="empty">No data for this season.</li>`;
+  document.getElementById("standingsAwardTop3Teams").innerHTML = top3t.length
+    ? top3t.map(r=>`<li>${stTeamCell(r.team)} <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte,0)} pts</span></li>`).join("")
+    : `<li class="empty">No data for this season.</li>`;
+  const awardLabels = {DOTY:"Driver of the Year", NOTY:"Newcomer of the Year", FAIRPLAY:"Fairplay Award", BEST_SUB:"Best Sub Award"};
+  const yearAwards = (STANDINGS_SEASON_DATA && STANDINGS_SEASON_DATA.seasonAwards) ? STANDINGS_SEASON_DATA.seasonAwards.filter(r=>r.year===s) : [];
+  const byAward = {};
+  yearAwards.forEach(r=>{ (byAward[r.award] = byAward[r.award]||[]).push(r.driver); });
+  const order = ["DOTY","NOTY","FAIRPLAY","BEST_SUB"];
+  const list = order.map(key=>{
+    const names = byAward[key];
+    return `<li><span>${awardLabels[key]}</span><span class="who">${names ? names.join(", ") : "–"}</span></li>`;
+  }).join("");
+  document.getElementById("standingsAwardSeasonAwards").innerHTML = list;
+}
+
+function applyStandingsDriversFilter(){
+  const q = document.getElementById("filterStandingsDrivers").value.trim().toUpperCase();
+  if (!q) return;
+  const s = standingsSeasonSel.getValue() || "S10";
+  const isCurrent = s === "S10";
+  const baseRows = isCurrent ? SEASON10_DRIVERS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.driversSeason.filter(r=>r.season===s) : []);
+  const drows = baseRows.filter(r=>((r.fahrer||"").toUpperCase().includes(q) || (r.team||"").toUpperCase().includes(q)));
+  standingsDriversTable.setRows(drows);
+}
+function applyStandingsTeamsFilter(){
+  const q = document.getElementById("filterStandingsTeams").value.trim().toUpperCase();
+  if (!q) return;
+  const s = standingsSeasonSel.getValue() || "S10";
+  const isCurrent = s === "S10";
+  const baseRows = isCurrent ? SEASON10_TEAMS : (STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.teamsSeason.filter(r=>r.season===s) : []);
+  const trows = baseRows.filter(r=>(r.team||"").toUpperCase().includes(q));
+  standingsTeamsTable.setRows(trows);
+}
+function setStandingsColToggleLabel(btn){
+  btn.innerHTML = showingFullStandings
+    ? '<span class="dot"></span>Compact view'
+    : '<span class="dot"></span>All columns';
+}
+function toggleFullStandings(){
+  showingFullStandings = !showingFullStandings;
+  loadStandingsSeason();
+  applyStandingsDriversFilter();
+  applyStandingsTeamsFilter();
+  setStandingsColToggleLabel(document.getElementById("toggleStandingsCols"));
+  setStandingsColToggleLabel(document.getElementById("toggleStandingsColsTeams"));
+}
+document.getElementById("filterStandingsDrivers").addEventListener("input", applyStandingsDriversFilter);
+document.getElementById("filterStandingsTeams").addEventListener("input", applyStandingsTeamsFilter);
+document.getElementById("toggleStandingsCols").addEventListener("click", toggleFullStandings);
+document.getElementById("toggleStandingsColsTeams").addEventListener("click", toggleFullStandings);
 standingsSeasonSel.onChange(loadStandingsSeason);
 loadStandingsSeason();
 
@@ -1050,7 +1233,12 @@ function stApplyStandingsWorkbook(wb){
   };
   const driversSeason = sheetToObjects("Drivers_by_Season").map(r=>({...r, season:String(r.season)}));
   const teamsSeason = sheetToObjects("Teams_by_Season").map(r=>({...r, season:String(r.season)}));
-  STANDINGS_SEASON_DATA = {driversSeason, teamsSeason};
+  // 2026-08-10 (user request): needed for the new Awards subtab (mirrors
+  // Stats' Season_Awards parsing). "S10" never matches any row here since
+  // the current season's awards aren't decided yet -- renderStandingsAwards
+  // already handles that (falls back to "–" placeholders).
+  const seasonAwards = sheetToObjects("Season_Awards").map(r=>({...r, year:String(r.year)}));
+  STANDINGS_SEASON_DATA = {driversSeason, teamsSeason, seasonAwards};
   const pastSeasons = Array.from(new Set(driversSeason.map(r=>r.season))).filter(Boolean).sort().reverse();
   // Season number = year - 2016 (user-confirmed mapping: 2025 = Season 9,
   // 2024 = Season 8, 2023 = Season 7, etc.) — labels read "Season N (YYYY)".

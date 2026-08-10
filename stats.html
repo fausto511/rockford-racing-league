@@ -615,12 +615,21 @@
   </nav>
 
   <section class="panel" id="panel-season">
+    <!-- 2026-08-10 (user report, verified): this panel used to have ONE
+         toolbar (search + count + "All columns") shared above all three
+         subtabs, unlike Cups below (subtabs first, own toolbar per tab).
+         Restructured to match Cups' pattern. This wasn't just a layout
+         mismatch -- the shared search field only ever filtered the Drivers
+         table (typing a team name on the Teams tab did nothing, despite
+         the "Search driver or team…" placeholder), and both the search
+         field and "All columns" toggle stayed visible -- with a stale
+         driver count -- on the Awards tab, where neither has any table to
+         act on. The season selector itself stays above the subtabs since
+         it genuinely drives all three (Drivers, Teams, and Awards all
+         re-render off it), unlike Cups' year selector which only the
+         "Cup Winners" subtab needs. -->
     <div class="toolbar">
       <div id="seasonSelect"></div>
-      <input type="text" id="filterSeason" placeholder="Search driver or team…">
-      <span class="count" id="countSeason"></span>
-      <span class="spacer"></span>
-      <button class="col-toggle" id="toggleSeasonCols"><span class="dot"></span>All columns</button>
     </div>
     <div class="subtabs">
       <button data-subtab="drivers" class="active">Drivers</button>
@@ -628,10 +637,22 @@
       <button data-subtab="awards">Awards</button>
     </div>
     <div class="subpanel active" id="seasonpanel-drivers">
+      <div class="toolbar">
+        <input type="text" id="filterSeason" placeholder="Search driver or team…">
+        <span class="count" id="countSeason"></span>
+        <span class="spacer"></span>
+        <button class="col-toggle" id="toggleSeasonCols"><span class="dot"></span>All columns</button>
+      </div>
       <div class="table-card"><table id="tblSeasonDrivers"></table></div>
       <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbSeasonDrivers"></div></div></div>
     </div>
     <div class="subpanel" id="seasonpanel-teams">
+      <div class="toolbar">
+        <input type="text" id="filterSeasonTeams" placeholder="Search team…">
+        <span class="count" id="countSeasonTeams"></span>
+        <span class="spacer"></span>
+        <button class="col-toggle" id="toggleSeasonColsTeams"><span class="dot"></span>All columns</button>
+      </div>
       <div class="table-card"><table id="tblSeasonTeams"></table></div>
       <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbSeasonTeams"></div></div></div>
     </div>
@@ -1535,7 +1556,8 @@ function renderSeasonView(){
       onRender:n=>document.getElementById("countSeason").textContent = n + " drivers in " + s
     });
     seasonTeamsTable = makeSortableTable(document.getElementById("tblSeasonTeams"), trows, tCols, {
-      defaultSort:"platz", defaultDir:"asc"
+      defaultSort:"platz", defaultDir:"asc",
+      onRender:n=>document.getElementById("countSeasonTeams").textContent = n + " teams in " + s
     });
     renderSeasonAwards(s, drows, trows);
   }
@@ -1579,16 +1601,42 @@ function renderSeasonView(){
       ((r.fahrer||"").toUpperCase().includes(q) || (r.team||"").toUpperCase().includes(q)));
     seasonDriversTable.setRows(drows);
   }
-  sel.onChange(loadSeason);
-  document.getElementById("filterSeason").addEventListener("input", applySeasonFilter);
-  document.getElementById("toggleSeasonCols").addEventListener("click", (e)=>{
+  // 2026-08-10 (user report, verified): previously there was no equivalent
+  // of applySeasonFilter() for the Teams table at all -- the one shared
+  // search field only ever touched seasonDriversTable, so typing a team
+  // name while on the Teams tab silently did nothing. Same pattern as
+  // Cups' filterCupTeams (matches the raw "team" field, same as that
+  // handler does for DATA.teamCupStats).
+  function applySeasonTeamsFilter(){
+    const q = document.getElementById("filterSeasonTeams").value.trim().toUpperCase();
+    if (!q) return;
+    const s = sel.getValue();
+    const trows = DATA.teamsSeason.filter(r=>r.season===s && (r.team||"").toUpperCase().includes(q));
+    seasonTeamsTable.setRows(trows);
+  }
+  // "All columns" toggles one shared showingFullSeason flag (it already
+  // controlled both driver AND team column sets before this fix -- that
+  // part wasn't broken). Now that it lives in two places (Drivers tab +
+  // Teams tab toolbar, no longer also uselessly on Awards), both buttons
+  // must stay in sync with each other, not just with the shared state.
+  function setColToggleLabel(btn){
+    btn.innerHTML = showingFullSeason
+      ? '<span class="dot"></span>Compact view'
+      : '<span class="dot"></span>All columns';
+  }
+  function toggleFullSeason(){
     showingFullSeason = !showingFullSeason;
     loadSeason();
     applySeasonFilter();
-    e.currentTarget.innerHTML = showingFullSeason
-      ? '<span class="dot"></span>Compact view'
-      : '<span class="dot"></span>All columns';
-  });
+    applySeasonTeamsFilter();
+    setColToggleLabel(document.getElementById("toggleSeasonCols"));
+    setColToggleLabel(document.getElementById("toggleSeasonColsTeams"));
+  }
+  sel.onChange(loadSeason);
+  document.getElementById("filterSeason").addEventListener("input", applySeasonFilter);
+  document.getElementById("filterSeasonTeams").addEventListener("input", applySeasonTeamsFilter);
+  document.getElementById("toggleSeasonCols").addEventListener("click", toggleFullSeason);
+  document.getElementById("toggleSeasonColsTeams").addEventListener("click", toggleFullSeason);
   loadSeason();
 }
 

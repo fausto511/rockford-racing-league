@@ -222,6 +222,43 @@
   .history-table td.num{ font-variant-numeric:tabular-nums; }
   .history-table td.best-cell{ color:var(--cyan); font-weight:700; }
 
+  /* ---------- Season Trend chart (2026-08-10, user request) — a single-
+     series line of this team's points per season, sitting between Season
+     History and Photo Reel so the table's numbers get a "shape" you can
+     read at a glance. Plain inline SVG, no charting library, same
+     restrained style as the rest of the site's data views (the Stats
+     page's Top-10 bars are the only other "chart" here, and that's div
+     width-percentage bars — no JS library anywhere on this site). One
+     series only, so per dataviz convention there's no legend box: the
+     heading already says what's plotted, and the line carries the team's
+     own brand color (--tp, same one used for the hero gradient/logo
+     above) rather than a generic accent, so it reads as *this team's*
+     line at a glance. */
+  .history-chart-wrap{
+    background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:16px;
+    padding:22px 20px 14px; position:relative;
+  }
+  .history-chart-empty{ color:var(--grey); font-size:13px; text-align:center; padding:24px 12px; }
+  .hc-svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .hc-grid{ stroke:rgba(245,246,248,.08); stroke-width:1; }
+  .hc-line{ fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+  .hc-area{ opacity:.1; }
+  .hc-dot{ stroke:var(--bg); stroke-width:2; cursor:pointer; transition:r .12s ease; }
+  .hc-dot:hover, .hc-dot.hc-active{ r:7; }
+  .hc-axis-label{
+    fill:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:10.5px; letter-spacing:.02em;
+    text-anchor:middle;
+  }
+  .hc-ytick{ fill:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:10px; text-anchor:end; }
+  .hc-endlabel{ font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px; }
+  .hc-tooltip{
+    position:absolute; pointer-events:none; background:rgba(6,7,9,.96); border:1px solid rgba(245,246,248,.16);
+    border-radius:8px; padding:7px 11px; font-size:12px; color:var(--white); white-space:nowrap;
+    opacity:0; transition:opacity .12s ease; transform:translate(-50%,-100%); z-index:5; left:0; top:0;
+  }
+  .hc-tooltip.hc-show{ opacity:1; }
+  .hc-tooltip b{ color:var(--cyan); }
+
   /* ---------- Stat grid (achievements + all-time) ---------- */
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:14px; }
   .stat-card{
@@ -667,6 +704,16 @@
       </table>
     </div>
     <div class="history-scroll-indicator"><div class="track"><div class="thumb" id="historyScrollThumb"></div></div></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section class="tp-section">
+  <div class="tp-section-inner">
+    <h2>Season Trend</h2>
+    <p class="lede">Points per season, at a glance — where the high points were, and the rough patches.</p>
+    <div class="history-chart-wrap" id="historyChartWrap"></div>
   </div>
 </section>
 
@@ -1499,6 +1546,101 @@ function renderPage(){
   // Initial sizing for the mobile scroll-progress marker (a rendering pass
   // is needed first so scrollWidth/clientWidth reflect the new rows).
   requestAnimationFrame(updateHistoryScrollThumb);
+
+  renderHistoryChart(historyRows, meta);
+
+  // ---- Season Trend line chart (2026-08-10, user request) — points per
+  // season for this team, reusing the exact same historyRows already
+  // built for the table above (same data, no separate fetch/filter).
+  // Plain SVG, no charting library (matches the rest of the site).
+  function renderHistoryChart(rows, meta){
+    const wrap = document.getElementById('historyChartWrap');
+    const pts = rows
+      .map(r => ({ season: r.season, val: Number(r.punkte) }))
+      .filter(p => !isNaN(p.val));
+    // A line needs at least two points to show a trend; a brand-new team
+    // with only one season on record gets an honest empty state instead
+    // of a single floating dot pretending to be a chart.
+    if (pts.length < 2){
+      wrap.innerHTML = '<div class="history-chart-empty">Not enough season history yet to chart a trend.</div>';
+      return;
+    }
+    const W = 800, H = 240;
+    const padL = 44, padR = 20, padT = 18, padB = 30;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+    const maxVal = Math.max(...pts.map(p => p.val));
+    const minVal = Math.min(0, Math.min(...pts.map(p => p.val)));
+    // Round the axis ceiling up to a clean step (nearest 50/100/500 depending
+    // on scale) so gridline labels read as round numbers, not raw data noise.
+    const step = maxVal <= 200 ? 50 : (maxVal <= 1000 ? 100 : 500);
+    const axisMax = Math.ceil((maxVal || step) / step) * step || step;
+    const x = i => padL + (pts.length === 1 ? innerW / 2 : (innerW * i) / (pts.length - 1));
+    const y = v => padT + innerH - ((v - minVal) / (axisMax - minVal || 1)) * innerH;
+
+    const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(p.val).toFixed(1)}`).join(' ');
+    const areaPath = `${linePath} L${x(pts.length - 1).toFixed(1)},${(padT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(padT + innerH).toFixed(1)} Z`;
+
+    const gridSteps = 4;
+    let gridSvg = '';
+    for (let i = 0; i <= gridSteps; i++){
+      const v = axisMax - (axisMax / gridSteps) * i;
+      const gy = y(v);
+      gridSvg += `<line class="hc-grid" x1="${padL}" y1="${gy.toFixed(1)}" x2="${W - padR}" y2="${gy.toFixed(1)}"></line>`;
+      gridSvg += `<text class="hc-ytick" x="${padL - 8}" y="${(gy + 3.5).toFixed(1)}">${Math.round(v)}</text>`;
+    }
+
+    // X-axis labels: every season if there's room, thinning out on longer
+    // histories (same "don't clip, thin instead" spirit as everywhere else
+    // on this site that shrinks/hides labels rather than letting them
+    // collide) so a 9-season team doesn't get overlapping season numbers.
+    const labelEvery = pts.length > 9 ? 2 : 1;
+    let axisSvg = '';
+    pts.forEach((p, i) => {
+      if (i % labelEvery !== 0 && i !== pts.length - 1) return;
+      axisSvg += `<text class="hc-axis-label" x="${x(i).toFixed(1)}" y="${H - 8}">${p.season}</text>`;
+    });
+
+    const dotsSvg = pts.map((p, i) => `<circle class="hc-dot" data-i="${i}" cx="${x(i).toFixed(1)}" cy="${y(p.val).toFixed(1)}" r="5" fill="${meta.primary}"></circle>`).join('');
+    const last = pts[pts.length - 1];
+    const endLabelX = Math.min(x(pts.length - 1) + 8, W - padR - 2);
+    const endLabelAnchor = endLabelX + 34 > W - padR ? 'end' : 'start';
+    const endLabelSvg = `<text class="hc-endlabel" x="${endLabelAnchor === 'end' ? x(pts.length - 1) - 10 : endLabelX}" y="${(y(last.val) - 12).toFixed(1)}" text-anchor="${endLabelAnchor}" fill="${meta.primary}">${last.val}</text>`;
+
+    wrap.innerHTML = `
+      <svg class="hc-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Points per season for ${meta.name}">
+        ${gridSvg}
+        <path class="hc-area" d="${areaPath}" fill="${meta.primary}"></path>
+        <path class="hc-line" d="${linePath}" stroke="${meta.primary}"></path>
+        ${dotsSvg}
+        ${endLabelSvg}
+        ${axisSvg}
+      </svg>
+      <div class="hc-tooltip" id="hcTooltip"></div>`;
+
+    const svgEl = wrap.querySelector('.hc-svg');
+    const tooltip = document.getElementById('hcTooltip');
+    wrap.querySelectorAll('.hc-dot').forEach(dot => {
+      const i = Number(dot.dataset.i);
+      const p = pts[i];
+      function showTip(){
+        wrap.querySelectorAll('.hc-dot').forEach(d => d.classList.remove('hc-active'));
+        dot.classList.add('hc-active');
+        const svgRect = svgEl.getBoundingClientRect();
+        const scale = svgRect.width / W;
+        tooltip.innerHTML = `Season ${p.season} <b>${p.val} pts</b>`;
+        tooltip.style.left = (Number(dot.getAttribute('cx')) * scale) + 'px';
+        tooltip.style.top = (Number(dot.getAttribute('cy')) * scale - 10) + 'px';
+        tooltip.classList.add('hc-show');
+      }
+      dot.addEventListener('mouseenter', showTip);
+      dot.addEventListener('focus', showTip);
+      dot.addEventListener('mouseleave', () => { dot.classList.remove('hc-active'); tooltip.classList.remove('hc-show'); });
+      dot.addEventListener('blur', () => { dot.classList.remove('hc-active'); tooltip.classList.remove('hc-show'); });
+      dot.setAttribute('tabindex', '0');
+      dot.setAttribute('role', 'img');
+      dot.setAttribute('aria-label', `Season ${p.season}: ${p.val} points`);
+    });
+  }
 
   // ---- Photo reel: fixed, static grid — up to 5 slots side by side on
   // desktop (mobile only shows the first one — see the 860px breakpoint),
