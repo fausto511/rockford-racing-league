@@ -254,6 +254,25 @@
   }
   .stat.hl b{color:var(--cyan);}
   .stat span{display:block; color:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; margin-top:6px;}
+  /* 2026-08-10 (user feedback): "Drivers All-Time" wraps to 2 lines on most
+     phones (<420px), making that column look uneven against the other two
+     single-line labels. Fix in two steps: shrink label size/tracking a bit
+     first to keep the full "Drivers All-Time" wording as long as possible,
+     and only swap to the shorter "Drivers" wording on genuinely narrow
+     screens where even that isn't enough (checked: stays single-line down
+     to ~365px with the smaller size below). */
+  /* .stat-label-* rules use the compound .stat span.stat-label-X form
+     (not just .stat-label-X) to out-specificity the .stat span{display:block}
+     rule above — a plain single-class selector would lose that specificity
+     fight and never actually hide/show anything. */
+  .stat span.stat-label-short{ display:none; }
+  @media (max-width:480px){
+    .stat span{ font-size:9.5px; letter-spacing:.06em; }
+  }
+  @media (max-width:364px){
+    .stat span.stat-label-full{ display:none; }
+    .stat span.stat-label-short{ display:inline; }
+  }
 
   .scroll-cue{
     position:absolute; bottom:22px; left:50%; transform:translateX(-50%); z-index:3;
@@ -528,7 +547,19 @@
     .fv-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   }
   @media (max-width:600px){
-    .fv-grid{ grid-template-columns:minmax(0,1fr); gap:40px; }
+    /* 2026-08-10 (user feedback): stacking all 3 videos full-width/vertically
+       buried the 2nd and 3rd below the fold with no hint more existed. Switch
+       to a horizontally-swipeable row instead, sized so ~2.5 tiles are
+       visible (2 full + a peek of the 3rd) — same "there's more, keep
+       going" cue YouTube's mobile rows use, no arrow buttons needed. */
+    .fv-grid{
+      display:flex; grid-template-columns:none; gap:16px; margin:0;
+      overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none;
+      padding-bottom:4px;
+    }
+    .fv-grid::-webkit-scrollbar{ display:none; height:0; }
+    .fv-tile{ flex:0 0 calc((100vw - 48px - 32px) / 2.5); scroll-snap-align:start; }
   }
 
   /* Wraps the CTA + social row below the tile grid so they can be centered
@@ -850,7 +881,7 @@
   <div class="stat-bar">
     <div class="stat"><b data-count="9">0</b><span>Seasons</span></div>
     <div class="stat hl"><b data-count="135">0</b><span>Races Run</span></div>
-    <div class="stat"><b data-count="179">0</b><span>Drivers All-Time</span></div>
+    <div class="stat"><b data-count="179">0</b><span><span class="stat-label-full">Drivers All-Time</span><span class="stat-label-short">Drivers</span></span></div>
   </div>
   <div class="scroll-cue" id="scrollCue">Scroll<div class="bar"></div></div>
 </main>
@@ -1315,9 +1346,30 @@
     }
     function goTo(i){ const pages = pagesEls(); show((i + pages.length) % pages.length); }
     function next(){ goTo(current + 1); }
+    function prev(){ goTo(current - 1); }
     function start(){ if(!reduceMotion){ stop(); timer = setInterval(next, AUTO_MS); } }
     function stop(){ if(timer){ clearInterval(timer); timer = null; } }
     function restart(){ start(); }
+
+    // 2026-08-10 (user feedback): the cards weren't swipeable on mobile —
+    // only the dots could change page. Pages crossfade rather than scroll
+    // physically, so this is threshold-based (not a live drag): a touch that
+    // moves clearly more horizontally than vertically past 40px advances or
+    // reverses one page, same as clicking a dot. passive:true and no
+    // preventDefault, so normal vertical page-scrolling is never intercepted.
+    let touchStartX = 0, touchStartY = 0;
+    stage.addEventListener('touchstart', (e) => {
+      const t = e.changedTouches[0];
+      touchStartX = t.clientX; touchStartY = t.clientY;
+    }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+        if(dx < 0) next(); else prev();
+        restart();
+      }
+    }, { passive: true });
 
     build();
 

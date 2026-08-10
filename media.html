@@ -328,10 +328,12 @@
     nav.desktop-nav{display:none;} .burger{display:block;}
     .wrap{padding:0 16px 20px;}
     .media-hero{padding:120px 20px 40px; min-height:44vh;}
-    .media-card{ flex:0 0 210px; }
-    .media-carousel-wrap .carousel-arrow{ width:36px; height:36px; }
-    .media-carousel-wrap .carousel-arrow.prev{ left:-4px; }
-    .media-carousel-wrap .carousel-arrow.next{ right:-4px; }
+    /* 2026-08-10 (user feedback): show ~2.5 cards per row on mobile (2 full
+       + a peek of the 3rd) instead of a fixed 210px card — same "there's
+       more" cue as YouTube's mobile rows, which makes the arrow buttons
+       redundant here, so they're hidden below instead of just shrunk. */
+    .media-card{ flex:0 0 calc((100vw - 64px) / 2.5); }
+    .media-carousel-wrap .carousel-arrow{ display:none; }
   }
 
   /* ---------- Resources nav dropdown (identical to the other subpages) ---------- */
