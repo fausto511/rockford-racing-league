@@ -219,6 +219,12 @@
   .media-carousel-wrap .carousel-arrow.next{ right:-8px; }
   .media-carousel-wrap .carousel-arrow:active{ background:rgba(11,12,16,.94); }
   .media-carousel-wrap .carousel-arrow svg{ width:19px; height:19px; display:block; }
+  /* 2026-08-10 (user request): on desktop, hide whichever arrow has
+     nothing left to scroll to -- .prev at the start of a row, .next at
+     the end -- instead of always showing both (the left one used to do
+     nothing at the row's start). JS below toggles these two classes. */
+  .media-carousel-wrap.at-start .carousel-arrow.prev{ display:none; }
+  .media-carousel-wrap.at-end .carousel-arrow.next{ display:none; }
 
   /* ---------- Lightbox (video embed / image viewer) ---------- */
   .lightbox-overlay{
@@ -310,10 +316,6 @@
     position:relative; z-index:3; display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
     gap:16px; padding:28px 30px; border-top:1px solid rgba(245,246,248,.08);
   }
-  @media (max-width:760px){
-    footer.site-footer{ grid-template-columns:1fr; justify-items:center; text-align:center; }
-    footer.site-footer img, footer.site-footer .foot-links, footer.site-footer .copy{ justify-self:center; }
-  }
   footer.site-footer img{ height:20px; width:auto; opacity:.85; justify-self:start; }
   footer.site-footer .foot-links{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; justify-self:center; }
   footer.site-footer a{
@@ -322,6 +324,18 @@
   }
   footer.site-footer a:hover{ color:var(--cyan); }
   footer.site-footer .copy{ color:rgba(199,204,212,.5); font-size:11.5px; justify-self:end; }
+
+  /* 2026-08-10 (user report, verified): moved below the general
+     footer.site-footer img/.foot-links/.copy rules -- at equal CSS
+     specificity the later rule in source order wins, so this mobile
+     override must come AFTER them or the general img rule's
+     justify-self:start silently wins back on narrow viewports too,
+     which is exactly what was pinning the logo to the left instead of
+     centering it on mobile. */
+  @media (max-width:760px){
+    footer.site-footer{ grid-template-columns:1fr; justify-items:center; text-align:center; }
+    footer.site-footer img, footer.site-footer .foot-links, footer.site-footer .copy{ justify-self:center; }
+  }
 
   @media (max-width:860px){
     header{padding:14px 18px;}
@@ -683,6 +697,37 @@ document.addEventListener('click', (e) => {
   if (!target) return;
   const dir = btn.classList.contains('prev') ? -1 : 1;
   target.scrollBy({left: Math.round(target.clientWidth * 0.8) * dir, behavior: 'smooth'});
+});
+
+// ---------- Carousel arrow visibility (2026-08-10, user request): hide
+// .prev at the start of a row and .next once there's nothing left to
+// scroll to, instead of always showing both -- desktop only, mobile
+// already hides both arrows outright (2.5-peek swipe covers that case).
+// Wired to all 3 rows' tracks; re-checks on scroll, resize and once the
+// row's own content/images have settled. ----------
+function wireCarouselArrowVisibility(trackEl){
+  const wrap = trackEl.closest('.media-carousel-wrap');
+  if (!wrap) return function(){};
+  function update(){
+    // Epsilon of 4px (not 1px): .media-track has left/right padding of 2px
+    // combined with scroll-snap-type:x mandatory, so the browser's own
+    // resting "start" snap position is scrollLeft:2, not 0 -- a tight
+    // threshold would keep .prev visible even at the true start of the row.
+    const maxScroll = trackEl.scrollWidth - trackEl.clientWidth;
+    wrap.classList.toggle('at-start', trackEl.scrollLeft <= 4);
+    wrap.classList.toggle('at-end', maxScroll <= 4 || trackEl.scrollLeft >= maxScroll - 4);
+  }
+  trackEl.addEventListener('scroll', update, {passive:true});
+  trackEl.addEventListener('touchmove', update, {passive:true});
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  if (document.fonts && document.fonts.ready){ document.fonts.ready.then(update).catch(()=>{}); }
+  update();
+  return update;
+}
+['trackFeaturedRaces', 'trackSeasons', 'trackHighlights'].forEach(id => {
+  const trackEl = document.getElementById(id);
+  if (trackEl) wireCarouselArrowVisibility(trackEl);
 });
 
 // ---------- Lightbox ----------
