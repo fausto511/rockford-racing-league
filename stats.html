@@ -221,6 +221,15 @@
   .cmp-select.cmp-select-sm{ min-width:200px; }
   .cmp-select.cmp-select-sm .cmp-select-btn{ padding:8px 14px; font-size:12px; }
 
+  /* 2026-08-10 (user report): Season View's season-picker + subtabs now
+     sit in one row, same as Standings' .standings-controls pattern
+     (which this page's layout is meant to mirror) — previously the
+     picker had its own row above the subtabs, an inconsistency Fausto
+     flagged once Standings was built to match. Scoped to this one
+     toolbar (not a blanket ".toolbar .subtabs" rule) so it doesn't
+     touch subtabs used elsewhere on the page. */
+  .season-toolbar .subtabs{ margin:0; justify-content:flex-start; }
+  .season-toolbar .cmp-select{ flex:0 0 auto; }
   .subtabs{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
   .subtabs button{
     background:transparent; color:var(--text-secondary); border:1px solid var(--border);
@@ -627,14 +636,20 @@
          act on. The season selector itself stays above the subtabs since
          it genuinely drives all three (Drivers, Teams, and Awards all
          re-render off it), unlike Cups' year selector which only the
-         "Cup Winners" subtab needs. -->
-    <div class="toolbar">
+         "Cup Winners" subtab needs.
+
+         2026-08-10, same day (user report): season picker + subtabs now
+         share one row (season-toolbar), matching Standings' layout --
+         previously the picker sat on its own row above the subtabs,
+         which meant Season View and Standings weren't actually built to
+         the same pattern despite both claiming to mirror each other. -->
+    <div class="toolbar season-toolbar">
       <div id="seasonSelect"></div>
-    </div>
-    <div class="subtabs">
-      <button data-subtab="drivers" class="active">Drivers</button>
-      <button data-subtab="teams">Teams</button>
-      <button data-subtab="awards">Awards</button>
+      <div class="subtabs">
+        <button data-subtab="drivers" class="active">Drivers</button>
+        <button data-subtab="teams">Teams</button>
+        <button data-subtab="awards">Awards</button>
+      </div>
     </div>
     <div class="subpanel active" id="seasonpanel-drivers">
       <div class="toolbar">
