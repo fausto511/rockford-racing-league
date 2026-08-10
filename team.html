@@ -223,58 +223,45 @@
   .history-table td.best-cell{ color:var(--cyan); font-weight:700; }
 
   /* ---------- Season Trend chart (2026-08-10, user request; revised
-     2026-08-10 after feedback) — six of this team's Season History
-     metrics (Points, Place, Wins, Podiums, Top 10s, Rating), each
-     normalized to that team's own best/worst across its seasons so all
-     six read on one shared 0–100 scale, with "up" always meaning
-     "better" (Place is inverted since rank 1 is the best result).
-     Plain inline SVG, no charting library. Six series need a legend and
-     stay off direct per-point labels/dots per the dataviz method — dots
-     only appear on hover via a crosshair that reads out every metric at
-     once. Colors are the site's validated dark-mode categorical palette
-     (dataviz skill, slots 1–6), not the team brand color, since a single
-     hue can no longer carry six different lines. */
+     2026-08-10 twice after feedback) — a single-series line of this
+     team's points per season. A six-metric normalized-overlay version
+     was tried and dropped: metrics with very different ranges (Points
+     ~300–1400 vs. Wins ~0–9) distort each other when forced onto one
+     shared 0–100 scale, exactly the "can't read a trend" problem Fausto
+     flagged — so per his explicit instruction ("nimm mal nur points
+     raus") this is back to Points only. The other five Season History
+     metrics (Place, Wins, Podiums, Top 10s, Rating) stay visible in the
+     table above, without their own chart. Plain inline SVG, no charting
+     library, same restrained style as the rest of the site's data views.
+     One series only, so per dataviz convention there's no legend box,
+     and the line carries the team's own brand color (meta.primary, same
+     one used for the hero gradient/logo above). Sizing was tuned down
+     after feedback: thinner line (1.75px), smaller axis text (9px),
+     smaller end-dots with a thinner ring than the first draft. */
   .history-chart-wrap{
     background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:16px;
-    padding:18px 18px 14px; position:relative;
+    padding:20px 18px 14px; position:relative;
   }
   .history-chart-empty{ color:var(--grey); font-size:13px; text-align:center; padding:24px 12px; }
-  .hc-svg{ display:block; width:100%; aspect-ratio:800/280; overflow:visible; touch-action:pan-y; }
+  .hc-svg{ display:block; width:100%; aspect-ratio:800/240; overflow:visible; }
   .hc-grid{ stroke:rgba(245,246,248,.08); stroke-width:1; }
   .hc-line{ fill:none; stroke-width:1.75; stroke-linejoin:round; stroke-linecap:round; }
-  .hc-crosshair{ stroke:rgba(245,246,248,.22); stroke-width:1; pointer-events:none; opacity:0; }
-  .hc-crosshair.hc-show{ opacity:1; }
-  .hc-hoverdot{ stroke:var(--bg); stroke-width:1.5; pointer-events:none; opacity:0; }
-  .hc-hoverdot.hc-show{ opacity:1; }
-  .hc-hitlayer{ fill:transparent; cursor:crosshair; }
+  .hc-area{ opacity:.1; }
+  .hc-dot{ stroke:var(--bg); stroke-width:1.5; cursor:pointer; transition:r .12s ease; }
+  .hc-dot:hover, .hc-dot.hc-active{ r:6; }
   .hc-axis-label{
     fill:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:9px; letter-spacing:.02em;
     text-anchor:middle;
   }
-  .hc-legend{
-    display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:12px; padding-top:12px;
-    border-top:1px solid rgba(245,246,248,.08);
-  }
-  .hc-legend-item{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--grey); cursor:default; }
-  .hc-legend-key{ display:inline-block; width:14px; height:2px; border-radius:1px; flex:0 0 auto; }
-  .hc-legend-item.hc-dim{ opacity:.35; }
-  .hc-note{ font-size:10.5px; color:var(--grey); opacity:.7; margin-top:10px; line-height:1.5; }
-  /* Docked at a fixed spot near the top of the plot (not floating above
-     the hovered point) — with 6 rows of data the box is too tall to
-     hover cleanly above a point without poking out of the card, so it
-     tracks the cursor horizontally only and stays vertically put. */
+  .hc-ytick{ fill:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:9px; text-anchor:end; }
+  .hc-endlabel{ font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:12px; }
   .hc-tooltip{
-    position:absolute; pointer-events:none; background:rgba(6,7,9,.97); border:1px solid rgba(245,246,248,.16);
-    border-radius:8px; padding:7px 10px; font-size:10.5px; color:var(--white);
-    opacity:0; transition:opacity .12s ease; transform:translateX(-50%); z-index:5; left:0; top:6px;
+    position:absolute; pointer-events:none; background:rgba(6,7,9,.96); border:1px solid rgba(245,246,248,.16);
+    border-radius:8px; padding:6px 10px; font-size:11px; color:var(--white); white-space:nowrap;
+    opacity:0; transition:opacity .12s ease; transform:translate(-50%,-100%); z-index:5; left:0; top:0;
   }
   .hc-tooltip.hc-show{ opacity:1; }
-  .hc-tooltip .hc-tt-season{ font-size:9.5px; color:var(--grey); margin-bottom:4px; white-space:nowrap; }
-  .hc-tooltip .hc-tt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2px 14px; }
-  .hc-tooltip .hc-tt-row{ display:flex; align-items:center; gap:5px; white-space:nowrap; }
-  .hc-tooltip .hc-tt-key{ display:inline-block; width:9px; height:2px; flex:0 0 auto; }
-  .hc-tooltip .hc-tt-label{ color:var(--grey); }
-  .hc-tooltip .hc-tt-val{ color:var(--white); font-weight:700; margin-left:auto; padding-left:8px; }
+  .hc-tooltip b{ color:var(--cyan); }
 
   /* ---------- Stat grid (achievements + all-time) ---------- */
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:14px; }
@@ -729,7 +716,7 @@
 <section class="tp-section">
   <div class="tp-section-inner">
     <h2>Season Trend</h2>
-    <p class="lede">Points, place, wins, podiums, Top 10s and rating per season, at a glance — where the high points were, and the rough patches.</p>
+    <p class="lede">Points per season, at a glance — where the high points were, and the rough patches.</p>
     <div class="history-chart-wrap" id="historyChartWrap"></div>
   </div>
 </section>
@@ -1564,188 +1551,103 @@ function renderPage(){
   // is needed first so scrollWidth/clientWidth reflect the new rows).
   requestAnimationFrame(updateHistoryScrollThumb);
 
-  // ---- Season Trend chart (revised 2026-08-10 after feedback) — six
-  // Season History metrics (Points, Place, Wins, Podiums, Top 10s,
-  // Rating), each normalized to this team's own min/max so all six sit
-  // on one shared 0–100 scale. "Up" always means "better": Place is
-  // inverted (rank 1 -> 100) since a lower rank number is the good
-  // direction, opposite of the other five. Colors are the site's
-  // validated dark-mode categorical palette (dataviz skill palette.md,
-  // slots 1–6, checked with validate_palette.js against this page's
-  // --bg — all six checks pass). No permanent per-point dots/labels on
-  // six overlapping lines (dataviz guidance: past ~4 series, drop direct
-  // labels and per-point dots, keep the legend + a crosshair tooltip
-  // that reads out every series at the hovered season).
-  const HC_METRICS = [
-    { key:'punkte', label:'Points',   color:'#3987e5', invert:false, fmt:v=>Math.round(v).toLocaleString('en-US') },
-    { key:'platz',  label:'Place',    color:'#d95926', invert:true,  fmt:v=>'#'+Math.round(v) },
-    { key:'wins',   label:'Wins',     color:'#199e70', invert:false, fmt:v=>Math.round(v) },
-    { key:'podium', label:'Podiums',  color:'#c98500', invert:false, fmt:v=>Math.round(v) },
-    { key:'top10',  label:'Top 10s',  color:'#d55181', invert:false, fmt:v=>Math.round(v) },
-    { key:'rating', label:'Rating',   color:'#008300', invert:false, fmt:v=>Math.round(v) }
-  ];
-
   renderHistoryChart(historyRows, meta);
 
-  // ---- Season Trend chart — reuses the exact same historyRows already
-  // built for the table above (same data, no separate fetch/filter).
-  // Plain SVG, no charting library (matches the rest of the site).
+  // ---- Season Trend chart (back to a single Points line, 2026-08-10 —
+  // a 6-metric normalized overlay was tried and dropped per Fausto's
+  // feedback: metrics with very different ranges distorted each other on
+  // a shared scale. Points alone is the one number that most directly
+  // says "how did the team do that season"; Place/Wins/Podiums/Top 10s/
+  // Rating stay visible in the Season History table above, without their
+  // own chart.) Reuses the exact same historyRows already built for the
+  // table (same data, no separate fetch/filter). Plain SVG, no charting
+  // library (matches the rest of the site).
   function renderHistoryChart(rows, meta){
     const wrap = document.getElementById('historyChartWrap');
-    const seasons = rows.map(r => ({ season: r.season, raw: r }));
-    // A line needs at least two seasons to show a trend; a brand-new team
+    const pts = rows
+      .map(r => ({ season: r.season, val: Number(r.punkte) }))
+      .filter(p => !isNaN(p.val));
+    // A line needs at least two points to show a trend; a brand-new team
     // with only one season on record gets an honest empty state instead
     // of a single floating dot pretending to be a chart.
-    if (seasons.length < 2){
+    if (pts.length < 2){
       wrap.innerHTML = '<div class="history-chart-empty">Not enough season history yet to chart a trend.</div>';
       return;
     }
-
-    const W = 800, H = 280;
-    const padL = 12, padR = 12, padT = 16, padB = 26;
+    const W = 800, H = 240;
+    const padL = 40, padR = 20, padT = 18, padB = 28;
     const innerW = W - padL - padR, innerH = H - padT - padB;
-    const x = i => padL + (seasons.length === 1 ? innerW / 2 : (innerW * i) / (seasons.length - 1));
-    const yFromNorm = n => padT + innerH - (n / 100) * innerH;
+    const maxVal = Math.max(...pts.map(p => p.val));
+    const minVal = Math.min(0, Math.min(...pts.map(p => p.val)));
+    // Round the axis ceiling up to a clean step (nearest 50/100/500 depending
+    // on scale) so gridline labels read as round numbers, not raw data noise.
+    const step = maxVal <= 200 ? 50 : (maxVal <= 1000 ? 100 : 500);
+    const axisMax = Math.ceil((maxVal || step) / step) * step || step;
+    const x = i => padL + (pts.length === 1 ? innerW / 2 : (innerW * i) / (pts.length - 1));
+    const y = v => padT + innerH - ((v - minVal) / (axisMax - minVal || 1)) * innerH;
 
-    // Per metric: raw values (NaN = no data that season), min/max across
-    // this team's own history, and a 0–100 "goodness" index where 100 is
-    // always this team's own best result for that metric.
-    const series = HC_METRICS.map(m => {
-      const raw = seasons.map(s => {
-        // Rating uses the same scaleRating() transform as the Season
-        // History table above (raw values can be a 0–10 or 0–100 scale
-        // depending on the source row; scaleRating normalizes both to
-        // 0–100) so the chart's numbers always match the table's.
-        const v = m.key === 'rating' ? scaleRating(s.raw[m.key]) : Number(s.raw[m.key]);
-        return (v === null || v === undefined || isNaN(v)) ? null : v;
-      });
-      const valid = raw.filter(v => v !== null);
-      const min = valid.length ? Math.min(...valid) : 0;
-      const max = valid.length ? Math.max(...valid) : 0;
-      const norm = raw.map(v => {
-        if (v === null) return null;
-        let t = max > min ? (v - min) / (max - min) : 0.5;
-        if (m.invert) t = 1 - t;
-        return t * 100;
-      });
-      return { ...m, raw, norm, hasData: valid.length > 0 };
-    }).filter(s => s.hasData);
-
-    // Build one path per contiguous run of non-null points, so a season
-    // missing that particular metric leaves a gap instead of a wrong
-    // straight-line guess across it.
-    function buildPath(norm){
-      let d = '', open = false;
-      norm.forEach((n, i) => {
-        if (n === null){ open = false; return; }
-        const px = x(i).toFixed(1), py = yFromNorm(n).toFixed(1);
-        d += (open ? ' L' : (d ? ' M' : 'M')) + px + ',' + py;
-        open = true;
-      });
-      return d;
-    }
+    const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(p.val).toFixed(1)}`).join(' ');
+    const areaPath = `${linePath} L${x(pts.length - 1).toFixed(1)},${(padT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(padT + innerH).toFixed(1)} Z`;
 
     const gridSteps = 4;
     let gridSvg = '';
     for (let i = 0; i <= gridSteps; i++){
-      const gy = padT + (innerH / gridSteps) * i;
+      const v = axisMax - (axisMax / gridSteps) * i;
+      const gy = y(v);
       gridSvg += `<line class="hc-grid" x1="${padL}" y1="${gy.toFixed(1)}" x2="${W - padR}" y2="${gy.toFixed(1)}"></line>`;
+      gridSvg += `<text class="hc-ytick" x="${padL - 8}" y="${(gy + 3.5).toFixed(1)}">${Math.round(v)}</text>`;
     }
 
     // X-axis labels: every season if there's room, thinning out on longer
     // histories (same "don't clip, thin instead" spirit as everywhere else
     // on this site that shrinks/hides labels rather than letting them
     // collide) so a 9-season team doesn't get overlapping season numbers.
-    const labelEvery = seasons.length > 9 ? 2 : 1;
+    const labelEvery = pts.length > 9 ? 2 : 1;
     let axisSvg = '';
-    seasons.forEach((s, i) => {
-      if (i % labelEvery !== 0 && i !== seasons.length - 1) return;
-      axisSvg += `<text class="hc-axis-label" x="${x(i).toFixed(1)}" y="${H - 8}">${s.season}</text>`;
+    pts.forEach((p, i) => {
+      if (i % labelEvery !== 0 && i !== pts.length - 1) return;
+      axisSvg += `<text class="hc-axis-label" x="${x(i).toFixed(1)}" y="${H - 8}">${p.season}</text>`;
     });
 
-    const linesSvg = series.map(s => `<path class="hc-line" data-key="${s.key}" d="${buildPath(s.norm)}" stroke="${s.color}"></path>`).join('');
-    const legendSvg = series.map(s => `
-      <span class="hc-legend-item" data-key="${s.key}">
-        <span class="hc-legend-key" style="background:${s.color}"></span>${s.label}
-      </span>`).join('');
+    const dotsSvg = pts.map((p, i) => `<circle class="hc-dot" data-i="${i}" cx="${x(i).toFixed(1)}" cy="${y(p.val).toFixed(1)}" r="4" fill="${meta.primary}"></circle>`).join('');
+    const last = pts[pts.length - 1];
+    const endLabelX = Math.min(x(pts.length - 1) + 8, W - padR - 2);
+    const endLabelAnchor = endLabelX + 34 > W - padR ? 'end' : 'start';
+    const endLabelSvg = `<text class="hc-endlabel" x="${endLabelAnchor === 'end' ? x(pts.length - 1) - 10 : endLabelX}" y="${(y(last.val) - 10).toFixed(1)}" text-anchor="${endLabelAnchor}" fill="${meta.primary}">${last.val}</text>`;
 
     wrap.innerHTML = `
-      <svg class="hc-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Season trend for ${meta.name}: points, place, wins, podiums, Top 10s and rating, indexed to this team's own history">
+      <svg class="hc-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Points per season for ${meta.name}">
         ${gridSvg}
-        ${linesSvg}
-        <line class="hc-crosshair" id="hcCrosshair" x1="0" y1="${padT}" x2="0" y2="${padT + innerH}"></line>
+        <path class="hc-area" d="${areaPath}" fill="${meta.primary}"></path>
+        <path class="hc-line" d="${linePath}" stroke="${meta.primary}"></path>
+        ${dotsSvg}
+        ${endLabelSvg}
         ${axisSvg}
-        <g id="hcHoverDots"></g>
-        <rect class="hc-hitlayer" x="${padL}" y="0" width="${innerW}" height="${H}"></rect>
       </svg>
-      <div class="hc-legend">${legendSvg}</div>
-      <p class="hc-note">Each line is indexed to this team's own best/worst across its seasons (100 = this team's best result for that metric, 0 = its weakest) so all six can share one scale. "Up" always means "better" — Place is inverted since rank 1 is the best result. Hover or tap a season for the actual numbers.</p>
       <div class="hc-tooltip" id="hcTooltip"></div>`;
 
     const svgEl = wrap.querySelector('.hc-svg');
-    const hitLayer = wrap.querySelector('.hc-hitlayer');
-    const crosshair = document.getElementById('hcCrosshair');
-    const hoverDotsG = document.getElementById('hcHoverDots');
     const tooltip = document.getElementById('hcTooltip');
-
-    function showAt(i){
-      const s = seasons[i];
-      crosshair.setAttribute('x1', x(i).toFixed(1));
-      crosshair.setAttribute('x2', x(i).toFixed(1));
-      crosshair.classList.add('hc-show');
-
-      const dots = series.filter(sr => sr.norm[i] !== null).map(sr =>
-        `<circle class="hc-hoverdot hc-show" cx="${x(i).toFixed(1)}" cy="${yFromNorm(sr.norm[i]).toFixed(1)}" r="4" fill="${sr.color}"></circle>`
-      ).join('');
-      hoverDotsG.innerHTML = dots;
-
-      const rowsHtml = series.filter(sr => sr.raw[i] !== null).map(sr =>
-        `<div class="hc-tt-row"><span class="hc-tt-key" style="background:${sr.color}"></span><span class="hc-tt-label">${sr.label}</span><span class="hc-tt-val">${sr.fmt(sr.raw[i])}</span></div>`
-      ).join('');
-      tooltip.innerHTML = `<div class="hc-tt-season">Season ${s.season}</div><div class="hc-tt-grid">${rowsHtml}</div>`;
-
-      // Docked near the top of the plot at a fixed height (see CSS) —
-      // only the horizontal position tracks the cursor, clamped so the
-      // box never runs past the card's left/right edge.
-      const svgRect = svgEl.getBoundingClientRect();
-      const scale = svgRect.width / W;
-      const rawLeft = x(i) * scale;
-      const halfTip = Math.min(90, svgRect.width / 2);
-      tooltip.style.left = Math.min(Math.max(rawLeft, halfTip), svgRect.width - halfTip) + 'px';
-      tooltip.classList.add('hc-show');
-    }
-    function hide(){
-      crosshair.classList.remove('hc-show');
-      hoverDotsG.innerHTML = '';
-      tooltip.classList.remove('hc-show');
-    }
-    function nearestIndex(clientX){
-      const svgRect = svgEl.getBoundingClientRect();
-      const scale = svgRect.width / W;
-      const localX = (clientX - svgRect.left) / scale;
-      let best = 0, bestDist = Infinity;
-      seasons.forEach((s, i) => {
-        const d = Math.abs(x(i) - localX);
-        if (d < bestDist){ bestDist = d; best = i; }
-      });
-      return best;
-    }
-    hitLayer.addEventListener('pointermove', e => showAt(nearestIndex(e.clientX)));
-    hitLayer.addEventListener('pointerleave', hide);
-    hitLayer.addEventListener('pointerdown', e => showAt(nearestIndex(e.clientX)));
-
-    // Legend hover: dim every other line so the reader can isolate one
-    // series without needing a click-to-toggle interaction.
-    wrap.querySelectorAll('.hc-legend-item').forEach(item => {
-      const key = item.dataset.key;
-      item.addEventListener('mouseenter', () => {
-        wrap.querySelectorAll('.hc-legend-item').forEach(el => el.classList.toggle('hc-dim', el.dataset.key !== key));
-        wrap.querySelectorAll('.hc-line').forEach(el => { el.style.opacity = el.dataset.key === key ? '1' : '.15'; });
-      });
-      item.addEventListener('mouseleave', () => {
-        wrap.querySelectorAll('.hc-legend-item').forEach(el => el.classList.remove('hc-dim'));
-        wrap.querySelectorAll('.hc-line').forEach(el => { el.style.opacity = ''; });
-      });
+    wrap.querySelectorAll('.hc-dot').forEach(dot => {
+      const i = Number(dot.dataset.i);
+      const p = pts[i];
+      function showTip(){
+        wrap.querySelectorAll('.hc-dot').forEach(d => d.classList.remove('hc-active'));
+        dot.classList.add('hc-active');
+        const svgRect = svgEl.getBoundingClientRect();
+        const scale = svgRect.width / W;
+        tooltip.innerHTML = `Season ${p.season} <b>${p.val} pts</b>`;
+        tooltip.style.left = (Number(dot.getAttribute('cx')) * scale) + 'px';
+        tooltip.style.top = (Number(dot.getAttribute('cy')) * scale - 10) + 'px';
+        tooltip.classList.add('hc-show');
+      }
+      dot.addEventListener('mouseenter', showTip);
+      dot.addEventListener('focus', showTip);
+      dot.addEventListener('mouseleave', () => { dot.classList.remove('hc-active'); tooltip.classList.remove('hc-show'); });
+      dot.addEventListener('blur', () => { dot.classList.remove('hc-active'); tooltip.classList.remove('hc-show'); });
+      dot.setAttribute('tabindex', '0');
+      dot.setAttribute('role', 'img');
+      dot.setAttribute('aria-label', `Season ${p.season}: ${p.val} points`);
     });
   }
 
