@@ -216,12 +216,20 @@
      since these tables scroll on desktop too (too many columns to fit). */
   .scroll-indicator{ margin-top:10px; }
   .scroll-indicator .track{
-    height:4px; background:rgba(245,246,248,.12); border-radius:2px; overflow:hidden;
+    height:4px; background:rgba(245,246,248,.12); border-radius:2px; overflow:visible;
   }
   .scroll-indicator .thumb{
-    height:100%; width:30%; background:var(--cyan); border-radius:2px;
-    transform:translateX(0); will-change:transform;
+    position:relative; height:100%; width:30%; background:var(--cyan); border-radius:2px;
+    transform:translateX(0); will-change:transform; cursor:grab; touch-action:none;
   }
+  /* Invisible hit-area extension: the 4px visual track is too thin to
+     reliably grab with a mouse, so this pseudo-element pads the actual
+     draggable/clickable area to a comfortable ~16px without changing how
+     the thumb looks. */
+  .scroll-indicator .thumb::before{
+    content:''; position:absolute; left:0; right:0; top:-6px; bottom:-6px;
+  }
+  .scroll-indicator .thumb.dragging{ cursor:grabbing; }
   .season-table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
   .season-table th{
     text-align:left; padding:8px 10px; font-family:'Chakra Petch',sans-serif; font-size:10.5px;
@@ -950,7 +958,47 @@ function stWireScrollThumb(cardEl, thumbEl){
   window.addEventListener('load', update);
   if (document.fonts && document.fonts.ready){ document.fonts.ready.then(update).catch(()=>{}); }
   update();
+  stMakeThumbDraggable(cardEl, thumbEl);
   return update;
+}
+/* Drag support for the thumb (2026-08-10 fix): the ported team.html
+   component was only ever shown on mobile, where the table itself is
+   natively touch-scrollable, so the thumb never needed to be draggable —
+   it was a pure read-only indicator. Standings/Stats show this indicator
+   on desktop too (per explicit request to keep it "einheitlich" across
+   breakpoints), AND hide the native scrollbar unconditionally, so without
+   this, desktop mouse users had no way at all to scroll these tables
+   horizontally. Pointer Events (not mouse events) so it also works for
+   pen/touch input on the thumb itself, via setPointerCapture so drags
+   continue tracking even if the cursor leaves the thin 4px thumb. */
+function stMakeThumbDraggable(cardEl, thumbEl){
+  const track = thumbEl.parentElement;
+  let dragging = false, startX = 0, startScrollLeft = 0;
+  thumbEl.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startScrollLeft = cardEl.scrollLeft;
+    thumbEl.setPointerCapture(e.pointerId);
+    thumbEl.classList.add('dragging');
+    e.preventDefault();
+  });
+  thumbEl.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const trackWidth = track.clientWidth;
+    const thumbWidth = thumbEl.offsetWidth;
+    const maxThumbTranslate = trackWidth - thumbWidth;
+    const maxScroll = cardEl.scrollWidth - cardEl.clientWidth;
+    if (maxThumbTranslate <= 0 || maxScroll <= 0) return;
+    const dx = e.clientX - startX;
+    cardEl.scrollLeft = Math.max(0, Math.min(maxScroll, startScrollLeft + dx * (maxScroll / maxThumbTranslate)));
+  });
+  function endDrag(){
+    if (!dragging) return;
+    dragging = false;
+    thumbEl.classList.remove('dragging');
+  }
+  thumbEl.addEventListener('pointerup', endDrag);
+  thumbEl.addEventListener('pointercancel', endDrag);
 }
 const updateStandingsDriversThumb = stWireScrollThumb(
   document.getElementById("tblStandingsDrivers").closest(".table-card"), document.getElementById("thumbStandingsDrivers")
