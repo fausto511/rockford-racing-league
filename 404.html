@@ -6,32 +6,19 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rockford Racing League — Contact &amp; Support</title>
+<title>Rockford Racing League — Page Not Found</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="canonical" href="https://fausto511.github.io/rockford-racing-league/contact.html">
+<link rel="canonical" href="https://fausto511.github.io/rockford-racing-league/404.html">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://fausto511.github.io/rockford-racing-league/contact.html">
-<meta property="og:title" content="Rockford Racing League — Contact & Support">
-<meta property="og:description" content="Get in touch with the Rockford Racing League.">
+<meta property="og:url" content="https://fausto511.github.io/rockford-racing-league/404.html">
+<meta property="og:title" content="Rockford Racing League — Page Not Found">
+<meta property="og:description" content="This page could not be found. Head back to the Rockford Racing League homepage.">
 <meta property="og:image" content="https://fausto511.github.io/rockford-racing-league/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Rockford Racing League — Contact & Support">
-<meta name="twitter:description" content="Get in touch with the Rockford Racing League.">
+<meta name="twitter:title" content="Rockford Racing League — Page Not Found">
+<meta name="twitter:description" content="This page could not be found. Head back to the Rockford Racing League homepage.">
 <meta name="twitter:image" content="https://fausto511.github.io/rockford-racing-league/og-image.jpg">
-<meta name="description" content="Get in touch with the Rockford Racing League.">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ContactPage",
-  "name": "Contact — Rockford Racing League",
-  "url": "https://fausto511.github.io/rockford-racing-league/contact.html",
-  "about": {
-    "@type": "SportsOrganization",
-    "name": "Rockford Racing League",
-    "sameAs": "https://discord.gg/rsZUhJYBub"
-  }
-}
-</script>
+<meta name="description" content="This page could not be found. Head back to the Rockford Racing League homepage.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
@@ -161,57 +148,43 @@
   }
   .res-section > .sub{ color:var(--grey); font-size:14px; margin:0 auto 28px; text-align:center; max-width:850px; }
 
-  /* ---------- Contact/Support topic tiles ----------
-     2026-08-06: 3 confirmed categories (stats corrections, partnerships,
-     general info) + 3 placeholder slots for categories still to be defined.
-     Every tile's CTA points at the Discord invite — the only confirmed,
-     already-established contact channel for the league; swap individual
-     tiles to a dedicated email/form once/if one exists. */
-  .contact-grid{
-    display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; max-width:980px; margin:0 auto;
+  /* ---------- Commission member grid ----------
+     2026-08-06: real roster (6 members, user-confirmed). Photos reuse the
+     same driver headshots already on file for these 6 people (all are also
+     registered drivers) — same tokens as Team/Compare/Hall of Fame. Two
+     names were confirmed against existing near-matching driver records
+     (Devilcore -> Devillcore, Gasthurbels/Gasturbels -> Guzturbels) before
+     building this. John's and MXMNZL's titles ("Class Test Driver" /
+     "Track Test Driver") are Claude's proposed wording for roles the user
+     described functionally but didn't have a fixed title for — flagged to
+     the user, not dictated verbatim. */
+  .comm-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; max-width:980px; margin:0 auto;
   }
-  @media (max-width:860px){ .contact-grid{ grid-template-columns:1fr 1fr; } }
-  @media (max-width:560px){ .contact-grid{ grid-template-columns:1fr; } }
-  .contact-card{
+  @media (max-width:860px){ .comm-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .comm-grid{ grid-template-columns:1fr; } }
+  .comm-card{
     background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:20px;
-    padding:26px 22px; display:flex; flex-direction:column;
+    padding:26px 20px; text-align:center;
   }
-  .contact-card.placeholder{ border-style:dashed; border-color:rgba(245,246,248,.18); }
-  .contact-card h3{
+  .comm-avatar-img{
+    width:76px; height:76px; border-radius:50%; margin:0 auto 14px; display:block;
+    object-fit:cover; border:2px solid rgba(245,246,248,.16);
+  }
+  .comm-name{
     font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:21px; letter-spacing:.02em; margin:0 0 8px;
+    font-size:19px; letter-spacing:.02em;
   }
-  .contact-card.placeholder h3{ color:rgba(245,246,248,.4); }
-  .contact-card p{ color:var(--grey); font-size:13.5px; line-height:1.6; margin:0 0 18px; flex:1 0 auto; }
-  .contact-card.placeholder p{ color:rgba(199,204,212,.45); }
-  .contact-btn{
-    display:inline-flex; align-self:flex-start; align-items:center; gap:8px; background:transparent;
-    color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
-    font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; padding:10px 18px;
-    border-radius:999px; border:1px solid rgba(245,246,248,.28); transition:all .18s ease;
+  .comm-role{ color:var(--cyan); font-size:12px; margin-top:4px; text-transform:uppercase; letter-spacing:.04em; font-family:'Chakra Petch',sans-serif; font-weight:600; }
+  .comm-active{ color:var(--grey); font-size:11px; margin-top:6px; letter-spacing:.03em; font-family:'Chakra Petch',sans-serif; }
+  .comm-discord-btn{
+    display:inline-flex; align-items:center; gap:6px; margin-top:14px; padding:7px 14px;
+    border-radius:999px; border:1px solid rgba(245,246,248,.25); color:var(--white); text-decoration:none;
+    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+    transition:all .18s ease;
   }
-  .contact-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
-  .contact-btn-row{ display:flex; flex-wrap:wrap; gap:10px; }
-  .contact-faq-link{ text-align:center; margin-top:34px; }
-  .contact-faq-link a{
-    color:var(--grey); font-size:12.5px; text-transform:uppercase; letter-spacing:.06em;
-    font-family:'Chakra Petch',sans-serif; text-decoration:none; border-bottom:1px solid rgba(245,246,248,.25);
-    padding-bottom:2px; transition:color .2s ease, border-color .2s ease;
-  }
-  .contact-faq-link a:hover{ color:var(--cyan); border-color:var(--cyan); }
-  /* 2026-08-06 (user request): explicit Privacy Policy / Legal Notice links
-     right below the contact options — relevant here specifically because of
-     the data deletion/anonymization option above (also in the sitewide
-     footer, but that's easy to miss on a page about data requests). */
-  .contact-legal-links{
-    text-align:center; margin-top:14px; display:flex; align-items:center; justify-content:center;
-    gap:10px; color:rgba(199,204,212,.62); font-size:11px;
-  }
-  .contact-legal-links a{
-    color:rgba(199,204,212,.62); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    text-transform:uppercase; letter-spacing:.05em; font-size:11px; transition:color .2s ease;
-  }
-  .contact-legal-links a:hover{ color:var(--cyan); }
+  .comm-discord-btn svg{ width:13px; height:13px; fill:currentColor; flex:0 0 auto; }
+  .comm-discord-btn:hover, .comm-discord-btn:focus-visible{ border-color:var(--cyan); color:var(--cyan); }
 
   /* ---------- Footer (identical to the other subpages) ---------- */
   .finale-foot{
@@ -442,72 +415,17 @@
 
 <section class="res-hero">
   <div class="eyebrow">ROCKFORD RACING LEAGUE</div>
-  <h1>Contact &amp; Support</h1>
-  <p class="lede">Got a question, a correction, or a proposal? Here's where it goes.</p>
+  <h1>404 &mdash; Page Not Found</h1>
+  <p class="lede">This page took a wrong turn and isn't on the track. It may have been moved, renamed, or never existed in the first place.</p>
 </section>
 
 <div class="wrap">
 
-  <section class="res-section" id="contact">
-    <div class="contact-grid">
-      <div class="contact-card">
-        <h3>General Information</h3>
-        <p>Questions about the league, joining, or how things work? Ask away.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Ask on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-      <div class="contact-card">
-        <h3>Partnership Inquiries</h3>
-        <p>Interested in partnering with the RRL? Reach out and tell us what you have in mind.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Message us on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-      <div class="contact-card">
-        <h3>Media &amp; Press Requests</h3>
-        <p>Working on a story, video, or feature about the RRL? Get in touch.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Contact on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-      <div class="contact-card">
-        <h3>Community</h3>
-        <p>Get advice from fellow players — race craft, setups, or whatever's on your mind.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Chat on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-      <div class="contact-card">
-        <h3>Stats Correction</h3>
-        <p>Spotted an error in a driver's or team's stats? Let us know and we'll get it fixed.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Report on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-      <div class="contact-card">
-        <h3>Anonymization</h3>
-        <p>Want your personal data anonymized instead of directly linked to you? Reach out and we'll take care of it.</p>
-        <div class="contact-btn-row">
-          <a class="contact-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Request on Discord</a>
-          <a class="contact-btn" href="mailto:fausto89@web.de"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.24-7.4 6.47a1 1 0 0 1-1.2 0L4 8.24V18h16V8.24z"/></svg>Email us</a>
-        </div>
-      </div>
-    </div>
-    <div class="contact-faq-link"><a href="faq.html">Looking for a quick answer instead? Check the FAQ →</a></div>
-    <!-- Legal Notice / Privacy Policy: ausgeblendet bis Seiten befuellt sind
-    <div class="contact-legal-links">
-      <a href="privacy-policy.html">Privacy Policy</a>
-      <span aria-hidden="true">·</span>
-      <a href="legal-notice.html">Legal Notice</a>
-    </div>
-    -->
+  <section class="res-section" id="notfound" style="text-align:center; padding-top:8px;">
+    <a class="cta" href="index.html">Back to Home</a>
   </section>
+
+</section>
 
 </div>
 <div class="finale-foot">
