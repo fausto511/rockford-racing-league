@@ -5,7 +5,7 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rockford Racing League — Schedule</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://fausto511.github.io/rockford-racing-league/schedule.html">
@@ -346,612 +346,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
-<style>
-  :root, .viz-root{
-    color-scheme: dark;
-    --bg:#0b0c10;
-    --red:#e21c2b;
-    --red-2:#a3131f;
-    --cyan:#3ee1e8;
-    --white:#f5f6f8;
-    --grey:#c7ccd4;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;}
-  body{
-    background:var(--bg); color:var(--white);
-    font-family:'Source Sans 3', sans-serif;
-    font-size:14px; line-height:1.45; overflow-x:hidden;
-  }
-  a{color:var(--cyan);}
-  .viz-root{ display:flex; flex-direction:column; min-height:100vh; }
-  .wrap{max-width:1200px;margin:0 auto;padding:0 24px 0; position:relative; z-index:2; flex:1 0 auto; width:100%;}
-
-  /* ---------- Header (identical to the other subpages, for a consistent nav) ---------- */
-  header{
-    position:fixed; top:0; left:0; right:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:20px 30px; background:linear-gradient(180deg, rgba(0,0,0,.55), transparent);
-  }
-  .brand img{height:24px; width:auto; display:block;}
-  nav.desktop-nav{display:flex; align-items:center; gap:26px; list-style:none;}
-  nav.desktop-nav a{
-    color:rgba(245,246,248,.85); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
-    transition:color .2s ease;
-  }
-  nav.desktop-nav a:hover, nav.desktop-nav a:focus-visible{color:var(--cyan);}
-  nav.desktop-nav a.current{color:var(--red);}
-  .cta{
-    display:inline-flex; align-items:center; gap:8px; background:var(--red); color:#fff;
-    text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.06em; text-transform:uppercase; padding:11px 24px; border-radius:999px;
-    transition:all .18s ease;
-  }
-  .cta:hover{background:var(--red-2); transform:translateY(-1px);}
-  a:focus-visible, button:focus-visible{outline:2px solid var(--cyan); outline-offset:3px;}
-  .burger{display:none; background:none; border:none; cursor:pointer;}
-  .burger span{display:block; width:22px; height:2px; background:var(--white); margin:5px 0;}
-
-  /* ---------- Ambient background flag texture (same asset/technique as
-     Compare/Stats/Hall of Fame) ---------- */
-  /* position:fixed (2026-08-03) so the flag stays pinned to the viewport
-     at any scroll depth instead of scrolling away after the hero — user
-     request, confirmed via demo (v5-v8). Only for this shared flag
-     texture, not for pages with a real hero photo (Homepage, Team). */
-  .res-bg-flag{
-    position:fixed; top:0; left:0; right:0; height:300px; z-index:0; pointer-events:none;
-    background-image:url('assets/backgrounds/checkered-flag.png');
-    background-size:cover; background-position:center top; background-repeat:no-repeat;
-    opacity:.16; mix-blend-mode:screen;
-    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 100%);
-    mask-image:linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 100%);
-  }
-
-  /* ---------- Content fade-on-scroll (2026-08-03) — prevents page content
-     from visually clashing with the header's semi-transparent background
-     while scrolling (user-reported issue). A CSS mask makes the content's
-     OWN pixels transparent as it nears the header — nothing is painted on
-     top, so it never covers/darkens anything, and the flag background
-     stays fully visible throughout. The gradient is defined in the
-     wrapper's local coordinate space; a small script re-offsets
-     mask-position by the current scrollY every scroll tick so the fade
-     band stays pinned to the viewport (not the document), working the
-     same on every section, not just the hero. Eased via extra stops
-     (smoothstep-style S-curve) rather than one straight linear ramp,
-     since a linear alpha fade against high-contrast text looks more
-     abrupt than it numerically is. Zone is 70px-170px: 70px matches the
-     header's own height (content is already fully behind it there
-     regardless), 170px is calibrated to sit just below where the hero
-     title rests at scroll=0 (measured via Playwright) so nothing fades
-     before the user actually scrolls. Demoed and approved as v8 before
-     rollout — see RRL-Dashboard-Workflow-Notizen.md. */
-  .fade-content{
-    -webkit-mask-image: linear-gradient(to bottom,
-      transparent 0, transparent 70px,
-      rgba(0,0,0,.156) 95px,
-      rgba(0,0,0,.5) 120px,
-      rgba(0,0,0,.844) 145px,
-      #000 170px);
-    mask-image: linear-gradient(to bottom,
-      transparent 0, transparent 70px,
-      rgba(0,0,0,.156) 95px,
-      rgba(0,0,0,.5) 120px,
-      rgba(0,0,0,.844) 145px,
-      #000 170px);
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: 0 0;
-    mask-position: 0 0;
-  }
-
-  /* ---------- Hero: plain title-block hero, same pattern as Stats/Compare/
-     Teams (eyebrow + h1 + short lede) — Resources has no dedicated
-     reference graphic like Hall of Fame did, so no custom logo hero here. */
-  .res-hero{ position:relative; z-index:2; padding:150px 24px 46px; text-align:center; }
-  .res-hero .eyebrow{
-    font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:13px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--cyan);
-    line-height:normal;
-  }
-  .res-hero h1{
-    font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:clamp(40px,7vw,72px); letter-spacing:.02em; margin-top:14px; margin-bottom:0;
-    line-height:1;
-  }
-  .res-hero .lede{
-    color:var(--grey); font-size:14px; margin-top:16px; margin-bottom:0; max-width:850px;
-    margin-left:auto; margin-right:auto; line-height:1.6;
-  }
-
-  /* ---------- Next Race badge (hero) ----------
-     2026-08-06: live countdown to the next race, linking down to the
-     calendar. Same visual language as the identical badge on the
-     Homepage hero — see homepage_skeleton18.html for the twin copy. */
-  /* 2026-08-06 (user feedback, 2nd pass): dropped "Race N" and "Qualifying
-     in" — just dot, date, countdown now. flex-wrap + centered text so it
-     folds onto a 2nd line on narrow screens instead of overflowing — see
-     the max-width:480px rule further down. */
-  .next-race-badge{
-    display:inline-flex; align-items:center; flex-wrap:wrap; justify-content:center;
-    gap:8px 10px; margin:20px auto 0; max-width:100%;
-    background:rgba(245,246,248,.04); border:1px solid rgba(62,225,232,.4); border-radius:999px;
-    padding:9px 20px; text-decoration:none; color:var(--white); text-align:center;
-    font-family:'Chakra Petch',sans-serif; font-size:12.5px; font-weight:600; letter-spacing:.03em;
-    transition:border-color .2s ease, background .2s ease;
-  }
-  .next-race-badge:hover, .next-race-badge:focus-visible{ border-color:var(--cyan); background:rgba(245,246,248,.08); }
-  .next-race-badge .nrb-dot{
-    width:7px; height:7px; border-radius:50%; background:var(--cyan); flex:0 0 auto;
-    box-shadow:0 0 8px rgba(62,225,232,.8);
-  }
-  .next-race-badge .nrb-label{ color:var(--cyan); text-transform:uppercase; letter-spacing:.08em; }
-  .next-race-badge .nrb-sep{ opacity:.4; }
-  .next-race-badge .nrb-meta{ opacity:.68; font-weight:600; }
-  .next-race-badge .nrb-countdown{ color:var(--white); font-weight:700; }
-  .next-race-badge .nrb-countdown.live{ color:var(--red); }
-  @media (max-width:480px){
-    .next-race-badge{ font-size:11.5px; padding:8px 16px; gap:6px 8px; }
-  }
-
-  /* ---------- Generic content section ---------- */
-  .res-section{ position:relative; z-index:3; padding:16px 0 56px; }
-  .res-section > h2{
-    font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:clamp(26px,3.2vw,36px); letter-spacing:.02em; margin:0 0 6px; text-align:center;
-  }
-  .res-section > .sub{ color:var(--grey); font-size:14px; margin:0 0 28px; text-align:center; }
-
-  /* ---------- Current-season standings ----------
-     2026-08-06: table shells only — no roster/results data has been
-     supplied yet for the currently-running season (user is sending it
-     separately). Wire the two <tbody>s up to real rows once that data
-     exists; columns already match the Stats page's per-season "compact"
-     view for consistency. */
-  /* 2026-08-06: stacked (not side-by-side) — both tables now show every
-     column from the Stats page's Season View "full" mode, so they're each
-     too wide for a 2-column layout to make sense; horizontal scroll on the
-     .table-card itself handles the width instead. */
-  .season-standings-grid{ display:flex; flex-direction:column; gap:20px; }
-  .table-card{
-    background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:16px;
-    padding:20px; overflow-x:auto;
-  }
-  .table-card h3{
-    font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:20px; letter-spacing:.02em; margin:0 0 14px;
-  }
-  .season-table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
-  .season-table th{
-    text-align:left; padding:8px 10px; font-family:'Chakra Petch',sans-serif; font-size:10.5px;
-    text-transform:uppercase; letter-spacing:.05em; color:var(--grey); border-bottom:1px solid rgba(245,246,248,.14);
-    white-space:nowrap;
-  }
-  .season-table td{ padding:9px 10px; font-size:13px; border-bottom:1px solid rgba(245,246,248,.06); white-space:nowrap; }
-  .season-table .empty-row td{
-    color:rgba(199,204,212,.5); text-align:center; padding:22px 10px; font-size:13px; border-bottom:none;
-  }
-
-  /* ---------- Race calendar tiles ----------
-     2026-08-06: 15 races, weekly on Sundays starting Aug 16 2026 (user-
-     confirmed rhythm). Same time slot every race day — qualifying 19:45,
-     event ends 21:15 after the main race (1h30) — computed with the
-     Europe/Berlin DST switch (25 Oct 2026) already accounted for in each
-     race's stored ISO timestamp, so the countdowns stay correct across the
-     CEST→CET change mid-season. Tracks aren't known ahead of time (only
-     announced shortly before qualifying, per the rules page) — placeholder
-     art + "Track TBA" instead of a title; fill in the real name after each
-     race. */
-  .race-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
-  @media (max-width:960px){ .race-grid{ grid-template-columns:1fr 1fr; } }
-  /* 2026-08-11 (user request): below 620px, a single-column stack forced
-     endless vertical scrolling through 15 race cards. Swapped to a
-     horizontally swipeable row (scroll-snap, hidden scrollbar) showing
-     one full card plus a peek of the next — same swipe-row recipe as
-     media.html's .media-track carousels — so the next race is always
-     visibly one swipe away instead of buried further down the page. */
-  @media (max-width:620px){
-    .race-grid{
-      display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
-      gap:14px; padding:2px 2px 10px; scrollbar-width:none; -ms-overflow-style:none;
-    }
-    .race-grid::-webkit-scrollbar{ display:none; height:0; }
-    /* 2026-08-11 (user follow-up): widened from a 1.5-tile to a 1.3-tile
-       peek so the Join on Discord / Watch Live buttons (shrunk below)
-       have enough room to sit side by side instead of stacking — traded
-       a bit of peek width for that, per explicit user OK. */
-    .race-card{ flex:0 0 calc((100% - 14px) / 1.3); scroll-snap-align:start; }
-    /* Longest possible weather label ("Rain expected HH:MM–HH:MM,
-       HH:MM–HH:MM" when two rain windows fall in one race) no longer
-       fits on one line at this card width even after the widening above
-       — ellipsis keeps it a single line always (full text is one tap
-       away via the pill's own link to the Rain Forecast page) instead of
-       wrapping into a second, ragged line. */
-    .race-weather{
-      max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-  }
-  .race-card{
-    background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:18px;
-    overflow:hidden; display:flex; flex-direction:column;
-  }
-  .race-card.live{ border-color:rgba(226,28,43,.55); }
-  .race-card.completed{ opacity:.55; }
-  /* 2026-08-08: uniform placeholder photo (same file on all 15 cards —
-     we don't have per-track photos). 2026-08-09: dropped the tint gradient
-     over the photo — a real photo doesn't need one on its own. 2026-08-09
-     (later, same day): brought the "Track TBA" icon+label back on top of
-     the photo per explicit feedback — tracks genuinely aren't announced
-     yet, so the photo alone was misleading. A light, flat dark tint
-     (not a gradient) keeps the label legible while leaving the photo
-     clearly recognisable underneath. */
-  .race-card-img{
-    position:relative; height:100px; overflow:hidden;
-    background:url('assets/backgrounds/race-card-bg.jpg');
-    background-size:cover; background-position:center; background-repeat:no-repeat;
-  }
-  .race-card-img::before{
-    content:''; position:absolute; inset:0; background:rgba(11,12,16,.45);
-  }
-  .race-card-img-label{
-    position:relative; z-index:1; height:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-  }
-  .race-card-img-label svg{ width:24px; height:24px; fill:none; stroke:rgba(245,246,248,.8); stroke-width:1.6; }
-  .race-card-img-label span{
-    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.08em;
-    text-transform:uppercase; color:rgba(245,246,248,.85); text-shadow:0 1px 4px rgba(0,0,0,.5);
-  }
-  .race-card-body{ padding:16px 18px 18px; }
-  .race-round{
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em;
-    text-transform:uppercase; color:var(--cyan); text-align:center;
-  }
-  .race-date{
-    font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.02em; text-transform:uppercase;
-    margin-top:4px; text-align:center;
-  }
-  /* 2026-08-08: shared label/value row component — full card width, label
-     left / value right, divider line above each row. Used by both the
-     Full Schedule cards (.race-datarows) and the hero (.nrh-datarows).
-     Per explicit spec: divider under Date, then Start Time, divider,
-     Duration, divider, Qualifying (live countdown to qualifying) — no
-     divider after the last row, then the weather pill, then buttons. */
-  .data-row{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:9px 0; border-top:1px solid rgba(245,246,248,.12);
-  }
-  .data-row-label{
-    font-family:'Chakra Petch',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.07em;
-    text-transform:uppercase; color:rgba(245,246,248,.45);
-  }
-  .data-row-value{ font-family:'Chakra Petch',sans-serif; font-size:13px; font-weight:600; color:var(--white); }
-  .race-datarows{ margin-top:10px; }
-  .race-card.live [data-role="qualcountdown"]{ color:var(--red); }
-  .race-card.completed [data-role="qualcountdown"]{ color:rgba(199,204,212,.6); }
-  /* 2026-08-08: reverted to a single-line badge (no Yes/No label, multiple
-     rain windows comma-joined) per explicit user feedback — the stacked
-     multi-line version tried earlier looked worse, not better. Shared
-     verbatim by the hero's .nrh-weather. */
-  .race-weather{
-    display:flex; width:fit-content; margin:10px auto 0; align-items:center; gap:6px;
-    font-family:'Chakra Petch',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.02em;
-    padding:5px 10px; border-radius:999px; text-decoration:none; transition:opacity .18s ease;
-  }
-  .race-weather.wet{ background:rgba(62,225,232,.12); color:var(--cyan); }
-  .race-weather.dry{ background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
-  .race-weather:hover{ opacity:.75; }
-  /* 2026-08-09: more breathing room before the buttons, roughly matching
-     the gap above the weather pill (per explicit feedback that it looked
-     too tight against Discord/Watch Live). */
-  .race-btn-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:18px; }
-  .race-join-btn{
-    display:inline-flex; align-items:center; gap:8px; background:transparent;
-    color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
-    font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 16px;
-    border-radius:999px; border:1px solid rgba(245,246,248,.28); transition:all .18s ease;
-    /* 2026-08-10 (user feedback): text sat slightly high in the pill.
-       Tested several line-height values against the actual rendered glyph
-       box (not just the CSS line box): the inherited numeric line-height
-       left a small asymmetry, and line-height:1 made it slightly worse —
-       line-height:normal (uses the font's own metrics instead of an
-       arbitrary multiplier) is what measured perfectly symmetric. */
-    line-height:normal;
-  }
-  .race-join-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
-  /* 2026-08-11 (user request): shrunk just enough (measured against the
-     two button labels at the 1.3-tile card width above) for Join on
-     Discord + Watch Live to fit side by side instead of wrapping into two
-     stacked rows. Placed after the base .race-join-btn/.race-btn-row
-     rules on purpose — same source-order pitfall as the footer's mobile
-     override elsewhere on this site: an earlier same-specificity rule
-     loses to a later one, so this override must come after, not before. */
-  @media (max-width:620px){
-    .race-join-btn{ font-size:10.5px; padding:8px 12px; letter-spacing:.03em; white-space:nowrap; flex-shrink:0; }
-    .race-btn-row{ flex-wrap:nowrap; gap:6px; }
-  }
-
-  /* ---------- Big Next-Race hero (schedule.html) ----------
-     2026-08-08 redesign, revised twice same day per follow-up feedback:
-     full-bleed image on the right (~2/3 width, touches top/right/bottom
-     edges, no inset) with the countdown box overlaid top-right of it;
-     text + data rows + buttons in the left third. "Race N of 15" sits
-     directly next to the "Next Race" eyebrow. Data rows (Start Time /
-     Duration / Qualifying) use the shared .data-row component — full
-     width, label left / value right, divider above each — same pattern
-     as the Full Schedule cards below, per explicit spec.
-     2026-08-09: card background matches the plain anthracite .race-card
-     tone (visible behind the text column, since the image covers the
-     rest) instead of the earlier red/cyan tint gradient — no longer
-     needed now that every card shows a real photo. */
-  .next-race-hero{
-    position:relative; z-index:3; overflow:hidden; margin:8px 0 40px;
-    background:rgba(245,246,248,.03);
-    border:1px solid rgba(245,246,248,.09); border-radius:24px;
-    display:grid; grid-template-columns:1fr 2fr;
-  }
-  @media (max-width:820px){ .next-race-hero{ grid-template-columns:1fr; } }
-  .nrh-content{
-    position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center;
-    padding:26px clamp(20px,3.5vw,32px);
-  }
-  .nrh-topbar{ display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
-  .nrh-eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--cyan);
-  }
-  .nrh-dot{
-    width:8px; height:8px; border-radius:50%; background:var(--cyan); flex:0 0 auto;
-    box-shadow:0 0 10px rgba(62,225,232,.9);
-  }
-  .nrh-round{
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:.06em;
-    text-transform:uppercase; color:rgba(245,246,248,.5);
-  }
-  .nrh-date{
-    font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,3.6vw,40px); letter-spacing:.02em;
-    text-transform:uppercase; line-height:1.05; text-align:center;
-  }
-  .nrh-datarows{ margin-top:12px; }
-  .nrh-datarows .data-row-value{ font-size:14.5px; }
-  .nrh-content .nrh-countdown-value.live{ color:var(--red); }
-  .nrh-weather{
-    display:flex; width:fit-content; align-items:center; gap:6px; margin:14px auto 0; align-self:center;
-    font-family:'Chakra Petch',sans-serif; font-size:12px; font-weight:600; letter-spacing:.02em;
-    padding:6px 14px; border-radius:999px; text-decoration:none; transition:opacity .18s ease;
-  }
-  .nrh-weather.wet{ background:rgba(62,225,232,.12); color:var(--cyan); }
-  .nrh-weather.dry{ background:rgba(245,246,248,.05); color:rgba(199,204,212,.6); }
-  .nrh-weather:hover{ opacity:.75; }
-  /* 2026-08-09: more breathing room before the buttons, roughly matching
-     the gap above the weather pill (per explicit feedback). */
-  .nrh-btn-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:26px; }
-  .nrh-btn{
-    display:inline-flex; align-items:center; gap:8px; background:transparent;
-    color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700;
-    font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 16px;
-    border-radius:999px; border:1px solid rgba(245,246,248,.28); transition:all .18s ease;
-    line-height:normal;
-  }
-  .nrh-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
-  .nrh-media{ position:relative; }
-  /* 2026-08-08: uniform placeholder photo (same file for every race,
-     since we don't have per-event photos — assets/backgrounds/next-race-bg.jpg,
-     sourced from Slides/121.png per explicit request). */
-  .nrh-media-art{
-    position:absolute; inset:0;
-    background:url('assets/backgrounds/next-race-bg.jpg');
-    background-size:cover; background-position:center; background-repeat:no-repeat;
-  }
-  .nrh-countdown-box{
-    position:absolute; top:16px; right:16px;
-    background:rgba(11,12,16,.72); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-    border:1px solid rgba(245,246,248,.18); border-radius:14px;
-    padding:12px 14px 10px; text-align:center;
-  }
-  .nrh-countdown-label{
-    font-family:'Chakra Petch',sans-serif; font-size:9.5px; font-weight:700; letter-spacing:.1em;
-    text-transform:uppercase; color:rgba(245,246,248,.55); margin-bottom:8px; white-space:nowrap;
-  }
-  .nrh-countdown-segments{ display:flex; justify-content:center; gap:12px; }
-  .nrh-seg{ display:flex; flex-direction:column; align-items:center; gap:2px; min-width:32px; }
-  .nrh-seg-num{ font-family:'Bebas Neue',sans-serif; font-size:clamp(20px,3.2vw,26px); color:var(--white); line-height:1; }
-  .nrh-seg-label{
-    font-family:'Chakra Petch',sans-serif; font-size:8px; font-weight:700; letter-spacing:.06em;
-    text-transform:uppercase; color:rgba(245,246,248,.45);
-  }
-  .nrh-countdown-box.live .nrh-seg-num{ color:var(--red); }
-  /* 2026-08-08: data rows (Start Time/Duration/Qualifying) stay label-left
-     / value-right at every width — round/date/weather/buttons are what
-     get centered (rules above, unconditional), not the rows. An earlier
-     pass wrongly centered .data-row here too, breaking the left/right
-     alignment on mobile; fixed by not touching .data-row in this query. */
-  @media (max-width:820px){
-    /* 2026-08-09: on mobile the two grid rows stack in DOM order (text
-       first) by default — flip visually so the image strip sits on top,
-       matching how the Full Schedule cards already do it (image strip
-       above the text body), per explicit feedback. */
-    .nrh-media{ order:-1; min-height:200px; }
-    .nrh-content{ order:1; }
-    /* 2026-08-09: the segmented Days/Hrs/Mins/Sec box is dropped on mobile
-       only (still on the image on desktop) — on a narrow image strip it
-       was "a bit too much", per explicit feedback. The countdown value is
-       still visible via the Qualifying data-row above. */
-    .nrh-countdown-box{ display:none; }
-  }
-
-  /* ---------- Footer (identical to the other subpages) ---------- */
-  .finale-foot{
-    display:flex; flex-direction:column; align-items:center; text-align:center;
-    padding:16px 24px 40px; position:relative; z-index:3;
-  }
-  .finale-cta{
-    display:inline-flex; align-items:center; justify-content:center;
-    border:1.5px solid rgba(245,246,248,.5); color:var(--white); text-decoration:none;
-    padding:15px 28px 15px 18px; border-radius:999px; max-width:min(90vw,620px);
-    transition:background .3s ease;
-    position:relative; z-index:2;
-    background:rgba(11,12,16,.3);
-  }
-  .finale-cta:hover, .finale-cta:focus-visible{ background:rgba(245,246,248,.07); }
-  .finale-cta-left{ display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:22px; }
-  .finale-cta-icon{ flex:0 0 auto; width:24px; height:24px; color:var(--white); }
-  .finale-cta-icon svg{ width:100%; height:100%; fill:currentColor; display:block; }
-  .finale-cta-title{
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13.5px;
-    letter-spacing:.09em; text-transform:uppercase; white-space:nowrap;
-  }
-  .finale-cta-divider{
-    width:1px; align-self:stretch; background:rgba(245,246,248,.32); margin-right:22px; flex:0 0 auto;
-  }
-  .finale-cta-sub{
-    font-family:'Source Sans 3',sans-serif; font-size:12px; line-height:1.42; color:rgba(245,246,248,.72);
-  }
-  @media (max-width:560px){
-    .finale-cta{ flex-wrap:wrap; padding:18px 22px; }
-    .finale-cta-left{ padding-right:0; }
-    .finale-cta-divider{ display:none; }
-    .finale-cta-sub{ width:100%; margin-top:8px; }
-  }
-  .finale-social{
-    position:relative; z-index:2;
-    display:flex; align-items:center; justify-content:center; gap:26px;
-    margin-top:26px;
-  }
-  .finale-social-btn{
-    width:auto; height:auto; flex:0 0 auto;
-    display:flex; align-items:center; justify-content:center;
-    color:var(--white); text-decoration:none;
-  }
-  .finale-social-btn svg{ width:22px; height:22px; fill:currentColor; }
-  .finale-social-btn.ps-mark{
-    width:27px; height:21px; background-color:var(--white);
-    -webkit-mask-image:url('data:image/png;base64,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');
-    mask-image:url('data:image/png;base64,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');
-    -webkit-mask-size:contain; mask-size:contain;
-    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-    -webkit-mask-position:center; mask-position:center;
-  }
-
-  /* 2026-08-06 (user report): the footer menu wasn't visually centered —
-     space-between with 3 unequal-width items (logo / menu / copyright)
-     doesn't land the middle item on true center. Grid with symmetric outer
-     columns fixes that; stacks to a single centered column on mobile. */
-  footer.site-footer{
-    position:relative; z-index:3; display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
-    gap:16px; padding:28px 30px; border-top:1px solid rgba(245,246,248,.08);
-  }
-  footer.site-footer img{ height:20px; width:auto; opacity:.85; justify-self:start; }
-  footer.site-footer .foot-links{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; justify-self:center; }
-  footer.site-footer a{
-    color:rgba(245,246,248,.7); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
-  }
-  footer.site-footer a:hover{ color:var(--cyan); }
-  footer.site-footer .copy{ color:rgba(199,204,212,.5); font-size:11.5px; justify-self:end; }
-
-  /* 2026-08-10 (user report, verified): moved below the general
-     footer.site-footer img/.foot-links/.copy rules -- at equal CSS
-     specificity the later rule in source order wins, so this mobile
-     override must come AFTER them or the general img rule's
-     justify-self:start silently wins back on narrow viewports too,
-     which is exactly what was pinning the logo to the left instead of
-     centering it on mobile. */
-  @media (max-width:760px){
-    footer.site-footer{ grid-template-columns:1fr; justify-items:center; text-align:center; }
-    footer.site-footer img, footer.site-footer .foot-links, footer.site-footer .copy{ justify-self:center; }
-  }
-
-  @media (max-width:860px){
-    header{padding:14px 18px;}
-    nav.desktop-nav{display:none;} .burger{display:block;}
-    .wrap{padding:0 16px 0;}
-    .res-hero{padding:120px 20px 40px;}
-  }
-
-  /* ---------- Resources nav dropdown (2026-08-03) — desktop hover +
-     keyboard :focus-within, mirrors the old Wix site's REGELN dropdown
-     (Rules / Classes / Tracks). Menu box sits flush (top:100%, no
-     margin-top gap) against the trigger so there's no hover dead-zone.
-     Hidden on mobile along with the rest of nav.desktop-nav until the
-     hamburger menu itself gets built (pre-existing gap, not new). ---------- */
-  .nav-dropdown{ position:relative; font-size:13px; }
-  .nav-dropdown .dropdown-trigger{ cursor:pointer; }
-  .nav-dropdown .chevron{
-    display:inline-block; width:6px; height:6px;
-    border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
-    transform:rotate(45deg); vertical-align:middle; margin-left:6px; margin-bottom:2px;
-    transition:transform .18s ease;
-  }
-  .nav-dropdown:hover .chevron, .nav-dropdown:focus-within .chevron{ transform:rotate(225deg); }
-  .dropdown-menu{
-    position:absolute; top:100%; left:50%; transform:translateX(-50%);
-    min-width:200px; background:rgba(14,15,19,.97); border:1px solid rgba(245,246,248,.12);
-    border-radius:12px; padding:8px;
-    opacity:0; visibility:hidden; pointer-events:none; transition:opacity .16s ease;
-    box-shadow:0 16px 40px rgba(0,0,0,.45);
-  }
-  .nav-dropdown:hover .dropdown-menu, .nav-dropdown:focus-within .dropdown-menu{
-    opacity:1; visibility:visible; pointer-events:auto;
-  }
-  .dropdown-menu a{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:9px 12px; border-radius:8px; font-size:12px; white-space:nowrap;
-  }
-  .dropdown-menu a:hover, .dropdown-menu a:focus-visible{ background:rgba(245,246,248,.08); color:var(--cyan); }
-  .dropdown-menu a.current{ color:var(--red); }
-  .ext-icon{ display:inline-flex; align-items:center; vertical-align:-1px; }
-  .ext-icon svg{ width:11px; height:11px; display:block; }
-  .dropdown-menu .ext-icon{ opacity:.65; }
-
-  /* ---------- Mobile nav drawer (2026-08-04) ---------- */
-  .mobile-nav-overlay{
-    position:fixed; inset:0; background:rgba(6,7,9,.6); backdrop-filter:blur(2px);
-    opacity:0; visibility:hidden; transition:opacity .25s ease; z-index:150;
-  }
-  .mobile-nav-overlay.open{ opacity:1; visibility:visible; }
-  .mobile-nav{
-    position:fixed; top:0; right:0; bottom:0; width:min(320px, 82vw);
-    background:rgba(14,15,19,.98); border-left:1px solid rgba(245,246,248,.1);
-    z-index:151; padding:88px 28px 32px; display:flex; flex-direction:column; gap:2px;
-    transform:translateX(100%); transition:transform .3s ease; overflow-y:auto;
-  }
-  .mobile-nav.open{ transform:translateX(0); }
-  .mobile-nav a{
-    color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    font-size:15px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
-    padding:13px 4px; border-bottom:1px solid rgba(245,246,248,.08); display:block;
-  }
-  .mobile-nav a.current{ color:var(--red); }
-  .mobile-nav a:hover, .mobile-nav a:focus-visible{ color:var(--cyan); }
-  .mobile-nav-group{ display:flex; flex-direction:column; }
-  .mobile-nav-group .mobile-nav-heading{
-    color:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:11.5px;
-    font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:13px 4px 4px;
-  }
-  .mobile-nav-group a{ padding-left:16px; font-size:13.5px; border-bottom:none; }
-  .mobile-nav-group a:last-child{ border-bottom:1px solid rgba(245,246,248,.08); padding-bottom:13px; }
-  .mobile-nav-cta{
-    margin-top:16px; text-align:center; background:var(--red); color:var(--white) !important;
-    border-radius:10px; border-bottom:none !important; padding:13px !important;
-  }
-  .burger{ position:relative; z-index:152; }
-  .burger span{ transition:transform .25s ease, opacity .2s ease; }
-  .burger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
-  .burger.open span:nth-child(2){ opacity:0; }
-  .burger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
-  body.nav-open{ overflow:hidden; }
-  body.nav-open header{ z-index:155; }
-
-  .skip-link{
-    position:absolute; top:-999px; left:0; z-index:9999;
-    background:var(--red); color:var(--white); padding:12px 20px;
-    font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:14px;
-    text-decoration:none; border-radius:0 0 8px 0;
-  }
-  .skip-link:focus{ top:0; }
-</style>
+<style>.viz-root,:root{color-scheme:dark;--bg:#0b0c10;--red:#e21c2b;--red-2:#a3131f;--cyan:#3ee1e8;--white:#f5f6f8;--grey:#c7ccd4}*{box-sizing:border-box}body,html{margin:0;padding:0;height:100%}body{background:var(--bg);color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:14px;line-height:1.45;overflow-x:hidden}a{color:var(--cyan)}.viz-root{display:flex;flex-direction:column;min-height:100vh}.wrap{max-width:1200px;margin:0 auto;padding:0 24px 0;position:relative;z-index:2;flex:1 0 auto;width:100%}header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px 30px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}.brand img{height:24px;width:auto;display:block}nav.desktop-nav{display:flex;align-items:center;gap:26px;list-style:none}nav.desktop-nav a{color:rgba(245,246,248,.85);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s ease}nav.desktop-nav a:focus-visible,nav.desktop-nav a:hover{color:var(--cyan)}nav.desktop-nav a.current{color:var(--red)}.cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;text-decoration:none;font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:11px 24px;border-radius:999px;transition:all .18s ease}.cta:hover{background:var(--red-2);transform:translateY(-1px)}a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}.burger{display:none;background:0 0;border:none;cursor:pointer}.burger span{display:block;width:22px;height:2px;background:var(--white);margin:5px 0}.res-bg-flag{position:fixed;top:0;left:0;right:0;height:300px;z-index:0;pointer-events:none;background-image:url('assets/backgrounds/checkered-flag.png');background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:.16;mix-blend-mode:screen;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,0) 100%);mask-image:linear-gradient(180deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,0) 100%)}.fade-content{-webkit-mask-image:linear-gradient(to bottom,transparent 0,transparent 70px,rgba(0,0,0,.156) 95px,rgba(0,0,0,.5) 120px,rgba(0,0,0,.844) 145px,#000 170px);mask-image:linear-gradient(to bottom,transparent 0,transparent 70px,rgba(0,0,0,.156) 95px,rgba(0,0,0,.5) 120px,rgba(0,0,0,.844) 145px,#000 170px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:0 0;mask-position:0 0}.res-hero{position:relative;z-index:2;padding:150px 24px 46px;text-align:center}.res-hero .eyebrow{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);line-height:normal}.res-hero h1{font-family:'Bebas Neue',sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(40px,7vw,72px);letter-spacing:.02em;margin-top:14px;margin-bottom:0;line-height:1}.res-hero .lede{color:var(--grey);font-size:14px;margin-top:16px;margin-bottom:0;max-width:850px;margin-left:auto;margin-right:auto;line-height:1.6}.next-race-badge{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:8px 10px;margin:20px auto 0;max-width:100%;background:rgba(245,246,248,.04);border:1px solid rgba(62,225,232,.4);border-radius:999px;padding:9px 20px;text-decoration:none;color:var(--white);text-align:center;font-family:'Chakra Petch',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.03em;transition:border-color .2s ease,background .2s ease}.next-race-badge:focus-visible,.next-race-badge:hover{border-color:var(--cyan);background:rgba(245,246,248,.08)}.next-race-badge .nrb-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);flex:0 0 auto;box-shadow:0 0 8px rgba(62,225,232,.8)}.next-race-badge .nrb-label{color:var(--cyan);text-transform:uppercase;letter-spacing:.08em}.next-race-badge .nrb-sep{opacity:.4}.next-race-badge .nrb-meta{opacity:.68;font-weight:600}.next-race-badge .nrb-countdown{color:var(--white);font-weight:700}.next-race-badge .nrb-countdown.live{color:var(--red)}@media (max-width:480px){.next-race-badge{font-size:11.5px;padding:8px 16px;gap:6px 8px}}.res-section{position:relative;z-index:3;padding:16px 0 56px}.res-section>h2{font-family:'Bebas Neue',sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(26px,3.2vw,36px);letter-spacing:.02em;margin:0 0 6px;text-align:center}.res-section>.sub{color:var(--grey);font-size:14px;margin:0 0 28px;text-align:center}.season-standings-grid{display:flex;flex-direction:column;gap:20px}.table-card{background:rgba(245,246,248,.03);border:1px solid rgba(245,246,248,.09);border-radius:16px;padding:20px;overflow-x:auto}.table-card h3{font-family:'Bebas Neue',sans-serif;font-weight:400;text-transform:uppercase;font-size:20px;letter-spacing:.02em;margin:0 0 14px}.season-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}.season-table th{text-align:left;padding:8px 10px;font-family:'Chakra Petch',sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);border-bottom:1px solid rgba(245,246,248,.14);white-space:nowrap}.season-table td{padding:9px 10px;font-size:13px;border-bottom:1px solid rgba(245,246,248,.06);white-space:nowrap}.season-table .empty-row td{color:rgba(199,204,212,.5);text-align:center;padding:22px 10px;font-size:13px;border-bottom:none}.race-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}@media (max-width:960px){.race-grid{grid-template-columns:1fr 1fr}}@media (max-width:620px){.race-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;gap:14px;padding:2px 2px 10px;scrollbar-width:none;-ms-overflow-style:none}.race-grid::-webkit-scrollbar{display:none;height:0}.race-card{flex:0 0 calc((100% - 14px)/ 1.3);scroll-snap-align:start}.race-weather{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}.race-card{background:rgba(245,246,248,.03);border:1px solid rgba(245,246,248,.09);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}.race-card.live{border-color:rgba(226,28,43,.55)}.race-card.completed{opacity:.55}.race-card-img{position:relative;height:100px;overflow:hidden;background:url('assets/backgrounds/race-card-bg.jpg');background-size:cover;background-position:center;background-repeat:no-repeat}.race-card-img::before{content:'';position:absolute;inset:0;background:rgba(11,12,16,.45)}.race-card-img-label{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}.race-card-img-label svg{width:24px;height:24px;fill:none;stroke:rgba(245,246,248,.8);stroke-width:1.6}.race-card-img-label span{font-family:'Chakra Petch',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,246,248,.85);text-shadow:0 1px 4px rgba(0,0,0,.5)}.race-card-body{padding:16px 18px 18px}.race-round{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);text-align:center}.race-date{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.02em;text-transform:uppercase;margin-top:4px;text-align:center}.data-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid rgba(245,246,248,.12)}.data-row-label{font-family:'Chakra Petch',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(245,246,248,.45)}.data-row-value{font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;color:var(--white)}.race-datarows{margin-top:10px}.race-card.live [data-role=qualcountdown]{color:var(--red)}.race-card.completed [data-role=qualcountdown]{color:rgba(199,204,212,.6)}.race-weather{display:flex;width:fit-content;margin:10px auto 0;align-items:center;gap:6px;font-family:'Chakra Petch',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.02em;padding:5px 10px;border-radius:999px;text-decoration:none;transition:opacity .18s ease}.race-weather.wet{background:rgba(62,225,232,.12);color:var(--cyan)}.race-weather.dry{background:rgba(245,246,248,.05);color:rgba(199,204,212,.6)}.race-weather:hover{opacity:.75}.race-btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}.race-join-btn{display:inline-flex;align-items:center;gap:8px;background:0 0;color:var(--white);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;padding:9px 16px;border-radius:999px;border:1px solid rgba(245,246,248,.28);transition:all .18s ease;line-height:normal}.race-join-btn:hover{border-color:var(--cyan);color:var(--cyan)}@media (max-width:620px){.race-join-btn{font-size:10.5px;padding:8px 12px;letter-spacing:.03em;white-space:nowrap;flex-shrink:0}.race-btn-row{flex-wrap:nowrap;gap:6px}}.next-race-hero{position:relative;z-index:3;overflow:hidden;margin:8px 0 40px;background:rgba(245,246,248,.03);border:1px solid rgba(245,246,248,.09);border-radius:24px;display:grid;grid-template-columns:1fr 2fr}@media (max-width:820px){.next-race-hero{grid-template-columns:1fr}}.nrh-content{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:26px clamp(20px,3.5vw,32px)}.nrh-topbar{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}.nrh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}.nrh-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);flex:0 0 auto;box-shadow:0 0 10px rgba(62,225,232,.9)}.nrh-round{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,246,248,.5)}.nrh-date{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,3.6vw,40px);letter-spacing:.02em;text-transform:uppercase;line-height:1.05;text-align:center}.nrh-datarows{margin-top:12px}.nrh-datarows .data-row-value{font-size:14.5px}.nrh-content .nrh-countdown-value.live{color:var(--red)}.nrh-weather{display:flex;width:fit-content;align-items:center;gap:6px;margin:14px auto 0;align-self:center;font-family:'Chakra Petch',sans-serif;font-size:12px;font-weight:600;letter-spacing:.02em;padding:6px 14px;border-radius:999px;text-decoration:none;transition:opacity .18s ease}.nrh-weather.wet{background:rgba(62,225,232,.12);color:var(--cyan)}.nrh-weather.dry{background:rgba(245,246,248,.05);color:rgba(199,204,212,.6)}.nrh-weather:hover{opacity:.75}.nrh-btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px}.nrh-btn{display:inline-flex;align-items:center;gap:8px;background:0 0;color:var(--white);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;padding:9px 16px;border-radius:999px;border:1px solid rgba(245,246,248,.28);transition:all .18s ease;line-height:normal}.nrh-btn:hover{border-color:var(--cyan);color:var(--cyan)}.nrh-media{position:relative}.nrh-media-art{position:absolute;inset:0;background:url('assets/backgrounds/next-race-bg.jpg');background-size:cover;background-position:center;background-repeat:no-repeat}.nrh-countdown-box{position:absolute;top:16px;right:16px;background:rgba(11,12,16,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(245,246,248,.18);border-radius:14px;padding:12px 14px 10px;text-align:center}.nrh-countdown-label{font-family:'Chakra Petch',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,246,248,.55);margin-bottom:8px;white-space:nowrap}.nrh-countdown-segments{display:flex;justify-content:center;gap:12px}.nrh-seg{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:32px}.nrh-seg-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3.2vw,26px);color:var(--white);line-height:1}.nrh-seg-label{font-family:'Chakra Petch',sans-serif;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,246,248,.45)}.nrh-countdown-box.live .nrh-seg-num{color:var(--red)}@media (max-width:820px){.nrh-media{order:-1;min-height:200px}.nrh-content{order:1}.nrh-countdown-box{display:none}}.finale-foot{display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 24px 40px;position:relative;z-index:3}.finale-cta{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid rgba(245,246,248,.5);color:var(--white);text-decoration:none;padding:15px 28px 15px 18px;border-radius:999px;max-width:min(90vw,620px);transition:background .3s ease;position:relative;z-index:2;background:rgba(11,12,16,.3)}.finale-cta:focus-visible,.finale-cta:hover{background:rgba(245,246,248,.07)}.finale-cta-left{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding-right:22px}.finale-cta-icon{flex:0 0 auto;width:24px;height:24px;color:var(--white)}.finale-cta-icon svg{width:100%;height:100%;fill:currentColor;display:block}.finale-cta-title{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}.finale-cta-divider{width:1px;align-self:stretch;background:rgba(245,246,248,.32);margin-right:22px;flex:0 0 auto}.finale-cta-sub{font-family:'Source Sans 3',sans-serif;font-size:12px;line-height:1.42;color:rgba(245,246,248,.72)}@media (max-width:560px){.finale-cta{flex-wrap:wrap;padding:18px 22px}.finale-cta-left{padding-right:0}.finale-cta-divider{display:none}.finale-cta-sub{width:100%;margin-top:8px}}.finale-social{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:26px;margin-top:26px}.finale-social-btn{width:auto;height:auto;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none}.finale-social-btn svg{width:22px;height:22px;fill:currentColor}.finale-social-btn.ps-mark{width:27px;height:21px;background-color:var(--white);-webkit-mask-image:url('data:image/png;base64,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');mask-image:url('data:image/png;base64,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');-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}footer.site-footer{position:relative;z-index:3;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:28px 30px;border-top:1px solid rgba(245,246,248,.08)}footer.site-footer img{height:20px;width:auto;opacity:.85;justify-self:start}footer.site-footer .foot-links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;justify-self:center}footer.site-footer a{color:rgba(245,246,248,.7);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}footer.site-footer a:hover{color:var(--cyan)}footer.site-footer .copy{color:rgba(199,204,212,.5);font-size:11.5px;justify-self:end}@media (max-width:760px){footer.site-footer{grid-template-columns:1fr;justify-items:center;text-align:center}footer.site-footer .copy,footer.site-footer .foot-links,footer.site-footer img{justify-self:center}}@media (max-width:860px){header{padding:14px 18px}nav.desktop-nav{display:none}.burger{display:block}.wrap{padding:0 16px 0}.res-hero{padding:120px 20px 40px}}.nav-dropdown{position:relative;font-size:13px}.nav-dropdown .dropdown-trigger{cursor:pointer}.nav-dropdown .chevron{display:inline-block;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);vertical-align:middle;margin-left:6px;margin-bottom:2px;transition:transform .18s ease}.nav-dropdown:focus-within .chevron,.nav-dropdown:hover .chevron{transform:rotate(225deg)}.dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:200px;background:rgba(14,15,19,.97);border:1px solid rgba(245,246,248,.12);border-radius:12px;padding:8px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s ease;box-shadow:0 16px 40px rgba(0,0,0,.45)}.nav-dropdown:focus-within .dropdown-menu,.nav-dropdown:hover .dropdown-menu{opacity:1;visibility:visible;pointer-events:auto}.dropdown-menu a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;font-size:12px;white-space:nowrap}.dropdown-menu a:focus-visible,.dropdown-menu a:hover{background:rgba(245,246,248,.08);color:var(--cyan)}.dropdown-menu a.current{color:var(--red)}.ext-icon{display:inline-flex;align-items:center;vertical-align:-1px}.ext-icon svg{width:11px;height:11px;display:block}.dropdown-menu .ext-icon{opacity:.65}.mobile-nav-overlay{position:fixed;inset:0;background:rgba(6,7,9,.6);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .25s ease;z-index:150}.mobile-nav-overlay.open{opacity:1;visibility:visible}.mobile-nav{position:fixed;top:0;right:0;bottom:0;width:min(320px,82vw);background:rgba(14,15,19,.98);border-left:1px solid rgba(245,246,248,.1);z-index:151;padding:88px 28px 32px;display:flex;flex-direction:column;gap:2px;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto}.mobile-nav.open{transform:translateX(0)}.mobile-nav a{color:var(--white);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:13px 4px;border-bottom:1px solid rgba(245,246,248,.08);display:block}.mobile-nav a.current{color:var(--red)}.mobile-nav a:focus-visible,.mobile-nav a:hover{color:var(--cyan)}.mobile-nav-group{display:flex;flex-direction:column}.mobile-nav-group .mobile-nav-heading{color:var(--grey);font-family:'Chakra Petch',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px 4px 4px}.mobile-nav-group a{padding-left:16px;font-size:13.5px;border-bottom:none}.mobile-nav-group a:last-child{border-bottom:1px solid rgba(245,246,248,.08);padding-bottom:13px}.mobile-nav-cta{margin-top:16px;text-align:center;background:var(--red);color:var(--white)!important;border-radius:10px;border-bottom:none!important;padding:13px!important}.burger{position:relative;z-index:152}.burger span{transition:transform .25s ease,opacity .2s ease}.burger.open span:first-child{transform:translateY(7px) rotate(45deg)}.burger.open span:nth-child(2){opacity:0}.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}body.nav-open{overflow:hidden}body.nav-open header{z-index:155}.skip-link{position:absolute;top:-999px;left:0;z-index:9999;background:var(--red);color:var(--white);padding:12px 20px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:14px;text-decoration:none;border-radius:0 0 8px 0}.skip-link:focus{top:0}</style>
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -1097,10 +492,7 @@
 <footer class="site-footer">
   <img loading="lazy" src="assets/rrl-logo.png" alt="RRL Logo">
   <div class="foot-links">
-    <!-- Legal Notice / Privacy Policy: ausgeblendet bis Seiten befuellt sind
-    <a href="legal-notice.html">Legal Notice</a>
-    <a href="privacy-policy.html">Privacy Policy</a>
-    -->
+    
     <a href="faq.html">FAQ</a>
     <a href="commission.html">Commission</a>
     <a href="contact.html">Contact</a>
@@ -1110,280 +502,302 @@
 </footer>
 
 </div>
-<script>
-// 2026-08-06: race calendar + live countdowns. Dates/times are user-
-// confirmed (weekly, Sundays, starting 16 Aug 2026; qualifying 19:45,
-// event ends 21:15 — same slot every race day). ISO timestamps below were
-// computed with the Europe/Berlin DST switch (25 Oct 2026) already applied
-// per race, so the countdown stays correct across the CEST→CET change
-// mid-season without needing timezone logic in the browser.
-const RACES = [
-  {round:1, dateLabel:'Sun, Aug 16, 2026', qualifying:'2026-08-16T19:45:00+02:00', end:'2026-08-16T21:15:00+02:00'},
-  {round:2, dateLabel:'Sun, Aug 23, 2026', qualifying:'2026-08-23T19:45:00+02:00', end:'2026-08-23T21:15:00+02:00'},
-  {round:3, dateLabel:'Sun, Aug 30, 2026', qualifying:'2026-08-30T19:45:00+02:00', end:'2026-08-30T21:15:00+02:00'},
-  {round:4, dateLabel:'Sun, Sep 6, 2026', qualifying:'2026-09-06T19:45:00+02:00', end:'2026-09-06T21:15:00+02:00'},
-  {round:5, dateLabel:'Sun, Sep 13, 2026', qualifying:'2026-09-13T19:45:00+02:00', end:'2026-09-13T21:15:00+02:00'},
-  {round:6, dateLabel:'Sun, Sep 20, 2026', qualifying:'2026-09-20T19:45:00+02:00', end:'2026-09-20T21:15:00+02:00'},
-  {round:7, dateLabel:'Sun, Sep 27, 2026', qualifying:'2026-09-27T19:45:00+02:00', end:'2026-09-27T21:15:00+02:00'},
-  {round:8, dateLabel:'Sun, Oct 4, 2026', qualifying:'2026-10-04T19:45:00+02:00', end:'2026-10-04T21:15:00+02:00'},
-  {round:9, dateLabel:'Sun, Oct 11, 2026', qualifying:'2026-10-11T19:45:00+02:00', end:'2026-10-11T21:15:00+02:00'},
-  {round:10, dateLabel:'Sun, Oct 18, 2026', qualifying:'2026-10-18T19:45:00+02:00', end:'2026-10-18T21:15:00+02:00'},
-  {round:11, dateLabel:'Sun, Oct 25, 2026', qualifying:'2026-10-25T19:45:00+01:00', end:'2026-10-25T21:15:00+01:00'},
-  {round:12, dateLabel:'Sun, Nov 1, 2026', qualifying:'2026-11-01T19:45:00+01:00', end:'2026-11-01T21:15:00+01:00'},
-  {round:13, dateLabel:'Sun, Nov 8, 2026', qualifying:'2026-11-08T19:45:00+01:00', end:'2026-11-08T21:15:00+01:00'},
-  {round:14, dateLabel:'Sun, Nov 15, 2026', qualifying:'2026-11-15T19:45:00+01:00', end:'2026-11-15T21:15:00+01:00'},
-  {round:15, dateLabel:'Sun, Nov 22, 2026', qualifying:'2026-11-22T19:45:00+01:00', end:'2026-11-22T21:15:00+01:00'},
-];
+<script>const RACES = [ {
+  round: 1,
+  dateLabel: "Sun, Aug 16, 2026",
+  qualifying: "2026-08-16T19:45:00+02:00",
+  end: "2026-08-16T21:15:00+02:00"
+}, {
+  round: 2,
+  dateLabel: "Sun, Aug 23, 2026",
+  qualifying: "2026-08-23T19:45:00+02:00",
+  end: "2026-08-23T21:15:00+02:00"
+}, {
+  round: 3,
+  dateLabel: "Sun, Aug 30, 2026",
+  qualifying: "2026-08-30T19:45:00+02:00",
+  end: "2026-08-30T21:15:00+02:00"
+}, {
+  round: 4,
+  dateLabel: "Sun, Sep 6, 2026",
+  qualifying: "2026-09-06T19:45:00+02:00",
+  end: "2026-09-06T21:15:00+02:00"
+}, {
+  round: 5,
+  dateLabel: "Sun, Sep 13, 2026",
+  qualifying: "2026-09-13T19:45:00+02:00",
+  end: "2026-09-13T21:15:00+02:00"
+}, {
+  round: 6,
+  dateLabel: "Sun, Sep 20, 2026",
+  qualifying: "2026-09-20T19:45:00+02:00",
+  end: "2026-09-20T21:15:00+02:00"
+}, {
+  round: 7,
+  dateLabel: "Sun, Sep 27, 2026",
+  qualifying: "2026-09-27T19:45:00+02:00",
+  end: "2026-09-27T21:15:00+02:00"
+}, {
+  round: 8,
+  dateLabel: "Sun, Oct 4, 2026",
+  qualifying: "2026-10-04T19:45:00+02:00",
+  end: "2026-10-04T21:15:00+02:00"
+}, {
+  round: 9,
+  dateLabel: "Sun, Oct 11, 2026",
+  qualifying: "2026-10-11T19:45:00+02:00",
+  end: "2026-10-11T21:15:00+02:00"
+}, {
+  round: 10,
+  dateLabel: "Sun, Oct 18, 2026",
+  qualifying: "2026-10-18T19:45:00+02:00",
+  end: "2026-10-18T21:15:00+02:00"
+}, {
+  round: 11,
+  dateLabel: "Sun, Oct 25, 2026",
+  qualifying: "2026-10-25T19:45:00+01:00",
+  end: "2026-10-25T21:15:00+01:00"
+}, {
+  round: 12,
+  dateLabel: "Sun, Nov 1, 2026",
+  qualifying: "2026-11-01T19:45:00+01:00",
+  end: "2026-11-01T21:15:00+01:00"
+}, {
+  round: 13,
+  dateLabel: "Sun, Nov 8, 2026",
+  qualifying: "2026-11-08T19:45:00+01:00",
+  end: "2026-11-08T21:15:00+01:00"
+}, {
+  round: 14,
+  dateLabel: "Sun, Nov 15, 2026",
+  qualifying: "2026-11-15T19:45:00+01:00",
+  end: "2026-11-15T21:15:00+01:00"
+}, {
+  round: 15,
+  dateLabel: "Sun, Nov 22, 2026",
+  qualifying: "2026-11-22T19:45:00+01:00",
+  end: "2026-11-22T21:15:00+01:00"
+} ];
 
-// 2026-08-06: unofficial GTA Online in-game weather forecast for the race
-// calendar tiles. NOT sourced from the (unreliable/incomplete) community
-// wiki weather table — that table was cross-checked against live readings
-// and found to be missing entries. Instead, calibrated directly from
-// live ground-truth readings the user supplied from gtalens.com/weather:
-// 9 consecutive rain events were logged with exact real-world + in-game
-// timestamps, and event #1 vs #5 (768 real minutes apart = exactly one
-// 12.8h weather cycle) and #1 vs #9 (1536 min = exactly two cycles)
-// matched EXACTLY in duration and in-game clock reading — confirming both
-// the cycle length and the 4 recurring rain windows within it. This only
-// tracks wet vs. dry (Raining + Drizzling both count as "wet" per user
-// request) — not the full weather condition (Clear/Cloudy/Misty/etc.),
-// since that's all that matters for race planning. Caveat: if Rockstar
-// ever changes the weather cycle, this goes stale with no way for the
-// site to detect it — see the note under the Race Calendar heading.
-const WEATHER_ANCHOR_MS = Date.parse('2026-08-06T16:42:00+02:00');
-const WEATHER_CYCLE_MS = 768 * 60 * 1000; // 12.8 real hours
-const WET_WINDOWS = [ // [offsetMinutes, durationMinutes] from the anchor, within one cycle
-  [0, 6],
-  [52, 6],
-  [284, 6],
-  [528, 14],
-];
+const WEATHER_ANCHOR_MS = Date.parse("2026-08-06T16:42:00+02:00");
 
-function wetWindowsInRange(startMs, endMs){
+const WEATHER_CYCLE_MS = 768 * 60 * 1e3;
+
+const WET_WINDOWS = [ [ 0, 6 ], [ 52, 6 ], [ 284, 6 ], [ 528, 14 ] ];
+
+function wetWindowsInRange(startMs, endMs) {
   const firstCycle = Math.floor((startMs - WEATHER_ANCHOR_MS) / WEATHER_CYCLE_MS) - 1;
   const lastCycle = Math.floor((endMs - WEATHER_ANCHOR_MS) / WEATHER_CYCLE_MS) + 1;
   const hits = [];
-  for (let c = firstCycle; c <= lastCycle; c++){
+  for (let c = firstCycle; c <= lastCycle; c++) {
     const base = WEATHER_ANCHOR_MS + c * WEATHER_CYCLE_MS;
     WET_WINDOWS.forEach(([offMin, durMin]) => {
-      const ws = base + offMin * 60000;
-      const we = ws + durMin * 60000;
-      if (we > startMs && ws < endMs) hits.push([ws, we]);
+      const ws = base + offMin * 6e4;
+      const we = ws + durMin * 6e4;
+      if (we > startMs && ws < endMs) hits.push([ ws, we ]);
     });
   }
   return hits.sort((a, b) => a[0] - b[0]);
 }
 
-// 2026-08-06: race and weather times on the calendar tiles are shown
-// ONLY in the VISITOR'S OWN local time zone (no timeZone override —
-// Intl falls back to the browser's zone), per explicit user request —
-// German time alone isn't actionable for someone in e.g. New York, and
-// a "German time" secondary reference was tried and then dropped again
-// (2026-08-06, follow-up feedback) since it wasn't needed either: what
-// matters is the visitor's own correct local time and a correct
-// countdown, nothing else.
-function formatLocalTime(ms){
-  return new Intl.DateTimeFormat(undefined, {hour:'2-digit', minute:'2-digit', hour12:false}).format(ms);
+function formatLocalTime(ms) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(ms);
 }
 
-// 2026-08-08: single-line wet/dry presentation, shared by the Full
-// Schedule cards and the Next-Race hero. Reverted the same day per
-// feedback — a stacked, "Rain expected Yes/No" version was tried and
-// looked worse than this original comma-joined one-liner.
-function weatherPresentation(qualifyingIso, endIso){
+function weatherPresentation(qualifyingIso, endIso) {
   const hits = wetWindowsInRange(new Date(qualifyingIso).getTime(), new Date(endIso).getTime());
-  if (!hits.length){
-    return { cls:'dry', html:'☀️ Dry forecast' };
+  if (!hits.length) {
+    return {
+      cls: "dry",
+      html: "☀️ Dry forecast"
+    };
   }
-  const ranges = hits.map(([ws, we]) => `${formatLocalTime(ws)}–${formatLocalTime(we)}`).join(', ');
-  return { cls:'wet', html:`🌧️ Rain expected ${ranges}` };
-}
-
-// 2026-08-08: countdown helpers. formatCountdownSegments() feeds the
-// segmented Days/Hrs/Mins/Sec box on the hero image; formatCountdownFull()
-// feeds the "Qualifying" data-row value as one string (e.g. "8d 15h 36m
-// 30s") — always all four units, per explicit spec, unlike the old
-// formatCountdown() (which dropped seconds once days > 0 and is no longer
-// used anywhere, so it's been removed).
-function formatCountdownSegments(ms){
-  const totalSec = Math.max(0, Math.floor(ms/1000));
+  const ranges = hits.map(([ws, we]) => `${formatLocalTime(ws)}–${formatLocalTime(we)}`).join(", ");
   return {
-    d: Math.floor(totalSec/86400),
-    h: Math.floor((totalSec%86400)/3600),
-    m: Math.floor((totalSec%3600)/60),
-    s: totalSec%60,
+    cls: "wet",
+    html: `🌧️ Rain expected ${ranges}`
   };
 }
-function formatCountdownFull(ms){
+
+function formatCountdownSegments(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1e3));
+  return {
+    d: Math.floor(totalSec / 86400),
+    h: Math.floor(totalSec % 86400 / 3600),
+    m: Math.floor(totalSec % 3600 / 60),
+    s: totalSec % 60
+  };
+}
+
+function formatCountdownFull(ms) {
   const seg = formatCountdownSegments(ms);
   return `${seg.d}d ${seg.h}h ${seg.m}m ${seg.s}s`;
 }
-function pad2(n){ return String(n).padStart(2,'0'); }
 
-// 2026-08-09: track name isn't known until shortly before qualifying (per
-// the rules page) — the same flag/track icon + "Track TBA" label used
-// before the real photo backgrounds were added, now shown on top of the
-// photo instead of instead of it.
-const TRACK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4l16 5.5L4 15"/></svg>';
-
-function raceCardHtml(r){
-  const localQ = formatLocalTime(new Date(r.qualifying).getTime());
-  const wx = weatherPresentation(r.qualifying, r.end);
-  return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">
-    <div class="race-card-img"><div class="race-card-img-label">${TRACK_ICON}<span>Track TBA</span></div></div>
-    <div class="race-card-body">
-      <div class="race-round">Race ${r.round} of ${RACES.length}</div>
-      <div class="race-date">${r.dateLabel}</div>
-      <div class="race-datarows">
-        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value">${localQ}</span></div>
-        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value">1h 30m</span></div>
-        <div class="data-row"><span class="data-row-label">Vehicle Class</span><span class="data-row-value">TBA</span></div>
-        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value" data-role="qualcountdown">—</span></div>
-      </div>
-      <a class="race-weather ${wx.cls}" href="rainforecast.html">${wx.html}</a>
-      <div class="race-btn-row">
-        <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>
-        <a class="race-join-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>
-      </div>
-    </div>
-  </div>`;
+function pad2(n) {
+  return String(n).padStart(2, "0");
 }
 
-function updateCountdowns(){
+const TRACK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4l16 5.5L4 15"/></svg>';
+
+function raceCardHtml(r) {
+  const localQ = formatLocalTime(new Date(r.qualifying).getTime());
+  const wx = weatherPresentation(r.qualifying, r.end);
+  return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">\n    <div class="race-card-img"><div class="race-card-img-label">${TRACK_ICON}<span>Track TBA</span></div></div>\n    <div class="race-card-body">\n      <div class="race-round">Race ${r.round} of ${RACES.length}</div>\n      <div class="race-date">${r.dateLabel}</div>\n      <div class="race-datarows">\n        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value">${localQ}</span></div>\n        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value">1h 30m</span></div>\n        <div class="data-row"><span class="data-row-label">Vehicle Class</span><span class="data-row-value">TBA</span></div>\n        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value" data-role="qualcountdown">—</span></div>\n      </div>\n      <a class="race-weather ${wx.cls}" href="rainforecast.html">${wx.html}</a>\n      <div class="race-btn-row">\n        <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>\n        <a class="race-join-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>\n      </div>\n    </div>\n  </div>`;
+}
+
+function updateCountdowns() {
   const now = Date.now();
-  document.querySelectorAll('.race-card').forEach(card => {
+  document.querySelectorAll(".race-card").forEach(card => {
     const qualifying = new Date(card.dataset.qualifying).getTime();
     const end = new Date(card.dataset.end).getTime();
     const el = card.querySelector('[data-role="qualcountdown"]');
-    card.classList.remove('live', 'completed');
-    if (now < qualifying){
+    card.classList.remove("live", "completed");
+    if (now < qualifying) {
       el.textContent = formatCountdownFull(qualifying - now);
-    } else if (now < end){
-      card.classList.add('live');
-      el.textContent = '🔴 Live now';
+    } else if (now < end) {
+      card.classList.add("live");
+      el.textContent = "🔴 Live now";
     } else {
-      card.classList.add('completed');
-      el.textContent = 'Completed';
+      card.classList.add("completed");
+      el.textContent = "Completed";
     }
   });
 }
 
-document.getElementById('raceGrid').innerHTML = RACES.map(raceCardHtml).join('');
-updateCountdowns();
-setInterval(updateCountdowns, 1000);
+document.getElementById("raceGrid").innerHTML = RACES.map(raceCardHtml).join("");
 
-// 2026-08-08: big "Next Race" hero card at the top of schedule.html —
-// same RACES data + weather logic as the Full Schedule cards below.
-// The "Qualifying" data-row shows the same live countdown as the small
-// cards (formatCountdownFull); the segmented Days/Hrs/Mins/Sec box stays
-// on the image too as a visual accent — kept rather than removed since
-// nothing said to drop it, flagged to the user for confirmation.
-function updateNextRaceHero(){
-  const roundEl = document.getElementById('nrhRound');
-  const dateEl = document.getElementById('nrhDate');
-  const startEl = document.getElementById('nrhStartTime');
-  const durEl = document.getElementById('nrhDuration');
-  const qualCdEl = document.getElementById('nrhQualCountdown');
-  const weatherEl = document.getElementById('nrhWeather');
-  const boxEl = document.getElementById('nrhCountdownBox');
-  const labelEl = document.getElementById('nrhCountdownLabel');
-  const dEl = document.getElementById('nrhD');
-  const hEl = document.getElementById('nrhH');
-  const mEl = document.getElementById('nrhM');
-  const sEl = document.getElementById('nrhS');
-  if(!roundEl || !dateEl || !boxEl) return;
+updateCountdowns();
+
+setInterval(updateCountdowns, 1e3);
+
+function updateNextRaceHero() {
+  const roundEl = document.getElementById("nrhRound");
+  const dateEl = document.getElementById("nrhDate");
+  const startEl = document.getElementById("nrhStartTime");
+  const durEl = document.getElementById("nrhDuration");
+  const qualCdEl = document.getElementById("nrhQualCountdown");
+  const weatherEl = document.getElementById("nrhWeather");
+  const boxEl = document.getElementById("nrhCountdownBox");
+  const labelEl = document.getElementById("nrhCountdownLabel");
+  const dEl = document.getElementById("nrhD");
+  const hEl = document.getElementById("nrhH");
+  const mEl = document.getElementById("nrhM");
+  const sEl = document.getElementById("nrhS");
+  if (!roundEl || !dateEl || !boxEl) return;
   const now = Date.now();
   const upcoming = RACES.find(r => now < new Date(r.end).getTime());
-  if(!upcoming){
-    roundEl.textContent = 'Season complete';
-    dateEl.textContent = 'See you next season';
-    startEl.textContent = '—';
-    durEl.textContent = '—';
-    qualCdEl.textContent = '—';
-    qualCdEl.classList.remove('live');
-    weatherEl.textContent = '';
-    weatherEl.className = 'nrh-weather';
-    [dEl, hEl, mEl, sEl].forEach(el => el.textContent = '00');
-    boxEl.classList.remove('live');
-    labelEl.textContent = 'Countdown to Green';
+  if (!upcoming) {
+    roundEl.textContent = "Season complete";
+    dateEl.textContent = "See you next season";
+    startEl.textContent = "—";
+    durEl.textContent = "—";
+    qualCdEl.textContent = "—";
+    qualCdEl.classList.remove("live");
+    weatherEl.textContent = "";
+    weatherEl.className = "nrh-weather";
+    [ dEl, hEl, mEl, sEl ].forEach(el => el.textContent = "00");
+    boxEl.classList.remove("live");
+    labelEl.textContent = "Countdown to Green";
     return;
   }
   roundEl.textContent = `Race ${upcoming.round} of ${RACES.length}`;
   dateEl.textContent = upcoming.dateLabel;
   startEl.textContent = formatLocalTime(new Date(upcoming.qualifying).getTime());
-  durEl.textContent = '1h 30m';
+  durEl.textContent = "1h 30m";
   const wx = weatherPresentation(upcoming.qualifying, upcoming.end);
-  weatherEl.className = 'nrh-weather ' + wx.cls;
+  weatherEl.className = "nrh-weather " + wx.cls;
   weatherEl.innerHTML = wx.html;
   const qualifying = new Date(upcoming.qualifying).getTime();
   const end = new Date(upcoming.end).getTime();
-  if (now < qualifying){
+  if (now < qualifying) {
     const seg = formatCountdownSegments(qualifying - now);
-    dEl.textContent = pad2(seg.d); hEl.textContent = pad2(seg.h);
-    mEl.textContent = pad2(seg.m); sEl.textContent = pad2(seg.s);
-    boxEl.classList.remove('live');
-    labelEl.textContent = 'Countdown to Green';
+    dEl.textContent = pad2(seg.d);
+    hEl.textContent = pad2(seg.h);
+    mEl.textContent = pad2(seg.m);
+    sEl.textContent = pad2(seg.s);
+    boxEl.classList.remove("live");
+    labelEl.textContent = "Countdown to Green";
     qualCdEl.textContent = formatCountdownFull(qualifying - now);
-    qualCdEl.classList.remove('live');
+    qualCdEl.classList.remove("live");
   } else {
-    dEl.textContent = '00'; hEl.textContent = '00'; mEl.textContent = '00'; sEl.textContent = '00';
-    boxEl.classList.add('live');
-    labelEl.textContent = '🔴 Race Weekend Is Live';
-    qualCdEl.textContent = now < end ? '🔴 Live now' : 'Completed';
-    qualCdEl.classList.add('live');
+    dEl.textContent = "00";
+    hEl.textContent = "00";
+    mEl.textContent = "00";
+    sEl.textContent = "00";
+    boxEl.classList.add("live");
+    labelEl.textContent = "🔴 Race Weekend Is Live";
+    qualCdEl.textContent = now < end ? "🔴 Live now" : "Completed";
+    qualCdEl.classList.add("live");
   }
 }
+
 updateNextRaceHero();
-setInterval(updateNextRaceHero, 1000);
-</script>
-<script>
-// Content fade-on-scroll (2026-08-03) — keeps the .fade-content mask's
-// fade band pinned to the viewport (not the document) by re-offsetting
-// mask-position by (scrollY - the wrapper's own document offset) on every
-// scroll tick.
-(function(){
-  const fadeContent = document.querySelector('.fade-content');
-  if(!fadeContent) return;
-  function updateContentFadeMask(){
+
+setInterval(updateNextRaceHero, 1e3)</script>
+<script>(function() {
+  const fadeContent = document.querySelector(".fade-content");
+  if (!fadeContent) return;
+  function updateContentFadeMask() {
     const wrapperTop = fadeContent.getBoundingClientRect().top + window.scrollY;
-    const y = window.scrollY - wrapperTop; // can be negative — that's correct, it means the wrapper hasn't reached the fade zone yet
+    const y = window.scrollY - wrapperTop;
     const pos = `0 ${y}px`;
     fadeContent.style.webkitMaskPosition = pos;
     fadeContent.style.maskPosition = pos;
   }
-  window.addEventListener('scroll', () => requestAnimationFrame(updateContentFadeMask), {passive:true});
-  window.addEventListener('resize', () => requestAnimationFrame(updateContentFadeMask));
-  updateContentFadeMask();
-})();
-</script>
-
-
-<script>
-(function(){
-  var burger = document.querySelector('.burger');
-  var nav = document.getElementById('mobileNav');
-  var overlay = document.getElementById('mobileNavOverlay');
-  if(!burger || !nav || !overlay) return;
-  function openNav(){
-    nav.classList.add('open'); overlay.classList.add('open');
-    burger.classList.add('open'); document.body.classList.add('nav-open');
-    burger.setAttribute('aria-expanded','true'); nav.setAttribute('aria-hidden','false');
-  }
-  function closeNav(){
-    nav.classList.remove('open'); overlay.classList.remove('open');
-    burger.classList.remove('open'); document.body.classList.remove('nav-open');
-    burger.setAttribute('aria-expanded','false'); nav.setAttribute('aria-hidden','true');
-  }
-  burger.addEventListener('click', function(){
-    if(nav.classList.contains('open')){ closeNav(); } else { openNav(); }
+  window.addEventListener("scroll", () => requestAnimationFrame(updateContentFadeMask), {
+    passive: true
   });
-  overlay.addEventListener('click', closeNav);
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeNav(); } });
-  Array.prototype.forEach.call(nav.querySelectorAll('a'), function(a){
-    a.addEventListener('click', function(){
-      var href = a.getAttribute('href') || '';
-      if(href.charAt(0) !== '#'){ closeNav(); }
+  window.addEventListener("resize", () => requestAnimationFrame(updateContentFadeMask));
+  updateContentFadeMask();
+})()</script>
+
+
+<script>(function() {
+  var burger = document.querySelector(".burger");
+  var nav = document.getElementById("mobileNav");
+  var overlay = document.getElementById("mobileNavOverlay");
+  if (!burger || !nav || !overlay) return;
+  function openNav() {
+    nav.classList.add("open");
+    overlay.classList.add("open");
+    burger.classList.add("open");
+    document.body.classList.add("nav-open");
+    burger.setAttribute("aria-expanded", "true");
+    nav.setAttribute("aria-hidden", "false");
+  }
+  function closeNav() {
+    nav.classList.remove("open");
+    overlay.classList.remove("open");
+    burger.classList.remove("open");
+    document.body.classList.remove("nav-open");
+    burger.setAttribute("aria-expanded", "false");
+    nav.setAttribute("aria-hidden", "true");
+  }
+  burger.addEventListener("click", function() {
+    if (nav.classList.contains("open")) {
+      closeNav();
+    } else {
+      openNav();
+    }
+  });
+  overlay.addEventListener("click", closeNav);
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      closeNav();
+    }
+  });
+  Array.prototype.forEach.call(nav.querySelectorAll("a"), function(a) {
+    a.addEventListener("click", function() {
+      var href = a.getAttribute("href") || "";
+      if (href.charAt(0) !== "#") {
+        closeNav();
+      }
     });
   });
-})();
-</script>
+})()</script>
+</body></html>

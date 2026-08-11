@@ -5,7 +5,7 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rockford Racing League — Compare Drivers &amp; Teams</title>
   <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://fausto511.github.io/rockford-racing-league/compare.html">
@@ -41,542 +41,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
-<style>
-  :root{
-    --bg:#0b0c10;
-    --red:#e21c2b;
-    --red-2:#a3131f;
-    --cyan:#3ee1e8;
-    --white:#f5f6f8;
-    --grey:#c7ccd4;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background:var(--bg); color:var(--white); font-family:'Source Sans 3', sans-serif;
-    overflow-x:hidden; min-height:100vh;
-    /* Sticky-footer pattern: body is the flex column, .tp-section (see
-       below) is the one flex-grow child, so the footer sits flush at the
-       bottom of the viewport even when #cmpResult only shows the short
-       "choose two..." prompt, instead of ending mid-page. Tall content
-       still lays out normally since min-height (not height) lets body grow
-       past 100vh. */
-    display:flex; flex-direction:column;
-  }
-
-  /* ---------- Header (identical to team.html, for a consistent nav) ---------- */
-  header{
-    position:fixed; top:0; left:0; right:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:20px 30px; background:linear-gradient(180deg, rgba(0,0,0,.55), transparent);
-  }
-  .brand img{height:24px; width:auto; display:block;}
-  nav.desktop-nav{display:flex; align-items:center; gap:26px; list-style:none;}
-  nav.desktop-nav a{
-    color:rgba(245,246,248,.85); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
-    transition:color .2s ease;
-  }
-  nav.desktop-nav a:hover, nav.desktop-nav a:focus-visible{color:var(--cyan);}
-  nav.desktop-nav a.current{color:var(--red);}
-  .cta{
-    display:inline-flex; align-items:center; gap:8px; background:var(--red); color:#fff;
-    text-decoration:none; font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.06em; text-transform:uppercase; padding:11px 24px; border-radius:999px;
-    transition:all .18s ease;
-  }
-  .cta:hover{background:var(--red-2); transform:translateY(-1px);}
-  a:focus-visible, button:focus-visible, select:focus-visible{outline:2px solid var(--cyan); outline-offset:3px;}
-  .burger{display:none; background:none; border:none; cursor:pointer;}
-  .burger span{display:block; width:22px; height:2px; background:var(--white); margin:5px 0;}
-
-  /* ---------- Load overlay (live-read from the master xlsx, same pattern as the Dashboard/Team page) ---------- */
-  #loadOverlay{
-    position:fixed; inset:0; background:var(--bg); z-index:999;
-    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; text-align:center; padding:24px;
-  }
-  #loadOverlay.hidden{display:none;}
-  #loadOverlay .box{max-width:460px;}
-  #loadOverlay h2{font-family:'Bebas Neue',sans-serif; font-size:22px; margin:0 0 8px; text-transform:uppercase;}
-  #loadOverlay p{color:var(--grey); font-size:13px; line-height:1.5; margin:0 0 14px;}
-  #loadOverlay input[type=file]{
-    background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.2); color:var(--white);
-    padding:10px; border-radius:8px; font-size:13px;
-  }
-  #loadOverlay .err{color:var(--red); font-size:12px; margin-top:10px;}
-
-  /* ---------- Ambient background glow (replaces a flat page background):
-     two large, heavily blurred colour blobs anchored to the top corners,
-     tinted with the two compared entities' own colours and swapped in via
-     JS on every render — updates automatically per comparison and doubles
-     as a soft "vs" cue (colour A bleeding in from the left, B from the
-     right). Fixed positioning + blur means there is no hard edge/cutoff
-     line anywhere, unlike a bounded photo hero would need. Defaults to the
-     site's red/cyan brand pair before a selection is made.
-     Build-Runde 37: swapped the perfect-circle shape for an irregular,
-     rotated blob (asymmetric border-radius) plus a second, smaller
-     overlapping blob (::after, same colour via `background:inherit` since
-     JS sets colour as an inline style on the parent) — a plain circle read
-     as too "generated"/geometric per user feedback. Left blob (A) also sits
-     lower down the left edge and its ::after reaches up toward the
-     horizontal centre, per explicit request.
-     Build-Runde 39: was `position:fixed` (pinned to the viewport, so the
-     background never moved while the foreground content scrolled past it)
-     — every other page's background/hero scrolls normally WITH the page,
-     so this one alone felt inverted/disconnected to the user. Switched to
-     `position:absolute` anchored to the top of the document (no positioned
-     ancestor, so it resolves against the page, not the viewport) — it now
-     scrolls away with the hero exactly like a normal background would,
-     matching Home/Teams/Team. Height capped at 100vh since the glow (plus
-     its mask-fade) only ever needed to cover the first screen anyway.
-     Build-Runde 49: glow-a/glow-b previously had independently hand-tuned
-     border-radius, top-offset and ::after values — two unrelated blob
-     shapes, not a matching pair, which read as asymmetric/unpolished per
-     user feedback. Fixed by giving both the IDENTICAL shape (same
-     border-radius, same top offset, same horizontal edge offset, same
-     ::after) and mirroring glow-b onto the right side purely via
-     `transform:scaleX(-1) rotate(...)` — the pseudo-element and rotation
-     mirror along with the parent automatically, so it's a guaranteed exact
-     mirror image rather than hand-matched numbers that can drift out of
-     sync again. ---------- */
-  .cmp-bg-glow{ position:absolute; top:0; left:0; right:0; height:100vh; z-index:0; pointer-events:none; overflow:hidden; }
-  .cmp-bg-glow .glow{
-    position:absolute; width:56vw; height:56vw; max-width:640px; max-height:640px;
-    min-width:320px; min-height:320px; filter:blur(85px); opacity:.28;
-    transition:background .4s ease;
-    top:-8%;
-    border-radius:28% 72% 58% 42% / 52% 30% 70% 48%;
-  }
-  .cmp-bg-glow .glow::after{
-    content:''; position:absolute; width:68%; height:60%;
-    top:-42%; left:42%; background:inherit;
-    border-radius:60% 40% 35% 65% / 65% 38% 62% 35%;
-  }
-  .cmp-bg-glow .glow-a{
-    left:-18%; background:var(--red);
-    transform:rotate(-11deg);
-  }
-  .cmp-bg-glow .glow-b{
-    right:-18%; background:var(--cyan);
-    transform:scaleX(-1) rotate(-11deg);
-  }
-
-  /* Checkered-flag texture, layered over the glow (not a standalone photo
-     banner — that would bring back the same hard-cutoff problem). Screen
-     blend + low opacity means the flag's black squares vanish into the
-     background while its white squares just brighten the glow underneath;
-     a bottom mask fades it to nothing rather than ending on a visible
-     edge, so texture and colour dissolve together.
-     Build-Runde 39: `position:absolute` instead of `fixed`, same reasoning
-     as .cmp-bg-glow above — scrolls away with the page instead of staying
-     pinned to the viewport. */
-  .cmp-bg-flag{
-    position:fixed; top:0; left:0; right:0; height:300px; z-index:0; pointer-events:none;
-    background-image:url('assets/backgrounds/checkered-flag.png');
-    background-size:cover; background-position:center top; background-repeat:no-repeat;
-    opacity:.16; mix-blend-mode:screen;
-    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 100%);
-    mask-image:linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 100%);
-  }
-
-  /* ---------- Page banner (no photo hero here — just a plain title block) ---------- */
-  .cmp-hero{
-    position:relative; padding:150px 24px 46px; text-align:center;
-  }
-  /* Small eyebrow line, ported from the Teams-Übersicht hero on 2026-07-27
-     (user request: "diese kleine Überschrift Rockford racing league,
-     die sollten wir dann auch für Stats und Compare übernehmen") — same
-     styling as .teams-eyebrow there. */
-  .cmp-hero .eyebrow{
-    font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:13px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--cyan);
-  }
-  .cmp-hero h1{
-    font-family:'Bebas Neue',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:clamp(40px,7vw,72px); letter-spacing:.02em; margin-top:14px;
-    line-height:1;
-  }
-  /* eyebrow/title/lede spacing unified 2026-07-28 with the Teams-Übersicht
-     page's hero (user's preferred spacing of the three) — margin-top 14px
-     under the eyebrow, 16px under the title.
-     2026-07-28, Runde 2: margins here were already correct (this page's
-     global reset zeroes UA-default margins), but h1/.lede still relied on
-     an unset ("normal") line-height while Teams pins its equivalents to
-     explicit 1 / 1.6. "Normal" resolves to a taller line-box than 1 for
-     this font, so the title/lede sat ~10px lower than on Teams even with
-     identical margin-top — visible as "ungefähr, aber nicht ganz" the same
-     gap the user reported. Pinned to the same explicit values as Teams for
-     a pixel-identical result. */
-  .cmp-hero .lede{
-    color:var(--grey); font-size:14px; margin-top:16px; max-width:850px;
-    margin-left:auto; margin-right:auto; line-height:1.6;
-  }
-
-  .type-toggle{ display:inline-flex; gap:8px; margin-top:24px; background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.12); border-radius:999px; padding:5px; }
-  .type-btn{
-    background:none; border:none; color:var(--grey); font-family:'Chakra Petch',sans-serif; font-weight:600;
-    font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; padding:9px 22px; border-radius:999px;
-    cursor:pointer; transition:all .18s ease;
-  }
-  .type-btn.active{ background:var(--red); color:#fff; }
-  .type-btn:hover:not(.active){ color:var(--white); }
-
-  /* ---------- Generic content section (shared with the team page) ---------- */
-  /* No opaque background here (was var(--bg) before) — left transparent on
-     purpose so the ambient glow layer behind it stays visible through the
-     selectors/cards/table, not just in the hero above. */
-  .tp-section{ position:relative; z-index:4; padding:12px 24px 56px; flex:1 0 auto; }
-  .tp-section-inner{ max-width:900px; margin:0 auto; }
-
-  /* ---------- Selectors ---------- */
-  .selector-row{
-    display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap; margin-bottom:40px;
-  }
-  .vs{
-    font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--grey); letter-spacing:.06em;
-  }
-
-  /* ---------- Custom dropdown (replaces the native <select>, which renders
-     with an unstyleable white/grey options popup + native scrollbar in every
-     browser — this version matches the site's dark theme end to end). ---------- */
-  .cmp-select{ position:relative; min-width:230px; }
-  .cmp-select-btn{
-    width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:rgba(245,246,248,.05); border:1px solid rgba(245,246,248,.2); color:var(--white);
-    padding:13px 18px; border-radius:999px; font-family:'Chakra Petch',sans-serif; font-size:13px;
-    letter-spacing:.02em; cursor:pointer; text-align:left;
-  }
-  .cmp-select-btn:hover, .cmp-select.open .cmp-select-btn{ border-color:rgba(245,246,248,.4); }
-  .cmp-select-btn .cmp-select-value.placeholder{ color:var(--grey); }
-  .cmp-select-btn .arrow{ color:var(--grey); font-size:10px; transition:transform .15s ease; flex:0 0 auto; }
-  .cmp-select.open .cmp-select-btn .arrow{ transform:rotate(180deg); }
-  .cmp-select-panel{
-    position:absolute; top:calc(100% + 8px); left:0; right:0; background:#14161c;
-    border:1px solid rgba(245,246,248,.16); border-radius:16px; box-shadow:0 16px 40px rgba(0,0,0,.55);
-    z-index:60; overflow:hidden;
-  }
-  .cmp-select-search{ padding:10px; border-bottom:1px solid rgba(245,246,248,.1); }
-  .cmp-select-search input{
-    width:100%; background:rgba(245,246,248,.06); border:1px solid rgba(245,246,248,.16); color:var(--white);
-    border-radius:999px; padding:9px 14px; font-family:'Source Sans 3',sans-serif; font-size:13px;
-  }
-  .cmp-select-search input::placeholder{ color:rgba(199,204,212,.5); }
-  .cmp-select-options{
-    list-style:none; max-height:270px; overflow-y:auto; padding:6px;
-    scrollbar-width:thin; scrollbar-color: rgba(245,246,248,.28) transparent;
-  }
-  .cmp-select-options::-webkit-scrollbar{ width:8px; }
-  .cmp-select-options::-webkit-scrollbar-track{ background:transparent; }
-  .cmp-select-options::-webkit-scrollbar-thumb{ background:rgba(245,246,248,.22); border-radius:4px; }
-  .cmp-select-options::-webkit-scrollbar-thumb:hover{ background:rgba(245,246,248,.35); }
-  .cmp-select-option{
-    padding:10px 14px; border-radius:10px; font-family:'Chakra Petch',sans-serif; font-size:13px;
-    color:var(--white); cursor:pointer;
-  }
-  .cmp-select-option.cmp-select-clear{ color:var(--grey); }
-  .cmp-select-option:hover, .cmp-select-option.hot{ background:rgba(62,225,232,.12); color:var(--cyan); }
-  .cmp-select-option.selected{ font-weight:700; color:var(--cyan); }
-  .cmp-select-empty{ padding:16px; color:var(--grey); font-size:12.5px; text-align:center; }
-
-  .cmp-prompt{
-    text-align:center; color:var(--grey); font-size:13.5px; padding:44px 20px; border:1px dashed rgba(245,246,248,.18);
-    border-radius:18px;
-  }
-  /* 2026-08-06: link to the full All-Time list (stats page), between the
-     comparison table and the "Join the Community" Discord CTA below. */
-  .cmp-alltime-link{ text-align:center; margin-top:22px; }
-  .cmp-alltime-link a{
-    color:var(--grey); font-size:12.5px; text-transform:uppercase; letter-spacing:.06em;
-    font-family:'Chakra Petch',sans-serif; text-decoration:none; border-bottom:1px solid rgba(245,246,248,.25);
-    padding-bottom:2px; transition:color .2s ease, border-color .2s ease;
-  }
-  .cmp-alltime-link a:hover{ color:var(--cyan); border-color:var(--cyan); }
-
-  /* ---------- Entity cards (mirrors the driver-card look from the team page) ---------- */
-  .cmp-cards{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px; }
-  .cmp-card{
-    background:rgba(245,246,248,.03); border:1px solid rgba(245,246,248,.09); border-radius:22px;
-    padding:26px 18px; text-align:center;
-  }
-  .cmp-avatar{
-    display:block; width:88px; height:88px; border-radius:50%; margin:0 auto 14px; overflow:hidden;
-    box-shadow:0 8px 22px rgba(0,0,0,.4); border:2px solid rgba(245,246,248,.16);
-  }
-  a.cmp-avatar{ transition:transform .2s ease, box-shadow .2s ease; cursor:pointer; }
-  a.cmp-avatar:hover{ transform:scale(1.05); box-shadow:0 10px 26px rgba(0,0,0,.5); }
-  .cmp-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .cmp-avatar.placeholder{
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Bebas Neue',sans-serif; font-size:32px; color:#0b0c10;
-  }
-  /* 2026-08-06 (user request): drivers with no photo get a silhouette icon
-     instead of an initial letter (teams keep their initial-letter fallback
-     on their brand-colour background — only the driver case changes). */
-  .cmp-avatar.placeholder.driver-placeholder{ color:rgba(245,246,248,.4); }
-  .cmp-avatar.placeholder.driver-placeholder svg{ width:52%; height:52%; fill:currentColor; }
-  .cmp-name{ font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.02em; text-transform:uppercase; }
-  .cmp-sub{
-    font-size:11px; color:var(--grey); margin-top:6px; font-family:'Chakra Petch',sans-serif;
-    text-transform:uppercase; letter-spacing:.05em;
-  }
-
-  /* ---------- Comparison table (2026-08-05, user request): label moved to
-     the MIDDLE column, values flank it left/right — value A right-aligned
-     toward the label, value B left-aligned toward the label, so each
-     value sits directly under its own card above (card A left / card B
-     right) and reads as "62 < RATING > 63" instead of the old
-     label-first layout where all three columns just sat left-to-right
-     with no visual link back to the cards. ---------- */
-  .cmp-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  .cmp-table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:420px; table-layout:fixed; }
-  .cmp-table td{ padding:13px 14px; border-bottom:1px solid rgba(245,246,248,.08); font-variant-numeric:tabular-nums; }
-  .cmp-table td:nth-child(1){ width:30%; text-align:right; }
-  .cmp-table td:nth-child(2){ width:40%; text-align:center; }
-  .cmp-table td:nth-child(3){ width:30%; text-align:left; }
-  .cmp-table td.cmp-label{
-    font-family:'Chakra Petch',sans-serif; text-transform:uppercase; font-size:11px;
-    letter-spacing:.05em; color:var(--grey); font-weight:600;
-  }
-  .cmp-table td.win{ color:var(--cyan); font-weight:700; }
-  .cmp-card-empty{
-    background:transparent; border:1.5px dashed rgba(245,246,248,.18); border-radius:22px;
-    padding:26px 18px; text-align:center; display:flex; align-items:center; justify-content:center;
-    color:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:12px; text-transform:uppercase;
-    letter-spacing:.05em; min-height:158px;
-  }
-
-  .finale-foot{
-    display:flex; flex-direction:column; align-items:center; text-align:center;
-    padding:16px 24px 40px; position:relative; z-index:3;
-  }
-  .finale-cta{
-    display:inline-flex; align-items:center; justify-content:center;
-    border:1.5px solid rgba(245,246,248,.5); color:var(--white); text-decoration:none;
-    padding:15px 28px 15px 18px; border-radius:999px; max-width:min(90vw,620px);
-    transition:background .3s ease;
-    position:relative; z-index:2;
-    background:rgba(11,12,16,.3);
-  }
-  .finale-cta:hover, .finale-cta:focus-visible{ background:rgba(245,246,248,.07); }
-  .finale-cta-left{ display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:22px; }
-  .finale-cta-icon{ flex:0 0 auto; width:24px; height:24px; color:var(--white); }
-  .finale-cta-icon svg{ width:100%; height:100%; fill:currentColor; display:block; }
-  .finale-cta-title{
-    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:13.5px;
-    letter-spacing:.09em; text-transform:uppercase; white-space:nowrap;
-  }
-  .finale-cta-divider{
-    width:1px; align-self:stretch; background:rgba(245,246,248,.32); margin-right:22px; flex:0 0 auto;
-  }
-  .finale-cta-sub{
-    font-family:'Source Sans 3',sans-serif; font-size:12px; line-height:1.42; color:rgba(245,246,248,.72);
-  }
-  @media (max-width:560px){
-    .finale-cta{ flex-wrap:wrap; padding:18px 22px; }
-    .finale-cta-left{ padding-right:0; }
-    .finale-cta-divider{ display:none; }
-    .finale-cta-sub{ width:100%; margin-top:8px; }
-  }
-  .finale-social{
-    position:relative; z-index:2;
-    display:flex; align-items:center; justify-content:center; gap:26px;
-    margin-top:26px;
-  }
-  .finale-social-btn{
-    width:auto; height:auto; flex:0 0 auto;
-    display:flex; align-items:center; justify-content:center;
-    color:var(--white); text-decoration:none;
-  }
-  .finale-social-btn svg{ width:22px; height:22px; fill:currentColor; }
-  .finale-social-btn.ps-mark{
-    width:27px; height:21px; background-color:var(--white);
-    -webkit-mask-image:url('data:image/png;base64,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');
-    mask-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAGCCAYAAAAWrTFWAAAKMGlDQ1BJQ0MgUHJvZmlsZQAAeJydlndUVNcWh8+9d3qhzTAUKUPvvQ0gvTep0kRhmBlgKAMOMzSxIaICEUVEBBVBgiIGjIYisSKKhYBgwR6QIKDEYBRRUXkzslZ05eW9l5ffH2d9a5+99z1n733WugCQvP25vHRYCoA0noAf4uVKj4yKpmP7AQzwAAPMAGCyMjMCQj3DgEg+Hm70TJET+CIIgDd3xCsAN428g+h08P9JmpXBF4jSBInYgs3JZIm4UMSp2YIMsX1GxNT4FDHDKDHzRQcUsbyYExfZ8LPPIjuLmZ3GY4tYfOYMdhpbzD0i3pol5IgY8RdxURaXky3iWyLWTBWmcUX8VhybxmFmAoAiie0CDitJxKYiJvHDQtxEvBQAHCnxK47/igWcHIH4Um7pGbl8bmKSgK7L0qOb2doy6N6c7FSOQGAUxGSlMPlsult6WgaTlwvA4p0/S0ZcW7qoyNZmttbWRubGZl8V6r9u/k2Je7tIr4I/9wyi9X2x/ZVfej0AjFlRbXZ8scXvBaBjMwDy97/YNA8CICnqW/vAV/ehieclSSDIsDMxyc7ONuZyWMbigv6h/+nwN/TV94zF6f4oD92dk8AUpgro4rqx0lPThXx6ZgaTxaEb/XmI/3HgX5/DMISTwOFzeKKIcNGUcXmJonbz2FwBN51H5/L+UxP/YdiftDjXIlEaPgFqrDGQGqAC5Nc+gKIQARJzQLQD/dE3f3w4EL+8CNWJxbn/LOjfs8Jl4iWTm/g5zi0kjM4S8rMW98TPEqABAUgCKlAAKkAD6AIjYA5sgD1wBh7AFwSCMBAFVgEWSAJpgA+yQT7YCIpACdgBdoNqUAsaQBNoASdABzgNLoDL4Dq4AW6DB2AEjIPnYAa8AfMQBGEhMkSBFCBVSAsygMwhBuQIeUD+UAgUBcVBiRAPEkL50CaoBCqHqqE6qAn6HjoFXYCuQoPQPWgUmoJ+h97DCEyCqbAyrA2bwAzYBfaDw+CVcCK8Gs6DC+HtcBVcDx+D2+EL8HX4NjwCP4dnEYAQERqihhghDMQNCUSikQSEj6xDipFKpB5pQbqQXuQmMoJMI+9QGBQFRUcZoexR3qjlKBZqNWodqhRVjTqCakf1oG6iRlEzqE9oMloJbYC2Q/ugI9GJ6Gx0EboS3YhuQ19C30aPo99gMBgaRgdjg/HGRGGSMWswpZj9mFbMecwgZgwzi8ViFbAGWAdsIJaJFWCLsHuxx7DnsEPYcexbHBGnijPHeeKicTxcAa4SdxR3FjeEm8DN46XwWng7fCCejc/Fl+Eb8F34Afw4fp4gTdAhOBDCCMmEjYQqQgvhEuEh4RWRSFQn2hKDiVziBmIV8TjxCnGU+I4kQ9InuZFiSELSdtJh0nnSPdIrMpmsTXYmR5MF5O3kJvJF8mPyWwmKhLGEjwRbYr1EjUS7xJDEC0m8pJaki+QqyTzJSsmTkgOS01J4KW0pNymm1DqpGqlTUsNSs9IUaTPpQOk06VLpo9JXpSdlsDLaMh4ybJlCmUMyF2XGKAhFg+JGYVE2URoolyjjVAxVh+pDTaaWUL+j9lNnZGVkLWXDZXNka2TPyI7QEJo2zYeWSiujnaDdob2XU5ZzkePIbZNrkRuSm5NfIu8sz5Evlm+Vvy3/XoGu4KGQorBToUPhkSJKUV8xWDFb8YDiJcXpJdQl9ktYS4qXnFhyXwlW0lcKUVqjdEipT2lWWUXZSzlDea/yReVpFZqKs0qySoXKWZUpVYqqoypXtUL1nOozuizdhZ5Kr6L30GfUlNS81YRqdWr9avPqOurL1QvUW9UfaRA0GBoJGhUa3RozmqqaAZr5ms2a97XwWgytJK09Wr1ac9o62hHaW7Q7tCd15HV8dPJ0mnUe6pJ1nXRX69br3tLD6DH0UvT2693Qh/Wt9JP0a/QHDGADawOuwX6DQUO0oa0hz7DecNiIZORilGXUbDRqTDP2Ny4w7jB+YaJpEm2y06TX5JOplWmqaYPpAzMZM1+zArMus9/N9c1Z5jXmtyzIFp4W6y06LV5aGlhyLA9Y3rWiWAVYbbHqtvpobWPNt26xnrLRtImz2WczzKAyghiljCu2aFtX2/W2p23f2VnbCexO2P1mb2SfYn/UfnKpzlLO0oalYw7qDkyHOocRR7pjnONBxxEnNSemU73TE2cNZ7Zzo/OEi55Lsssxlxeupq581zbXOTc7t7Vu590Rdy/3Yvd+DxmP5R7VHo891T0TPZs9Z7ysvNZ4nfdGe/t57/Qe9lH2Yfk0+cz42viu9e3xI/mF+lX7PfHX9+f7dwXAAb4BuwIeLtNaxlvWEQgCfQJ3BT4K0glaHfRjMCY4KLgm+GmIWUh+SG8oJTQ29GjomzDXsLKwB8t1lwuXd4dLhseEN4XPRbhHlEeMRJpEro28HqUYxY3qjMZGh0c3Rs+u8Fixe8V4jFVMUcydlTorc1ZeXaW4KnXVmVjJWGbsyTh0XETc0bgPzEBmPXM23id+X/wMy421h/Wc7cyuYE9xHDjlnIkEh4TyhMlEh8RdiVNJTkmVSdNcN24192Wyd3Jt8lxKYMrhlIXUiNTWNFxaXNopngwvhdeTrpKekz6YYZBRlDGy2m717tUzfD9+YyaUuTKzU0AV/Uz1CXWFm4WjWY5ZNVlvs8OzT+ZI5/By+nL1c7flTuR55n27BrWGtaY7Xy1/Y/7oWpe1deugdfHrutdrrC9cP77Ba8ORjYSNKRt/KjAtKC94vSliU1ehcuGGwrHNXpubiySK+EXDW+y31G5FbeVu7d9msW3vtk/F7OJrJaYllSUfSlml174x+6bqm4XtCdv7y6zLDuzA7ODtuLPTaeeRcunyvPKxXQG72ivoFcUVr3fH7r5aaVlZu4ewR7hnpMq/qnOv5t4dez9UJ1XfrnGtad2ntG/bvrn97P1DB5wPtNQq15bUvj/IPXi3zquuvV67vvIQ5lDWoacN4Q293zK+bWpUbCxp/HiYd3jkSMiRniabpqajSkfLmuFmYfPUsZhjN75z/66zxailrpXWWnIcHBcef/Z93Pd3Tvid6D7JONnyg9YP+9oobcXtUHtu+0xHUsdIZ1Tn4CnfU91d9l1tPxr/ePi02umaM7Jnys4SzhaeXTiXd272fMb56QuJF8a6Y7sfXIy8eKsnuKf/kt+lK5c9L1/sdek9d8XhyumrdldPXWNc67hufb29z6qv7Sern9r6rfvbB2wGOm/Y3ugaXDp4dshp6MJN95uXb/ncun572e3BO8vv3B2OGR65y747eS/13sv7WffnH2x4iH5Y/EjqUeVjpcf1P+v93DpiPXJm1H2070nokwdjrLHnv2T+8mG88Cn5aeWE6kTTpPnk6SnPqRvPVjwbf57xfH666FfpX/e90H3xw2/Ov/XNRM6Mv+S/XPi99JXCq8OvLV93zwbNPn6T9mZ+rvitwtsj7xjvet9HvJ+Yz/6A/VD1Ue9j1ye/Tw8X0hYW/gUDmPP8uaxzGQAADZZJREFUeJzt3duSo8oRQFFw9P//Mn6Y0ByakQQUUJfMtR4dYYeMyNxTSN09L8syQTbzPC/TNE3LssytXwvAHX5avwBo6RX2NZEHRiTosLGNvMADIxB02CHwwAgEHU7ymB7okaDDDZzigdYEHR4g8EBtgg4VCDzwNEGHBgQeuJugQwfWgRd3oISgQ2ec3oESgg6dE3jgCEGHwQg88I6gw+B8/g5Mk6BDKE7vkJegQ2BO75CHoEMS4g6xCTok5NE8xCPogNM7BCDowC9O7zAmQQe+cnqHMQg6cJi4Q78EHSgi7tAXQQcu87k7tCfowO2c3qE+QQceJe5Qh6AD1Yg7PEfQgSbEHe4l6EBzvlQH1wk60B2ndzhP0IGuiTscI+jAMMQdPvtf6xcAUGKe52X72Ttk5oQODM2pHf4QdCAMcSczj9yBkDySJxsndCA0p3aycEIH0nBqJzJBB9IRdiLyyB1Iy+N4InFCB5ic2hmfoAOsCDujEnSAN4Sd0Qg6wBfCzigEHeAAYad3gg5wgrDTK0EHKCDs9EbQAS4QdXoh6AAXOa3TA0EHuImw05KgA9xM2GlB0AEeIurUJOgAD3JapxZBB6hA1HmaoANUIuo8SdABKvIInqcIOkADos7dBB2gEad17iToAI2JOncQdIAOiDpXCTpAJ0SdKwQdoCM+V6eUoAN0SNQ5S9ABOiXqnPHT+gUA8SzLMm//M3EqM8/z8u56wta8LGaMfMTlGUfD4/qfJ+rs8cgduMWZ4CzLMgvUOf4RxB5BBy4rjbOwnyPqfCPowCV3BFnUjxN1PhF0oAuifpyo846gA8XujrCoHyfqbAk6UOSp+Io6lBF0oDuifoxTOmuCDnRJ1I8RdV4EHThNbPsi6kyToAMd8w+H40QdQQeAAAQd6JpT+nFO6bkJOkAgop6XoAPdc0o/R9RzEnSAgEQ9H0EHgAAEHSAop/RcBB0Ygs/Ry4h6HoIOAAEIOkBwTuk5CDoABCDoAAk4pccn6ABJiHpsgg4AAQg6QCJO6XEJOjAMP4sOnwk6AAQg6ADJeOwek6ADQACCDpCQU3o8gg4AAQg6QFJO6bEIOgAEIOgAEICgAyTmsXscgg4AAQg6AAQg6ADJeeweg6ADQACCDgABCDoAHrsHIOgAEICgA0AAgg4AAQg6ANM0+Rx9dIIOAAEIOgAEIOgAEICgA0AAgg7AX74YNy5BB4AABB0AAhB0AAhA0AEgAEEH4BdfjBuToANAAIIOAAEIOgAEIOgAEICgA0AAgg4AAQg6AP/wo2vjEXQACEDQASAAQQeAAAQdAAIQdAAIQNABIABBB4AABB0AAhB0AAhA0AEgAEEH4C2//nUsgg4AAQg6AAQg6AAQgKADQACCDgABCDoABCDoABCAoANAAIIOAAEIOgAEIOgAEICgA0AAgg4AAQg6AAQg6AAQgKADQACCDgABCDoABCDoABCAoANAAIIOAAEIOgBvLcsyt34NHCfoABCAoANAAIIOAAEIOgAEIOgAEICgA0AAgg4AAQg6AAQg6AAQgKAD8A+/JW48gg4AAQg6AAQg6AAQgKADQACCDgABCDoAv/iG+5gEHQACEHQACEDQASAAQQeAAAQdgL98IW5cgg4AAQg6AAQg6ABM0+Rx++gEHQACEHQACEDQAfC4PQBBB4AABB0AAhB0gOQ8bo9B0AEgAEEHSMzpPA5BB4AABB0AAhB0gKQ8bo9F0AEgAEEHSMjpPB5BB4AABB0gGafzmAQdIBExj0vQASAAQQdIwuk8NkEHSEDM4xN0AAhA0AGCczrPQdABAhPzPAQdICgxz0XQAQIS83wEHSAYMc9J0AECEfO8BB0gCDHPTdABAhBzBB1gcGLONAk6wNDEnBdBBxiUmLMm6MBQROzPNXAd2BJ0YDiZg5b1/zf7flq/AIBS67jN87y0fC1PE3L2CDpdWS9lC4wzXvdLxLCbBY4QdJqLuIBpJ9KpXcg5Q9BpYvRFyxhGjbuQU0LQqWakhUo8vcddxLlK0HlUj4sTtvFseZ8KOXcRdG4n4ozmXVSfuI/FmycJOrcQcaLZi+/2nhdrWhN0iok4mQk4vRF0ThFxgD4JOocIOUDfBJ2PRBxgHILOLyIOMCZBR8QBAhD0pEQcIBZBT0bIAWIS9AREHCA+QQ9KxAFyEfRARBwgL0EfnIgDME2CPiwhh9xq7wC/u75/gj4QEYc4RpvnktfrHwF1CXrnRht64A+zu38NBP9egt4hiwDGYFav+XT9hL6MoHfEcoD+mMv6hL6MoDdmWUA/zGPf3r0/Iv8fQW/A0oD2zGEM2/cxc+AFvRLLA9oygzlkDrygP8gCgTbMHi+ZAi/oD7BMoC4zx1GRAy/oN7FQoC4zxx3W99HocRf0CywUqMe88bTR4y7oJ1kqUI95o5UR4y7oB1gqUIdZo0ejxF3Qv7Bc4HnmjJH0HHdB37BcADiit7gL+iTiAFzz6kjLsKcNuogDcLeWp/Z0QRdyAGqofWpPEXQRB6CVWmEPG3QRB6AnT4c9VNBFHIDePRX2EEEXcgBGc3fYhw26iAMQwV1hHy7oQg5ARFfDPkTQRRyALOZ5Xkqi3nXQhRyAjEpO6/977uWUm+d5EXMAsjvTwm5O6AIOAP86+gi+edCFnHd6+MtFwB+l82i/3+dI1JsF3RvNlohDe3fO4fZ/y96/Zu9z9epB94ayJuLQVs0ZFPhnVQu6N441IYc2epq9d69FK/Z9evz+eNC9Obz0tEggi9Hm7vV6teO7d1F/LOjeDKZpvGUCo4syc8K+bxv124Pu4hNlocAoIs/csiyzrhxza9Bd9LwiLxTokZljmn6f0m8JupDnZalAXRlnzin9mEtBd4FzyrhQoCUzxzevU3px0MU8FwsF6jJznFUUdDHPwUKBuswcV5wKupDHZ6FAXWZun/bsm+d5ORx0FzQuCwXqM3fHaM9xh4LugsZkoUBdZu443TlvN+guaiwWCtRl5s7RnHJfg+7CxmChQF1m7jy9ue5j0F3csVkoUJeZK6M193kbdBd4TBYK1GfuztOYZ/wTdBd6LJYJ1GfuyujLs34F3cUeh4UCdZm5MrpSz9+gu+j9s1CgLjNXRk/auP3voXMvCwXqMnPlhLydv3+cxZvQFwsF6jJz5fSjH07oHbFUoB7zVk7E+/TjjWnLUoG6zFw5vejT6552Qm/AQoG6zFw5ER+HoFdkqUA95u0aIR/D+j4X9IdZKlCPebtGxMeyvd8F/SEWS7nXUnENOcJ9co2IxyHoN7NcylgqnGHOrjFv43s3A4J+EwumjMXCUWbsOvMWw6dZEPSLLJnzLBXOMGPXmLdYvs2DoF9g0RxnqXCG2brGvMW0NxeCXsCyOcZS4QxzdY15i+3IfPwsyzK7EY6zdPa5nzjDTJUzazkcnREndG5hsUA95i2Hs//Y/Xn9l9wglHDfQB1mLZeSJ1dO6JxmsUAdZi2n0o+h/gbdKZ097g94njnL6+r3SZzQT5rnecn0JR7LBeowa3nd1ZRfQXdKPyZ61N0DUIdZ486W/HNCF/VjokTdew11mTmm6Zkf13z7yF3Uj1lfoxHi7j2FNsweL0+2wmfoN9kb2JrBtzygPXPIWo0GfAy6U/q9ngq+9wj6YiZZq3mY+3pCF/V6jgTfewF9MpustfoIdveR++uFuWHbcv2hL2aSrdbfpTr8GboTIpCdHchW64ivnfpSnKgDGdl7bPUU8pfT33L3CB7IwI7jnR5D/lL8Y2tO60A0dhrv9BzxtUs/h+60DozO/uKTUUL+cssvlhF2YDT2FZ+MFvKXW39TnLADPbOb+GbUkL888qtfhR3ohT3EntFD/vLo73IXdqAFO4c9USK+VuWPswg78DT7hT0RI75W9a+trS+m4QPuYJfwTfSIrzX786niDpSyM/gmU8TXuvh76B7JA3vsB77JGvG1LoL+4tQOrNkD7BHy/3QV9LXtm2SwIQ/zzjci/l63Qd9yeofYzDXfiPi+YYK+5vQOcZhfPhHxc4YM+pbAA8Qg4uVCBH1L4AHGIuTXhQz6lsAD9EfE75Ui6FvvbiKRB3ieiD8nZdDfEXmAZ4h4HYL+xaebUOgBvhPx+gS9wLcbVezLGH6IwSy3I+g3E/v3DDnEZb77IOgVnb3pe/4HgAGG3OyA/gh6xwwM0BM7qW+CDsBHIj4OQQfgFxEfk6ADME2TkI9O0AESE/E4BB0gGRGPSdABEhDx+AQdICgRz0XQAYIR8pwEHSAAEUfQAQYl4qwJOsBARJxPBB2gcyLOEYIO0CER5yxBB+iIkFNK0AEaE3HuIOgADYg4dxN0gEpEnCcJOsCDRJxaBB3gAUJObYIOcBMRpyVBB7hAxOmFoJPSdgnP87y0ei2MR8TpkaDD9HtBizvviDi9E3TYEHdeRJyRCDp8Ie45CTkjEnQ4yOfusYk4oxN0KOT0Pj4RJxJBhxuI+zhEnKgEHW7m0Xx/RJwMBB0e5vTejpCTiaBDReL+PBEnK0GHRsT9PiIOgg5d8Ln7eSIOvwk6dMjp/T0Rh88EHTon7kIORwg6DCRT3EUczhF0GFTEz91FHMrNyzL8DgA2no678EJ/nNAhoEyP5oE/BB2CE3fIQdAhkYifuwN/CDok5vQOcQg6ME2TuMPoBB34h7jDeP4PvnoLAeZZofYAAAAASUVORK5CYII=');
-    -webkit-mask-size:contain; mask-size:contain;
-    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-    -webkit-mask-position:center; mask-position:center;
-  }
-
-  /* 2026-08-06 (user report): the footer menu wasn't visually centered —
-     space-between with 3 unequal-width items (logo / menu / copyright)
-     doesn't land the middle item on true center. Grid with symmetric outer
-     columns fixes that; stacks to a single centered column on mobile. */
-  footer.site-footer{
-    position:relative; z-index:3; background:var(--bg); border-top:1px solid rgba(255,255,255,.1);
-    padding:34px 24px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px;
-  }
-  footer.site-footer img{ height:20px; width:auto; opacity:.85; justify-self:start; }
-  footer.site-footer .foot-links{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; justify-self:center; }
-  footer.site-footer a{
-    color:var(--grey); text-decoration:none; font-family:'Chakra Petch',sans-serif; font-size:12px;
-    letter-spacing:.06em; text-transform:uppercase;
-  }
-  footer.site-footer a:hover{ color:var(--cyan); }
-  footer.site-footer .copy{ color:rgba(199,204,212,.5); font-size:11.5px; justify-self:end; }
-
-  /* 2026-08-10 (user report, verified): moved below the general
-     footer.site-footer img/.foot-links/.copy rules -- at equal CSS
-     specificity the later rule in source order wins, so this mobile
-     override must come AFTER them or the general img rule's
-     justify-self:start silently wins back on narrow viewports too,
-     which is exactly what was pinning the logo to the left instead of
-     centering it on mobile. */
-  @media (max-width:760px){
-    footer.site-footer{ grid-template-columns:1fr; justify-items:center; text-align:center; }
-    footer.site-footer img, footer.site-footer .foot-links, footer.site-footer .copy{ justify-self:center; }
-  }
-
-  @media (max-width:860px){
-    header{padding:14px 18px;}
-    nav.desktop-nav{display:none;} .burger{display:block;}
-    .cmp-hero{padding:120px 20px 36px;}
-    .tp-section{ padding:12px 16px 44px; }
-    .cmp-select{ min-width:0; width:100%; }
-    .selector-row{ gap:10px; }
-    /* Cards stay side by side on mobile too (previously stacked, which made
-       the two entities harder to compare at a glance) — narrower padding,
-       smaller avatar and name so both columns fit a 360-420px viewport. */
-    .cmp-cards{ gap:10px; }
-    .cmp-card{ padding:16px 8px; border-radius:16px; }
-    .cmp-avatar{ width:60px; height:60px; margin-bottom:10px; }
-    .cmp-avatar.placeholder{ font-size:22px; }
-    .cmp-name{ font-size:16px; }
-    .cmp-sub{ font-size:9.5px; }
-    /* All 3 columns (label + two values) need to fit the narrow viewport
-       without a forced horizontal scroll — the desktop min-width/padding
-       would otherwise push the table wider than the screen. */
-    .cmp-table{ min-width:0; width:100%; font-size:11.5px; table-layout:fixed; }
-    .cmp-table td{ padding:11px 4px; word-wrap:break-word; }
-    /* 2026-08-10 (user report, verified): this used to be 40%/30%/30%,
-       breaking the symmetric 30/40/30 split the desktop rule above uses.
-       With column 1 wider than column 3, the centered label column no
-       longer sits on the table's true midpoint, so the whole row reads
-       as shifted right relative to the tiles above it (measured ~18px
-       off-center in testing). Restored to the same symmetric ratio as
-       desktop. */
-    .cmp-table td:nth-child(1){ width:30%; }
-    .cmp-table td:nth-child(2){ width:40%; }
-    .cmp-table td:nth-child(3){ width:30%; }
-    .cmp-table td.cmp-label{ font-size:9.5px; }
-  }
-
-  /* ---------- Resources nav dropdown (2026-08-03) — desktop hover +
-     keyboard :focus-within, mirrors the old Wix site's REGELN dropdown
-     (Rules / Classes / Tracks). Menu box sits flush (top:100%, no
-     margin-top gap) against the trigger so there's no hover dead-zone.
-     Hidden on mobile along with the rest of nav.desktop-nav until the
-     hamburger menu itself gets built (pre-existing gap, not new). ---------- */
-  .nav-dropdown{ position:relative; font-size:13px; }
-  .nav-dropdown .dropdown-trigger{ cursor:pointer; }
-  .nav-dropdown .chevron{
-    display:inline-block; width:6px; height:6px;
-    border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
-    transform:rotate(45deg); vertical-align:middle; margin-left:6px; margin-bottom:2px;
-    transition:transform .18s ease;
-  }
-  .nav-dropdown:hover .chevron, .nav-dropdown:focus-within .chevron{ transform:rotate(225deg); }
-  .dropdown-menu{
-    position:absolute; top:100%; left:50%; transform:translateX(-50%);
-    min-width:200px; background:rgba(14,15,19,.97); border:1px solid rgba(245,246,248,.12);
-    border-radius:12px; padding:8px;
-    opacity:0; visibility:hidden; pointer-events:none; transition:opacity .16s ease;
-    box-shadow:0 16px 40px rgba(0,0,0,.45);
-  }
-  .nav-dropdown:hover .dropdown-menu, .nav-dropdown:focus-within .dropdown-menu{
-    opacity:1; visibility:visible; pointer-events:auto;
-  }
-  .dropdown-menu a{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:9px 12px; border-radius:8px; font-size:12px; white-space:nowrap;
-  }
-  .dropdown-menu a:hover, .dropdown-menu a:focus-visible{ background:rgba(245,246,248,.08); color:var(--cyan); }
-  .dropdown-menu a.current{ color:var(--red); }
-  .ext-icon{ display:inline-flex; align-items:center; vertical-align:-1px; }
-  .ext-icon svg{ width:11px; height:11px; display:block; }
-  .dropdown-menu .ext-icon{ opacity:.65; }
-  /* ---------- Content fade-on-scroll (2026-08-03) — prevents page content
-     from visually clashing with the header's semi-transparent background
-     while scrolling (user-reported issue). A CSS mask makes the content's
-     OWN pixels transparent as it nears the header — nothing is painted on
-     top, so it never covers/darkens anything, and the flag background
-     stays fully visible throughout (see the flag's own position:fixed
-     change below). The gradient is defined in the wrapper's local
-     coordinate space; a small script re-offsets mask-position by the
-     current scrollY every scroll tick so the fade band stays pinned to
-     the viewport (not the document), working the same on every section,
-     not just the hero. Eased via extra stops (smoothstep-style S-curve)
-     rather than one straight linear ramp, since a linear alpha fade
-     against high-contrast text looks more abrupt than it numerically is.
-     Zone is 70px-170px: 70px matches the header's own height (content is
-     already fully behind it there regardless), 170px is calibrated to
-     sit just below where hero titles rest at scroll=0 (measured via
-     Playwright) so nothing fades before the user actually scrolls. */
-  .fade-content{
-    -webkit-mask-image: linear-gradient(to bottom,
-      transparent 0, transparent 70px,
-      rgba(0,0,0,.156) 95px,
-      rgba(0,0,0,.5) 120px,
-      rgba(0,0,0,.844) 145px,
-      #000 170px);
-    mask-image: linear-gradient(to bottom,
-      transparent 0, transparent 70px,
-      rgba(0,0,0,.156) 95px,
-      rgba(0,0,0,.5) 120px,
-      rgba(0,0,0,.844) 145px,
-      #000 170px);
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: 0 0;
-    mask-position: 0 0;
-  }
-
-
-  /* ---------- Mobile nav drawer (2026-08-04) ---------- */
-  .mobile-nav-overlay{
-    position:fixed; inset:0; background:rgba(6,7,9,.6); backdrop-filter:blur(2px);
-    opacity:0; visibility:hidden; transition:opacity .25s ease; z-index:150;
-  }
-  .mobile-nav-overlay.open{ opacity:1; visibility:visible; }
-  .mobile-nav{
-    position:fixed; top:0; right:0; bottom:0; width:min(320px, 82vw);
-    background:rgba(14,15,19,.98); border-left:1px solid rgba(245,246,248,.1);
-    z-index:151; padding:88px 28px 32px; display:flex; flex-direction:column; gap:2px;
-    transform:translateX(100%); transition:transform .3s ease; overflow-y:auto;
-  }
-  .mobile-nav.open{ transform:translateX(0); }
-  .mobile-nav a{
-    color:var(--white); text-decoration:none; font-family:'Chakra Petch',sans-serif;
-    font-size:15px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
-    padding:13px 4px; border-bottom:1px solid rgba(245,246,248,.08); display:block;
-  }
-  .mobile-nav a.current{ color:var(--red); }
-  .mobile-nav a:hover, .mobile-nav a:focus-visible{ color:var(--cyan); }
-  .mobile-nav-group{ display:flex; flex-direction:column; }
-  .mobile-nav-group .mobile-nav-heading{
-    color:var(--grey); font-family:'Chakra Petch',sans-serif; font-size:11.5px;
-    font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:13px 4px 4px;
-  }
-  .mobile-nav-group a{ padding-left:16px; font-size:13.5px; border-bottom:none; }
-  .mobile-nav-group a:last-child{ border-bottom:1px solid rgba(245,246,248,.08); padding-bottom:13px; }
-  .mobile-nav-cta{
-    margin-top:16px; text-align:center; background:var(--red); color:var(--white) !important;
-    border-radius:10px; border-bottom:none !important; padding:13px !important;
-  }
-  .burger{ position:relative; z-index:152; }
-  .burger span{ transition:transform .25s ease, opacity .2s ease; }
-  .burger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
-  .burger.open span:nth-child(2){ opacity:0; }
-  .burger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
-  body.nav-open{ overflow:hidden; }
-  body.nav-open header{ z-index:155; }
-
-  .skip-link{
-    position:absolute; top:-999px; left:0; z-index:9999;
-    background:var(--red); color:var(--white); padding:12px 20px;
-    font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:14px;
-    text-decoration:none; border-radius:0 0 8px 0;
-  }
-  .skip-link:focus{ top:0; }
-</style>
+<style>:root{--bg:#0b0c10;--red:#e21c2b;--red-2:#a3131f;--cyan:#3ee1e8;--white:#f5f6f8;--grey:#c7ccd4}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--white);font-family:'Source Sans 3',sans-serif;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px 30px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}.brand img{height:24px;width:auto;display:block}nav.desktop-nav{display:flex;align-items:center;gap:26px;list-style:none}nav.desktop-nav a{color:rgba(245,246,248,.85);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s ease}nav.desktop-nav a:focus-visible,nav.desktop-nav a:hover{color:var(--cyan)}nav.desktop-nav a.current{color:var(--red)}.cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;text-decoration:none;font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:11px 24px;border-radius:999px;transition:all .18s ease}.cta:hover{background:var(--red-2);transform:translateY(-1px)}a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}.burger{display:none;background:0 0;border:none;cursor:pointer}.burger span{display:block;width:22px;height:2px;background:var(--white);margin:5px 0}#loadOverlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px}#loadOverlay.hidden{display:none}#loadOverlay .box{max-width:460px}#loadOverlay h2{font-family:'Bebas Neue',sans-serif;font-size:22px;margin:0 0 8px;text-transform:uppercase}#loadOverlay p{color:var(--grey);font-size:13px;line-height:1.5;margin:0 0 14px}#loadOverlay input[type=file]{background:rgba(245,246,248,.05);border:1px solid rgba(245,246,248,.2);color:var(--white);padding:10px;border-radius:8px;font-size:13px}#loadOverlay .err{color:var(--red);font-size:12px;margin-top:10px}.cmp-bg-glow{position:absolute;top:0;left:0;right:0;height:100vh;z-index:0;pointer-events:none;overflow:hidden}.cmp-bg-glow .glow{position:absolute;width:56vw;height:56vw;max-width:640px;max-height:640px;min-width:320px;min-height:320px;filter:blur(85px);opacity:.28;transition:background .4s ease;top:-8%;border-radius:28% 72% 58% 42%/52% 30% 70% 48%}.cmp-bg-glow .glow::after{content:'';position:absolute;width:68%;height:60%;top:-42%;left:42%;background:inherit;border-radius:60% 40% 35% 65%/65% 38% 62% 35%}.cmp-bg-glow .glow-a{left:-18%;background:var(--red);transform:rotate(-11deg)}.cmp-bg-glow .glow-b{right:-18%;background:var(--cyan);transform:scaleX(-1) rotate(-11deg)}.cmp-bg-flag{position:fixed;top:0;left:0;right:0;height:300px;z-index:0;pointer-events:none;background-image:url('assets/backgrounds/checkered-flag.png');background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:.16;mix-blend-mode:screen;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,0) 100%);mask-image:linear-gradient(180deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,0) 100%)}.cmp-hero{position:relative;padding:150px 24px 46px;text-align:center}.cmp-hero .eyebrow{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}.cmp-hero h1{font-family:'Bebas Neue',sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(40px,7vw,72px);letter-spacing:.02em;margin-top:14px;line-height:1}.cmp-hero .lede{color:var(--grey);font-size:14px;margin-top:16px;max-width:850px;margin-left:auto;margin-right:auto;line-height:1.6}.type-toggle{display:inline-flex;gap:8px;margin-top:24px;background:rgba(245,246,248,.05);border:1px solid rgba(245,246,248,.12);border-radius:999px;padding:5px}.type-btn{background:0 0;border:none;color:var(--grey);font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:9px 22px;border-radius:999px;cursor:pointer;transition:all .18s ease}.type-btn.active{background:var(--red);color:#fff}.type-btn:hover:not(.active){color:var(--white)}.tp-section{position:relative;z-index:4;padding:12px 24px 56px;flex:1 0 auto}.tp-section-inner{max-width:900px;margin:0 auto}.selector-row{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:40px}.vs{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--grey);letter-spacing:.06em}.cmp-select{position:relative;min-width:230px}.cmp-select-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,246,248,.05);border:1px solid rgba(245,246,248,.2);color:var(--white);padding:13px 18px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.02em;cursor:pointer;text-align:left}.cmp-select-btn:hover,.cmp-select.open .cmp-select-btn{border-color:rgba(245,246,248,.4)}.cmp-select-btn .cmp-select-value.placeholder{color:var(--grey)}.cmp-select-btn .arrow{color:var(--grey);font-size:10px;transition:transform .15s ease;flex:0 0 auto}.cmp-select.open .cmp-select-btn .arrow{transform:rotate(180deg)}.cmp-select-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#14161c;border:1px solid rgba(245,246,248,.16);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:60;overflow:hidden}.cmp-select-search{padding:10px;border-bottom:1px solid rgba(245,246,248,.1)}.cmp-select-search input{width:100%;background:rgba(245,246,248,.06);border:1px solid rgba(245,246,248,.16);color:var(--white);border-radius:999px;padding:9px 14px;font-family:'Source Sans 3',sans-serif;font-size:13px}.cmp-select-search input::placeholder{color:rgba(199,204,212,.5)}.cmp-select-options{list-style:none;max-height:270px;overflow-y:auto;padding:6px;scrollbar-width:thin;scrollbar-color:rgba(245,246,248,.28) transparent}.cmp-select-options::-webkit-scrollbar{width:8px}.cmp-select-options::-webkit-scrollbar-track{background:0 0}.cmp-select-options::-webkit-scrollbar-thumb{background:rgba(245,246,248,.22);border-radius:4px}.cmp-select-options::-webkit-scrollbar-thumb:hover{background:rgba(245,246,248,.35)}.cmp-select-option{padding:10px 14px;border-radius:10px;font-family:'Chakra Petch',sans-serif;font-size:13px;color:var(--white);cursor:pointer}.cmp-select-option.cmp-select-clear{color:var(--grey)}.cmp-select-option.hot,.cmp-select-option:hover{background:rgba(62,225,232,.12);color:var(--cyan)}.cmp-select-option.selected{font-weight:700;color:var(--cyan)}.cmp-select-empty{padding:16px;color:var(--grey);font-size:12.5px;text-align:center}.cmp-prompt{text-align:center;color:var(--grey);font-size:13.5px;padding:44px 20px;border:1px dashed rgba(245,246,248,.18);border-radius:18px}.cmp-alltime-link{text-align:center;margin-top:22px}.cmp-alltime-link a{color:var(--grey);font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;font-family:'Chakra Petch',sans-serif;text-decoration:none;border-bottom:1px solid rgba(245,246,248,.25);padding-bottom:2px;transition:color .2s ease,border-color .2s ease}.cmp-alltime-link a:hover{color:var(--cyan);border-color:var(--cyan)}.cmp-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}.cmp-card{background:rgba(245,246,248,.03);border:1px solid rgba(245,246,248,.09);border-radius:22px;padding:26px 18px;text-align:center}.cmp-avatar{display:block;width:88px;height:88px;border-radius:50%;margin:0 auto 14px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.4);border:2px solid rgba(245,246,248,.16)}a.cmp-avatar{transition:transform .2s ease,box-shadow .2s ease;cursor:pointer}a.cmp-avatar:hover{transform:scale(1.05);box-shadow:0 10px 26px rgba(0,0,0,.5)}.cmp-avatar img{width:100%;height:100%;object-fit:cover;display:block}.cmp-avatar.placeholder{display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#0b0c10}.cmp-avatar.placeholder.driver-placeholder{color:rgba(245,246,248,.4)}.cmp-avatar.placeholder.driver-placeholder svg{width:52%;height:52%;fill:currentColor}.cmp-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.02em;text-transform:uppercase}.cmp-sub{font-size:11px;color:var(--grey);margin-top:6px;font-family:'Chakra Petch',sans-serif;text-transform:uppercase;letter-spacing:.05em}.cmp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.cmp-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:420px;table-layout:fixed}.cmp-table td{padding:13px 14px;border-bottom:1px solid rgba(245,246,248,.08);font-variant-numeric:tabular-nums}.cmp-table td:first-child{width:30%;text-align:right}.cmp-table td:nth-child(2){width:40%;text-align:center}.cmp-table td:nth-child(3){width:30%;text-align:left}.cmp-table td.cmp-label{font-family:'Chakra Petch',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:.05em;color:var(--grey);font-weight:600}.cmp-table td.win{color:var(--cyan);font-weight:700}.cmp-card-empty{background:0 0;border:1.5px dashed rgba(245,246,248,.18);border-radius:22px;padding:26px 18px;text-align:center;display:flex;align-items:center;justify-content:center;color:var(--grey);font-family:'Chakra Petch',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.05em;min-height:158px}.finale-foot{display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 24px 40px;position:relative;z-index:3}.finale-cta{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid rgba(245,246,248,.5);color:var(--white);text-decoration:none;padding:15px 28px 15px 18px;border-radius:999px;max-width:min(90vw,620px);transition:background .3s ease;position:relative;z-index:2;background:rgba(11,12,16,.3)}.finale-cta:focus-visible,.finale-cta:hover{background:rgba(245,246,248,.07)}.finale-cta-left{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding-right:22px}.finale-cta-icon{flex:0 0 auto;width:24px;height:24px;color:var(--white)}.finale-cta-icon svg{width:100%;height:100%;fill:currentColor;display:block}.finale-cta-title{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}.finale-cta-divider{width:1px;align-self:stretch;background:rgba(245,246,248,.32);margin-right:22px;flex:0 0 auto}.finale-cta-sub{font-family:'Source Sans 3',sans-serif;font-size:12px;line-height:1.42;color:rgba(245,246,248,.72)}@media (max-width:560px){.finale-cta{flex-wrap:wrap;padding:18px 22px}.finale-cta-left{padding-right:0}.finale-cta-divider{display:none}.finale-cta-sub{width:100%;margin-top:8px}}.finale-social{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:26px;margin-top:26px}.finale-social-btn{width:auto;height:auto;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:var(--white);text-decoration:none}.finale-social-btn svg{width:22px;height:22px;fill:currentColor}.finale-social-btn.ps-mark{width:27px;height:21px;background-color:var(--white);-webkit-mask-image:url('data:image/png;base64,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');mask-image:url('data:image/png;base64,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');-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}footer.site-footer{position:relative;z-index:3;background:var(--bg);border-top:1px solid rgba(255,255,255,.1);padding:34px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px}footer.site-footer img{height:20px;width:auto;opacity:.85;justify-self:start}footer.site-footer .foot-links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;justify-self:center}footer.site-footer a{color:var(--grey);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase}footer.site-footer a:hover{color:var(--cyan)}footer.site-footer .copy{color:rgba(199,204,212,.5);font-size:11.5px;justify-self:end}@media (max-width:760px){footer.site-footer{grid-template-columns:1fr;justify-items:center;text-align:center}footer.site-footer .copy,footer.site-footer .foot-links,footer.site-footer img{justify-self:center}}@media (max-width:860px){header{padding:14px 18px}nav.desktop-nav{display:none}.burger{display:block}.cmp-hero{padding:120px 20px 36px}.tp-section{padding:12px 16px 44px}.cmp-select{min-width:0;width:100%}.selector-row{gap:10px}.cmp-cards{gap:10px}.cmp-card{padding:16px 8px;border-radius:16px}.cmp-avatar{width:60px;height:60px;margin-bottom:10px}.cmp-avatar.placeholder{font-size:22px}.cmp-name{font-size:16px}.cmp-sub{font-size:9.5px}.cmp-table{min-width:0;width:100%;font-size:11.5px;table-layout:fixed}.cmp-table td{padding:11px 4px;word-wrap:break-word}.cmp-table td:first-child{width:30%}.cmp-table td:nth-child(2){width:40%}.cmp-table td:nth-child(3){width:30%}.cmp-table td.cmp-label{font-size:9.5px}}.nav-dropdown{position:relative;font-size:13px}.nav-dropdown .dropdown-trigger{cursor:pointer}.nav-dropdown .chevron{display:inline-block;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);vertical-align:middle;margin-left:6px;margin-bottom:2px;transition:transform .18s ease}.nav-dropdown:focus-within .chevron,.nav-dropdown:hover .chevron{transform:rotate(225deg)}.dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:200px;background:rgba(14,15,19,.97);border:1px solid rgba(245,246,248,.12);border-radius:12px;padding:8px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s ease;box-shadow:0 16px 40px rgba(0,0,0,.45)}.nav-dropdown:focus-within .dropdown-menu,.nav-dropdown:hover .dropdown-menu{opacity:1;visibility:visible;pointer-events:auto}.dropdown-menu a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;font-size:12px;white-space:nowrap}.dropdown-menu a:focus-visible,.dropdown-menu a:hover{background:rgba(245,246,248,.08);color:var(--cyan)}.dropdown-menu a.current{color:var(--red)}.ext-icon{display:inline-flex;align-items:center;vertical-align:-1px}.ext-icon svg{width:11px;height:11px;display:block}.dropdown-menu .ext-icon{opacity:.65}.fade-content{-webkit-mask-image:linear-gradient(to bottom,transparent 0,transparent 70px,rgba(0,0,0,.156) 95px,rgba(0,0,0,.5) 120px,rgba(0,0,0,.844) 145px,#000 170px);mask-image:linear-gradient(to bottom,transparent 0,transparent 70px,rgba(0,0,0,.156) 95px,rgba(0,0,0,.5) 120px,rgba(0,0,0,.844) 145px,#000 170px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:0 0;mask-position:0 0}.mobile-nav-overlay{position:fixed;inset:0;background:rgba(6,7,9,.6);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .25s ease;z-index:150}.mobile-nav-overlay.open{opacity:1;visibility:visible}.mobile-nav{position:fixed;top:0;right:0;bottom:0;width:min(320px,82vw);background:rgba(14,15,19,.98);border-left:1px solid rgba(245,246,248,.1);z-index:151;padding:88px 28px 32px;display:flex;flex-direction:column;gap:2px;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto}.mobile-nav.open{transform:translateX(0)}.mobile-nav a{color:var(--white);text-decoration:none;font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:13px 4px;border-bottom:1px solid rgba(245,246,248,.08);display:block}.mobile-nav a.current{color:var(--red)}.mobile-nav a:focus-visible,.mobile-nav a:hover{color:var(--cyan)}.mobile-nav-group{display:flex;flex-direction:column}.mobile-nav-group .mobile-nav-heading{color:var(--grey);font-family:'Chakra Petch',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px 4px 4px}.mobile-nav-group a{padding-left:16px;font-size:13.5px;border-bottom:none}.mobile-nav-group a:last-child{border-bottom:1px solid rgba(245,246,248,.08);padding-bottom:13px}.mobile-nav-cta{margin-top:16px;text-align:center;background:var(--red);color:var(--white)!important;border-radius:10px;border-bottom:none!important;padding:13px!important}.burger{position:relative;z-index:152}.burger span{transition:transform .25s ease,opacity .2s ease}.burger.open span:first-child{transform:translateY(7px) rotate(45deg)}.burger.open span:nth-child(2){opacity:0}.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}body.nav-open{overflow:hidden}body.nav-open header{z-index:155}.skip-link{position:absolute;top:-999px;left:0;z-index:9999;background:var(--red);color:var(--white);padding:12px 20px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:14px;text-decoration:none;border-radius:0 0 8px 0}.skip-link:focus{top:0}</style>
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -718,10 +183,7 @@
 <footer class="site-footer">
   <img loading="lazy" src="assets/rrl-logo.png" alt="RRL Logo">
   <div class="foot-links">
-    <!-- Legal Notice / Privacy Policy: ausgeblendet bis Seiten befuellt sind
-    <a href="legal-notice.html">Legal Notice</a>
-    <a href="privacy-policy.html">Privacy Policy</a>
-    -->
+    
     <a href="faq.html">FAQ</a>
     <a href="commission.html">Commission</a>
     <a href="contact.html">Contact</a>
@@ -731,675 +193,875 @@
 </footer>
 
 
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-// ---------- Team metadata: identical, validated dataset used across the site.
-// Logos from Webseite/Teams/<Team>/<team>-logo.* (switched from the old
-// Logos/Team Logos/Square set in Build-Runde 33 — every team has one now).
-// Colors are the user-CONFIRMED values from Team-Farbcodes.txt (Build-Runde
-// 34) — every primary/secondary below is unchanged from the earlier
-// placeholder guess (the user reviewed and signed off on all 26 as-is),
-// except Ammunation: corrected in Build-Runde 35 from the gold/tan
-// placeholder (#d8c9a3) to #c80000 (red), matching the real logo/livery —
-// this one had been flagged as a contradiction and the user fixed it.
-// xlsxKey is the exact TEAM value used in the xlsx sheets (all-caps). ----------
-const TEAMS_META = [
-  { name:'Atomic',      xlsxKey:'ATOMIC',      primary:'#004e96', secondary:'#f3e100', first:2018, logo:'assets/teams/logos/atomic.png' },
-  { name:'Auto Exotic', xlsxKey:'AUTO EXOTIC', primary:'#134884', secondary:'#fefbfb', first:2020, logo:'assets/teams/logos/autoexotic.png' },
-  { name:'Benny\'s',    xlsxKey:'BENNY\'S',    primary:'#174674', secondary:'#8d2327', first:2018, logo:'assets/teams/logos/bennys.png' },
-  { name:'Chepalle',    xlsxKey:'CHEPALLE',    primary:'#f1d30f', secondary:'#01853c', first:2020, logo:'assets/teams/logos/chepalle.png' },
-  { name:'Crowex',      xlsxKey:'CROWEX',      primary:'#093310', secondary:'#c38d22', first:2019, logo:'assets/teams/logos/crowex.png' },
-  { name:'eCola',       xlsxKey:'ECOLA',       primary:'#cb0605', secondary:'#ffffff', first:2020, logo:'assets/teams/logos/ecola.png' },
-  { name:'EgoChaser',   xlsxKey:'EGOCHASER',   primary:'#01998a', secondary:'#e3bc16', first:2018, logo:'assets/teams/logos/egochaser.png' },
-  { name:'Estancia',    xlsxKey:'ESTANCIA',    primary:'#5a4723', secondary:'#ceae52', first:2020, logo:'assets/teams/logos/estancia.png' },
-  { name:'Globe Oil',   xlsxKey:'GLOBE OIL',   primary:'#fffefb', secondary:'#b60001', first:2018, logo:'assets/teams/logos/globeoil.png' },
-  { name:'Jackal',      xlsxKey:'JACKAL',      primary:'#0794bd', secondary:'#c4fd00', first:2019, logo:'assets/teams/logos/jackal.png' },
-  { name:'Junk',        xlsxKey:'JUNK',        primary:'#ff8400', secondary:'#ca0d00', first:2020, logo:'assets/teams/logos/junk.png' },
-  { name:'Kronos',      xlsxKey:'KRONOS',      primary:'#b16c21', secondary:'#000000', first:2021, logo:'assets/teams/logos/kronos.png' },
-  { name:'LS Customs',  xlsxKey:'LS CUSTOMS',  primary:'#604c93', secondary:'#ffffff', first:2018, logo:'assets/teams/logos/lscustoms.png' },
-  { name:'Maze Bank',   xlsxKey:'MAZE BANK',   primary:'#e62327', secondary:'#ffffff', first:2018, logo:'assets/teams/logos/mazebank.png' },
-  { name:'Meinmacht',   xlsxKey:'MEINMACHT',   primary:'#393a39', secondary:'#3480ff', first:2020, logo:'assets/teams/logos/meinmacht.png' },
-  { name:'MeTV',        xlsxKey:'METV',        primary:'#f000a9', secondary:'#fed41e', first:2022, logo:'assets/teams/logos/metv.png' },
-  { name:'Pegasus',     xlsxKey:'PEGASUS',     primary:'#16174a', secondary:'#f9f8f9', first:2018, logo:'assets/teams/logos/pegasus.png' },
-  { name:'Pisswasser',  xlsxKey:'PISSWASSER',  primary:'#e0b243', secondary:'#ec372f', first:2018, logo:'assets/teams/logos/pisswasser.png' },
-  { name:'Pro Laps',    xlsxKey:'PRO LAPS',    primary:'#e0572b', secondary:'#ffffff', first:2018, logo:'assets/teams/logos/prolaps.png' },
-  { name:'Redwood',     xlsxKey:'REDWOOD',     primary:'#840c11', secondary:'#c09b5d', first:2018, logo:'assets/teams/logos/redwood.png' },
-  { name:'Shark',       xlsxKey:'SHARK',       primary:'#afafaf', secondary:'#327dd0', first:2024, logo:'assets/teams/logos/shark.png' },
-  { name:'Sprunk',      xlsxKey:'SPRUNK',      primary:'#34d721', secondary:'#003e21', first:2018, logo:'assets/teams/logos/sprunk.png' },
-  { name:'Xero Gas',    xlsxKey:'XERO GAS',    primary:'#00a9ca', secondary:'#d51e25', first:2018, logo:'assets/teams/logos/xerogas.png' },
-  { name:'Ammunation',   xlsxKey:'AMMUNATION',   primary:'#c80000', secondary:'#ffffff', first:2018, last:2020, logo:'assets/teams/logos/ammunation.png' },
-  { name:'Merryweather', xlsxKey:'MERRYWEATHER', primary:'#c5c5c5', secondary:'#000000', first:2018, last:2018, logo:'assets/teams/logos/merryweather.png' },
-  { name:'Warstock',     xlsxKey:'WARSTOCK',     primary:'#33513B', secondary:'#c5c5c5', first:2018, last:2019, logo:'assets/teams/logos/warstock.png' },
-];
+<script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>const TEAMS_META = [ {
+  name: "Atomic",
+  xlsxKey: "ATOMIC",
+  primary: "#004e96",
+  secondary: "#f3e100",
+  first: 2018,
+  logo: "assets/teams/logos/atomic.png"
+}, {
+  name: "Auto Exotic",
+  xlsxKey: "AUTO EXOTIC",
+  primary: "#134884",
+  secondary: "#fefbfb",
+  first: 2020,
+  logo: "assets/teams/logos/autoexotic.png"
+}, {
+  name: "Benny's",
+  xlsxKey: "BENNY'S",
+  primary: "#174674",
+  secondary: "#8d2327",
+  first: 2018,
+  logo: "assets/teams/logos/bennys.png"
+}, {
+  name: "Chepalle",
+  xlsxKey: "CHEPALLE",
+  primary: "#f1d30f",
+  secondary: "#01853c",
+  first: 2020,
+  logo: "assets/teams/logos/chepalle.png"
+}, {
+  name: "Crowex",
+  xlsxKey: "CROWEX",
+  primary: "#093310",
+  secondary: "#c38d22",
+  first: 2019,
+  logo: "assets/teams/logos/crowex.png"
+}, {
+  name: "eCola",
+  xlsxKey: "ECOLA",
+  primary: "#cb0605",
+  secondary: "#ffffff",
+  first: 2020,
+  logo: "assets/teams/logos/ecola.png"
+}, {
+  name: "EgoChaser",
+  xlsxKey: "EGOCHASER",
+  primary: "#01998a",
+  secondary: "#e3bc16",
+  first: 2018,
+  logo: "assets/teams/logos/egochaser.png"
+}, {
+  name: "Estancia",
+  xlsxKey: "ESTANCIA",
+  primary: "#5a4723",
+  secondary: "#ceae52",
+  first: 2020,
+  logo: "assets/teams/logos/estancia.png"
+}, {
+  name: "Globe Oil",
+  xlsxKey: "GLOBE OIL",
+  primary: "#fffefb",
+  secondary: "#b60001",
+  first: 2018,
+  logo: "assets/teams/logos/globeoil.png"
+}, {
+  name: "Jackal",
+  xlsxKey: "JACKAL",
+  primary: "#0794bd",
+  secondary: "#c4fd00",
+  first: 2019,
+  logo: "assets/teams/logos/jackal.png"
+}, {
+  name: "Junk",
+  xlsxKey: "JUNK",
+  primary: "#ff8400",
+  secondary: "#ca0d00",
+  first: 2020,
+  logo: "assets/teams/logos/junk.png"
+}, {
+  name: "Kronos",
+  xlsxKey: "KRONOS",
+  primary: "#b16c21",
+  secondary: "#000000",
+  first: 2021,
+  logo: "assets/teams/logos/kronos.png"
+}, {
+  name: "LS Customs",
+  xlsxKey: "LS CUSTOMS",
+  primary: "#604c93",
+  secondary: "#ffffff",
+  first: 2018,
+  logo: "assets/teams/logos/lscustoms.png"
+}, {
+  name: "Maze Bank",
+  xlsxKey: "MAZE BANK",
+  primary: "#e62327",
+  secondary: "#ffffff",
+  first: 2018,
+  logo: "assets/teams/logos/mazebank.png"
+}, {
+  name: "Meinmacht",
+  xlsxKey: "MEINMACHT",
+  primary: "#393a39",
+  secondary: "#3480ff",
+  first: 2020,
+  logo: "assets/teams/logos/meinmacht.png"
+}, {
+  name: "MeTV",
+  xlsxKey: "METV",
+  primary: "#f000a9",
+  secondary: "#fed41e",
+  first: 2022,
+  logo: "assets/teams/logos/metv.png"
+}, {
+  name: "Pegasus",
+  xlsxKey: "PEGASUS",
+  primary: "#16174a",
+  secondary: "#f9f8f9",
+  first: 2018,
+  logo: "assets/teams/logos/pegasus.png"
+}, {
+  name: "Pisswasser",
+  xlsxKey: "PISSWASSER",
+  primary: "#e0b243",
+  secondary: "#ec372f",
+  first: 2018,
+  logo: "assets/teams/logos/pisswasser.png"
+}, {
+  name: "Pro Laps",
+  xlsxKey: "PRO LAPS",
+  primary: "#e0572b",
+  secondary: "#ffffff",
+  first: 2018,
+  logo: "assets/teams/logos/prolaps.png"
+}, {
+  name: "Redwood",
+  xlsxKey: "REDWOOD",
+  primary: "#840c11",
+  secondary: "#c09b5d",
+  first: 2018,
+  logo: "assets/teams/logos/redwood.png"
+}, {
+  name: "Shark",
+  xlsxKey: "SHARK",
+  primary: "#afafaf",
+  secondary: "#327dd0",
+  first: 2024,
+  logo: "assets/teams/logos/shark.png"
+}, {
+  name: "Sprunk",
+  xlsxKey: "SPRUNK",
+  primary: "#34d721",
+  secondary: "#003e21",
+  first: 2018,
+  logo: "assets/teams/logos/sprunk.png"
+}, {
+  name: "Xero Gas",
+  xlsxKey: "XERO GAS",
+  primary: "#00a9ca",
+  secondary: "#d51e25",
+  first: 2018,
+  logo: "assets/teams/logos/xerogas.png"
+}, {
+  name: "Ammunation",
+  xlsxKey: "AMMUNATION",
+  primary: "#c80000",
+  secondary: "#ffffff",
+  first: 2018,
+  last: 2020,
+  logo: "assets/teams/logos/ammunation.png"
+}, {
+  name: "Merryweather",
+  xlsxKey: "MERRYWEATHER",
+  primary: "#c5c5c5",
+  secondary: "#000000",
+  first: 2018,
+  last: 2018,
+  logo: "assets/teams/logos/merryweather.png"
+}, {
+  name: "Warstock",
+  xlsxKey: "WARSTOCK",
+  primary: "#33513B",
+  secondary: "#c5c5c5",
+  first: 2018,
+  last: 2019,
+  logo: "assets/teams/logos/warstock.png"
+} ];
 
-// Real driver photos. 2026-07-29: switched from the old per-team nested
-// lookup (only 4 Atomic drivers, sourced from that team's own folder) to a
-// flat map keyed directly by driver name, sourced from the user's new
-// Webseite/Drivers/ folder — a driver isn't tied to one team (see the
-// avatar-colour comment on driverCardHtml above), so their photo shouldn't
-// live under a team's folder either. Matched to AllTime_Drivers by exact
-// name after stripping the team-name part of each source filename (e.g.
-// "Kronos-Cesario.png" -> CESARIO); where a driver had more than one
-// candidate photo, the largest/highest-res file was kept. Filenames that
-// didn't resolve to an exact driver name were left out rather than guessed
-// (see workflow notes for the list) — no photo just falls back to the
-// initial-letter placeholder, same as before.
 const DRIVER_PHOTOS = {
-  'BONEBREAKER': 'assets/drivers/bonebreaker.jpg',
-  'BROKEN': 'assets/drivers/broken.jpg',
-  'CESARIO': 'assets/drivers/cesario.jpg',
-  'CHILLER': 'assets/drivers/chiller.jpg',
-  'CHRONO': 'assets/drivers/chrono.jpg',
-  'CSMALLOY': 'assets/drivers/csmalloy.jpg',
-  'DABOCHAE': 'assets/drivers/dabochae.jpg',
-  'DARKBLOOD': 'assets/drivers/darkblood.jpg',
-  'DEADSHOT': 'assets/drivers/deadshot.jpg',
-  'DEMON': 'assets/drivers/demon.jpg',
-  'DEVILLCORE': 'assets/drivers/devillcore.jpg',
-  'EDDI': 'assets/drivers/eddi.jpg',
-  'EPIC': 'assets/drivers/epic.jpg',
-  'EVIL': 'assets/drivers/evil.jpg',
-  'FAUSTO': 'assets/drivers/fausto.jpg',
-  'FREAKJAN': 'assets/drivers/freakjan.jpg',
-  'GIANNI': 'assets/drivers/gianni.jpg',
-  'GRUNZELBART': 'assets/drivers/grunzelbart.jpg',
-  'GUZTURBELS': 'assets/drivers/guzturbels.jpg',
-  'HZBGAMER': 'assets/drivers/hzbgamer.jpg',
-  'INTO': 'assets/drivers/into.jpg',
-  'JAN': 'assets/drivers/jan.jpg',
-  'JOHN': 'assets/drivers/john.jpg',
-  'KAONASHI': 'assets/drivers/kaonashi.jpg',
-  'KEVIN': 'assets/drivers/kevin.jpg',
-  'KILIU': 'assets/drivers/kiliu.jpg',
-  'LAUTZ': 'assets/drivers/lautz.jpg',
-  'LEXA': 'assets/drivers/lexa.jpg',
-  'LIKEBONEQ': 'assets/drivers/likeboneq.jpg',
-  'LUDENLUIGI': 'assets/drivers/ludenluigi.jpg',
-  'LUDGAMER': 'assets/drivers/ludgamer.jpg',
-  'MADMOH': 'assets/drivers/madmoh.jpg',
-  'MASSI': 'assets/drivers/massi.jpg',
-  'MEMORIEZ': 'assets/drivers/memoriez.jpg',
-  'MISTERFOXI': 'assets/drivers/misterfoxi.jpg',
-  'MRTOBI': 'assets/drivers/mrtobi.jpg',
-  'MXMNZL': 'assets/drivers/mxmnzl.jpg',
-  'PACHA': 'assets/drivers/pacha.jpg',
-  'PARAMEDIC': 'assets/drivers/paramedic.jpg',
-  'REDBA': 'assets/drivers/redba.jpg',
-  'RENOZEROS': 'assets/drivers/renozeros.jpg',
-  'RENYU': 'assets/drivers/renyu.jpg',
-  'REVELANTIS': 'assets/drivers/revelantis.jpg',
-  'REZKIO': 'assets/drivers/rezkio.jpg',
-  'SASCHA': 'assets/drivers/sascha.jpg',
-  'SCHAEFERJOERN': 'assets/drivers/schaeferjoern.jpg',
-  'SIDNIK': 'assets/drivers/sidnik.jpg',
-  'SNIPEZ': 'assets/drivers/snipez.jpg',
-  'STRESSADO': 'assets/drivers/stressado.jpg',
-  'SUPERMUFF': 'assets/drivers/supermuff.jpg',
-  'THATSKILL': 'assets/drivers/thatskill.jpg',
-  'TINNY': 'assets/drivers/tinny.jpg',
-  'TOASTY': 'assets/drivers/toasty.jpg',
-  'TROLLALKY': 'assets/drivers/trollalky.jpg',
-  'TXM': 'assets/drivers/txm.jpg',
-  'VADDERN': 'assets/drivers/vaddern.jpg',
-  'VOYDER': 'assets/drivers/voyder.jpg',
-  'WENDIG': 'assets/drivers/wendig.jpg',
-  'YUGOSTRIKE': 'assets/drivers/yugostrike.jpg',
-  'ZEUS': 'assets/drivers/zeus.jpg',
+  BONEBREAKER: "assets/drivers/bonebreaker.jpg",
+  BROKEN: "assets/drivers/broken.jpg",
+  CESARIO: "assets/drivers/cesario.jpg",
+  CHILLER: "assets/drivers/chiller.jpg",
+  CHRONO: "assets/drivers/chrono.jpg",
+  CSMALLOY: "assets/drivers/csmalloy.jpg",
+  DABOCHAE: "assets/drivers/dabochae.jpg",
+  DARKBLOOD: "assets/drivers/darkblood.jpg",
+  DEADSHOT: "assets/drivers/deadshot.jpg",
+  DEMON: "assets/drivers/demon.jpg",
+  DEVILLCORE: "assets/drivers/devillcore.jpg",
+  EDDI: "assets/drivers/eddi.jpg",
+  EPIC: "assets/drivers/epic.jpg",
+  EVIL: "assets/drivers/evil.jpg",
+  FAUSTO: "assets/drivers/fausto.jpg",
+  FREAKJAN: "assets/drivers/freakjan.jpg",
+  GIANNI: "assets/drivers/gianni.jpg",
+  GRUNZELBART: "assets/drivers/grunzelbart.jpg",
+  GUZTURBELS: "assets/drivers/guzturbels.jpg",
+  HZBGAMER: "assets/drivers/hzbgamer.jpg",
+  INTO: "assets/drivers/into.jpg",
+  JAN: "assets/drivers/jan.jpg",
+  JOHN: "assets/drivers/john.jpg",
+  KAONASHI: "assets/drivers/kaonashi.jpg",
+  KEVIN: "assets/drivers/kevin.jpg",
+  KILIU: "assets/drivers/kiliu.jpg",
+  LAUTZ: "assets/drivers/lautz.jpg",
+  LEXA: "assets/drivers/lexa.jpg",
+  LIKEBONEQ: "assets/drivers/likeboneq.jpg",
+  LUDENLUIGI: "assets/drivers/ludenluigi.jpg",
+  LUDGAMER: "assets/drivers/ludgamer.jpg",
+  MADMOH: "assets/drivers/madmoh.jpg",
+  MASSI: "assets/drivers/massi.jpg",
+  MEMORIEZ: "assets/drivers/memoriez.jpg",
+  MISTERFOXI: "assets/drivers/misterfoxi.jpg",
+  MRTOBI: "assets/drivers/mrtobi.jpg",
+  MXMNZL: "assets/drivers/mxmnzl.jpg",
+  PACHA: "assets/drivers/pacha.jpg",
+  PARAMEDIC: "assets/drivers/paramedic.jpg",
+  REDBA: "assets/drivers/redba.jpg",
+  RENOZEROS: "assets/drivers/renozeros.jpg",
+  RENYU: "assets/drivers/renyu.jpg",
+  REVELANTIS: "assets/drivers/revelantis.jpg",
+  REZKIO: "assets/drivers/rezkio.jpg",
+  SASCHA: "assets/drivers/sascha.jpg",
+  SCHAEFERJOERN: "assets/drivers/schaeferjoern.jpg",
+  SIDNIK: "assets/drivers/sidnik.jpg",
+  SNIPEZ: "assets/drivers/snipez.jpg",
+  STRESSADO: "assets/drivers/stressado.jpg",
+  SUPERMUFF: "assets/drivers/supermuff.jpg",
+  THATSKILL: "assets/drivers/thatskill.jpg",
+  TINNY: "assets/drivers/tinny.jpg",
+  TOASTY: "assets/drivers/toasty.jpg",
+  TROLLALKY: "assets/drivers/trollalky.jpg",
+  TXM: "assets/drivers/txm.jpg",
+  VADDERN: "assets/drivers/vaddern.jpg",
+  VOYDER: "assets/drivers/voyder.jpg",
+  WENDIG: "assets/drivers/wendig.jpg",
+  YUGOSTRIKE: "assets/drivers/yugostrike.jpg",
+  ZEUS: "assets/drivers/zeus.jpg"
 };
 
 const XLSX_PATH = "RRL_Datenbasis_bereinigt.xlsx";
+
 let DATA = null;
 
-function sheetToObjects(wb, name){
+function sheetToObjects(wb, name) {
   const ws = wb.Sheets[name];
   if (!ws) return [];
-  return XLSX.utils.sheet_to_json(ws, {defval:""});
+  return XLSX.utils.sheet_to_json(ws, {
+    defval: ""
+  });
 }
 
-function buildDataFromWorkbook(wb){
-  const driversSeason = sheetToObjects(wb, "Drivers_by_Season").map(r=>({...r, season:Number(r.season)}));
+function buildDataFromWorkbook(wb) {
+  const driversSeason = sheetToObjects(wb, "Drivers_by_Season").map(r => ({
+    ...r,
+    season: Number(r.season)
+  }));
   const atTeams = sheetToObjects(wb, "AllTime_Teams");
   const atDrivers = sheetToObjects(wb, "AllTime_Drivers");
-  return {driversSeason, atTeams, atDrivers};
+  return {
+    driversSeason: driversSeason,
+    atTeams: atTeams,
+    atDrivers: atDrivers
+  };
 }
 
-async function loadWorkbookArrayBuffer(){
+async function loadWorkbookArrayBuffer() {
   try {
-    const resp = await fetch(XLSX_PATH, {cache:"no-store"});
+    const resp = await fetch(XLSX_PATH, {
+      cache: "no-store"
+    });
     if (!resp.ok) throw new Error("HTTP " + resp.status);
     return await resp.arrayBuffer();
-  } catch(e){
+  } catch (e) {
     return null;
   }
 }
 
-async function init(){
+async function init() {
   const buf = await loadWorkbookArrayBuffer();
-  if (buf){
+  if (buf) {
     try {
-      const wb = XLSX.read(buf, {type:"array"});
+      const wb = XLSX.read(buf, {
+        type: "array"
+      });
       DATA = buildDataFromWorkbook(wb);
       document.getElementById("loadOverlay").classList.add("hidden");
       setup();
       return;
-    } catch(e){ console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }
   document.getElementById("manualPicker").style.display = "block";
-  document.getElementById("manualFile").addEventListener("change", async (e)=>{
+  document.getElementById("manualFile").addEventListener("change", async e => {
     const file = e.target.files[0];
     if (!file) return;
     try {
       const buf2 = await file.arrayBuffer();
-      const wb = XLSX.read(buf2, {type:"array"});
+      const wb = XLSX.read(buf2, {
+        type: "array"
+      });
       DATA = buildDataFromWorkbook(wb);
       document.getElementById("loadOverlay").classList.add("hidden");
       setup();
-    } catch(err){
+    } catch (err) {
       document.getElementById("loadErr").textContent = "Could not read that file: " + err.message;
     }
   });
 }
 
-function logoHtml(meta){
-  const initial = meta.name.replace(/[^A-Za-z]/g,'').charAt(0).toUpperCase();
-  if (meta.logo){
+function logoHtml(meta) {
+  const initial = meta.name.replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase();
+  if (meta.logo) {
     return `<img loading="lazy" src="${meta.logo}" alt="${meta.name} logo">`;
   }
   return `<span>${initial}</span>`;
 }
 
-// Same scale-correction logic used everywhere else on the site: seasons
-// 2017-2021 were computed on a ~0-10 scale (a known source-spreadsheet
-// formula issue), 2022 onward use ~0-100. The All-Time aggregate sheets
-// (AllTime_Teams / AllTime_Drivers) are already fully on the 0-100 scale
-// for every row (confirmed: no All-Time rating anywhere is under 10), so
-// this is a no-op there — it's kept for consistency with the rest of the
-// codebase and in case that ever changes.
-function scaleRating(raw){
+function scaleRating(raw) {
   const n = Number(raw);
   if (isNaN(n)) return null;
   return n < 10 ? n * 10 : n;
 }
-function formatRating(raw){
+
+function formatRating(raw) {
   const n = scaleRating(raw);
-  // 2026-08-07: was Math.ceil() -- see the matching fix a few dozen lines
-  // below in the metric formatter for the full explanation.
-  return n == null ? '–' : Math.round(n).toString();
+  return n == null ? "–" : Math.round(n).toString();
 }
 
-function findDriverPhoto(name){
-  return DRIVER_PHOTOS[(name||'').toUpperCase()] || null;
+function findDriverPhoto(name) {
+  return DRIVER_PHOTOS[(name || "").toUpperCase()] || null;
 }
-// 2026-08-06 (user request): generic silhouette icon for drivers with no
-// photo on file — same icon as Team/Hall of Fame, for a consistent look.
+
 const AVATAR_PLACEHOLDER_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.75c2.9 0 5.25-2.35 5.25-5.25S14.9 2.25 12 2.25 6.75 4.6 6.75 7.5 9.1 12.75 12 12.75Zm0 2.25c-3.86 0-11.25 1.94-11.25 5.78V22.5h22.5v-1.72c0-3.84-7.39-5.78-11.25-5.78Z"/></svg>';
 
-// ---------- Metric configs: every field is a real column from AllTime_Teams
-// / AllTime_Drivers — nothing invented. Deliberately EXCLUDED from the
-// driver list: P/M (undocumented meaning at all-time level, only 46/179
-// populated, non-clean +/- format), STATUS (categorical L/A code, already
-// established sitewide as excluded from stat views) and CREW (internal
-// grouping tag, not a stat, also already established as excluded).
-// "better" controls which side gets the cyan "winner" highlight: 'high' =
-// bigger number wins, 'low' = smaller number wins (ranks/best-finish are
-// semantically "smaller is better" even though the raw number is lower —
-// rank #1 beats rank #10). Every metric now gets a highlight; nothing is
-// 'none' anymore (Races/Seasons included, per explicit confirmation). ----------
-const TEAM_METRICS = [
-  { key:'POS',          label:'All-Time Rank',    better:'low',  format:'rank' },
-  { key:'RATING',       label:'Rating',           better:'high', format:'rating' },
-  { key:'TITLE',        label:'Team Championships', better:'high' },
-  { key:'RACES',        label:'Races',            better:'high' },
-  { key:'PTS OVR',      label:'Points',           better:'high' },
-  { key:'PTS AVR',      label:'Avg Points',       better:'high', format:'dec1' },
-  { key:'WINS',         label:'Wins',             better:'high' },
-  { key:'WIN RATE',     label:'Win %',         better:'high', format:'pct' },
-  { key:'PODIUMS',      label:'Podiums',          better:'high' },
-  { key:'PODIUM RATE',  label:'Podium %',      better:'high', format:'pct' },
-  { key:'TOP 10',       label:'Top 10s',          better:'high' },
-  { key:'TOP10 RATE',   label:'Top 10 %',      better:'high', format:'pct' },
-  { key:'MOST PTS/R',   label:'Most Points (Race)',   better:'high' },
-  { key:'MOST PTS/S',   label:'Most Points (Season)', better:'high' },
-  { key:'BEST RANK/S',  label:'Best Position (Season)', better:'low',  format:'rank' },
-  { key:'AVG RANK/S',   label:'Avg Season Rank',  better:'low',  format:'dec1' },
-];
-const DRIVER_METRICS = [
-  { key:'#',              label:'All-Time Rank',    better:'low',  format:'rank' },
-  { key:'RATING',         label:'Rating',           better:'high', format:'rating' },
-  { key:'C',              label:'Championships',    better:'high' },
-  { key:'TC',             label:'Team Championships', better:'high' },
-  { key:'S',              label:'Seasons',          better:'high' },
-  { key:'R',              label:'Races',            better:'high' },
-  { key:'P',              label:'Points',           better:'high' },
-  { key:'AVR/R',          label:'Avg Points',       better:'high', format:'dec1' },
-  { key:'M P/S',          label:'Most Points (Season)', better:'high' },
-  { key:'BEST POS/R',     label:'Best Position (Race)',   better:'low',  format:'rank' },
-  { key:'BEST POS/S',     label:'Best Position (Season)',     better:'low',  format:'rank' },
-  { key:'WINS',           label:'Wins',             better:'high' },
-  { key:'M WINS/S',       label:'Most Wins (Season)', better:'high' },
-  { key:'WIN RATE',       label:'Win %',         better:'high', format:'pct' },
-  { key:'PODIUMS',        label:'Podiums',          better:'high' },
-  { key:'M PODIUMS/S',    label:'Most Podiums (Season)', better:'high' },
-  { key:'PODIUM RATE',    label:'Podium %',      better:'high', format:'pct' },
-  { key:'TOP 10',         label:'Top 10s',          better:'high' },
-  { key:'M TOP 10/S',     label:'Most Top 10s (Season)', better:'high' },
-  { key:'TOP10 RATE',     label:'Top 10 %',      better:'high', format:'pct' },
-  { key:'POLES',          label:'Poles',            better:'high' },
-  { key:'M POLES/S',      label:'Most Poles (Season)', better:'high' },
-  { key:'HOTLAPS',        label:'Hotlaps',          better:'high' },
-  { key:'M HOTLAPS/S',    label:'Most Hotlaps (Season)', better:'high' },
-  { key:'DOTD',           label:'Driver of the Day', better:'high' },
-  { key:'DOTY AWARD',     label:'DOTY Awards',      better:'high', format:'awardlist' },
-  { key:'NOTY AWARD',     label:'NOTY Awards',      better:'high', format:'awardlist' },
-  { key:'FAIRPLAY AWARD', label:'Fairplay Awards',  better:'high', format:'awardlist' },
-  { key:'BEST SUB AWARD', label:'Best Sub Awards',  better:'high', format:'awardlist' },
-];
+const TEAM_METRICS = [ {
+  key: "POS",
+  label: "All-Time Rank",
+  better: "low",
+  format: "rank"
+}, {
+  key: "RATING",
+  label: "Rating",
+  better: "high",
+  format: "rating"
+}, {
+  key: "TITLE",
+  label: "Team Championships",
+  better: "high"
+}, {
+  key: "RACES",
+  label: "Races",
+  better: "high"
+}, {
+  key: "PTS OVR",
+  label: "Points",
+  better: "high"
+}, {
+  key: "PTS AVR",
+  label: "Avg Points",
+  better: "high",
+  format: "dec1"
+}, {
+  key: "WINS",
+  label: "Wins",
+  better: "high"
+}, {
+  key: "WIN RATE",
+  label: "Win %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "PODIUMS",
+  label: "Podiums",
+  better: "high"
+}, {
+  key: "PODIUM RATE",
+  label: "Podium %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "TOP 10",
+  label: "Top 10s",
+  better: "high"
+}, {
+  key: "TOP10 RATE",
+  label: "Top 10 %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "MOST PTS/R",
+  label: "Most Points (Race)",
+  better: "high"
+}, {
+  key: "MOST PTS/S",
+  label: "Most Points (Season)",
+  better: "high"
+}, {
+  key: "BEST RANK/S",
+  label: "Best Position (Season)",
+  better: "low",
+  format: "rank"
+}, {
+  key: "AVG RANK/S",
+  label: "Avg Season Rank",
+  better: "low",
+  format: "dec1"
+} ];
 
-function metricNumeric(raw, format){
-  // Blank check FIRST, before any format-specific conversion — fixes a bug
-  // where scaleRating('') returned 0 (Number('') === 0, not NaN) instead of
-  // "no data", making a driver with no RATING record show "0" instead of "–".
-  if (raw === '' || raw == null){
-    if (format === 'awardlist') return 0; // blank award list = 0 awards, a real count
-    // Ranks/percentages/decimals with no record genuinely mean "no data";
-    // plain counts (races, wins, ...) blank in the sheet means zero, same
-    // convention as the All-Time Stats tiles on the team page.
-    return (format === 'rank' || format === 'pct' || format === 'rating' || format === 'dec1') ? null : 0;
+const DRIVER_METRICS = [ {
+  key: "#",
+  label: "All-Time Rank",
+  better: "low",
+  format: "rank"
+}, {
+  key: "RATING",
+  label: "Rating",
+  better: "high",
+  format: "rating"
+}, {
+  key: "C",
+  label: "Championships",
+  better: "high"
+}, {
+  key: "TC",
+  label: "Team Championships",
+  better: "high"
+}, {
+  key: "S",
+  label: "Seasons",
+  better: "high"
+}, {
+  key: "R",
+  label: "Races",
+  better: "high"
+}, {
+  key: "P",
+  label: "Points",
+  better: "high"
+}, {
+  key: "AVR/R",
+  label: "Avg Points",
+  better: "high",
+  format: "dec1"
+}, {
+  key: "M P/S",
+  label: "Most Points (Season)",
+  better: "high"
+}, {
+  key: "BEST POS/R",
+  label: "Best Position (Race)",
+  better: "low",
+  format: "rank"
+}, {
+  key: "BEST POS/S",
+  label: "Best Position (Season)",
+  better: "low",
+  format: "rank"
+}, {
+  key: "WINS",
+  label: "Wins",
+  better: "high"
+}, {
+  key: "M WINS/S",
+  label: "Most Wins (Season)",
+  better: "high"
+}, {
+  key: "WIN RATE",
+  label: "Win %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "PODIUMS",
+  label: "Podiums",
+  better: "high"
+}, {
+  key: "M PODIUMS/S",
+  label: "Most Podiums (Season)",
+  better: "high"
+}, {
+  key: "PODIUM RATE",
+  label: "Podium %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "TOP 10",
+  label: "Top 10s",
+  better: "high"
+}, {
+  key: "M TOP 10/S",
+  label: "Most Top 10s (Season)",
+  better: "high"
+}, {
+  key: "TOP10 RATE",
+  label: "Top 10 %",
+  better: "high",
+  format: "pct"
+}, {
+  key: "POLES",
+  label: "Poles",
+  better: "high"
+}, {
+  key: "M POLES/S",
+  label: "Most Poles (Season)",
+  better: "high"
+}, {
+  key: "HOTLAPS",
+  label: "Hotlaps",
+  better: "high"
+}, {
+  key: "M HOTLAPS/S",
+  label: "Most Hotlaps (Season)",
+  better: "high"
+}, {
+  key: "DOTD",
+  label: "Driver of the Day",
+  better: "high"
+}, {
+  key: "DOTY AWARD",
+  label: "DOTY Awards",
+  better: "high",
+  format: "awardlist"
+}, {
+  key: "NOTY AWARD",
+  label: "NOTY Awards",
+  better: "high",
+  format: "awardlist"
+}, {
+  key: "FAIRPLAY AWARD",
+  label: "Fairplay Awards",
+  better: "high",
+  format: "awardlist"
+}, {
+  key: "BEST SUB AWARD",
+  label: "Best Sub Awards",
+  better: "high",
+  format: "awardlist"
+} ];
+
+function metricNumeric(raw, format) {
+  if (raw === "" || raw == null) {
+    if (format === "awardlist") return 0;
+    return format === "rank" || format === "pct" || format === "rating" || format === "dec1" ? null : 0;
   }
-  if (format === 'rating') return scaleRating(raw);
-  if (format === 'awardlist') return String(raw).split(',').map(s=>s.trim()).filter(Boolean).length;
+  if (format === "rating") return scaleRating(raw);
+  if (format === "awardlist") return String(raw).split(",").map(s => s.trim()).filter(Boolean).length;
   const n = Number(raw);
   return isNaN(n) ? null : n;
 }
-function metricValue(raw, format){
-  if (format === 'awardlist'){
-    if (raw === '' || raw == null) return '–';
-    // Values come as year lists like "2021, 2023" or floats like "2025.0" —
-    // strip a trailing ".0" per entry so it reads as a clean year, nothing
-    // else is altered (never inventing/rounding actual award data).
-    const cleaned = String(raw).split(',').map(s => {
+
+function metricValue(raw, format) {
+  if (format === "awardlist") {
+    if (raw === "" || raw == null) return "–";
+    const cleaned = String(raw).split(",").map(s => {
       const t = s.trim();
       const n = Number(t);
-      return !isNaN(n) && t !== '' ? (Math.round(n * 10) / 10).toString().replace(/\.0$/, '') : t;
+      return !isNaN(n) && t !== "" ? (Math.round(n * 10) / 10).toString().replace(/\.0$/, "") : t;
     }).filter(Boolean);
-    return cleaned.length ? cleaned.join(', ') : '–';
+    return cleaned.length ? cleaned.join(", ") : "–";
   }
   const n = metricNumeric(raw, format);
-  if (n == null) return '–';
-  // 2026-08-07: was Math.ceil() — inconsistent with Stats/Team pages, which
-  // both use standard rounding (73.3 -> 73, 73.8 -> 74, user-confirmed
-  // 2026-07-27, "NOT round-up-always"). Fixed so the same driver/team shows
-  // the identical rating number everywhere on the site, not just here.
-  if (format === 'rating') return Math.round(n).toString();
-  if (format === 'rank') return '#' + Math.round(n);
-  if (format === 'pct') return Math.round(n * 100) + '%';
-  if (format === 'dec1') return n.toFixed(1);
+  if (n == null) return "–";
+  if (format === "rating") return Math.round(n).toString();
+  if (format === "rank") return "#" + Math.round(n);
+  if (format === "pct") return Math.round(n * 100) + "%";
+  if (format === "dec1") return n.toFixed(1);
   return Math.round(n).toString();
 }
 
-function renderCompareTable(rowA, rowB, metrics){
+function renderCompareTable(rowA, rowB, metrics) {
   const rows = metrics.map(m => {
     const numA = rowA ? metricNumeric(rowA[m.key], m.format) : null;
     const numB = rowB ? metricNumeric(rowB[m.key], m.format) : null;
     let winA = false, winB = false;
-    if (numA != null && numB != null && numA !== numB){
-      if (m.better === 'high'){ winA = numA > numB; winB = numB > numA; }
-      else { winA = numA < numB; winB = numB < numA; }
-    } else if (numA != null && numB == null){
-      // One side has no record at all for this metric (e.g. a driver below
-      // the minimum-races threshold for a Rating) — having a real value
-      // beats having none, regardless of the metric's own high/low direction.
+    if (numA != null && numB != null && numA !== numB) {
+      if (m.better === "high") {
+        winA = numA > numB;
+        winB = numB > numA;
+      } else {
+        winA = numA < numB;
+        winB = numB < numA;
+      }
+    } else if (numA != null && numB == null) {
       winA = true;
-    } else if (numB != null && numA == null){
+    } else if (numB != null && numA == null) {
       winB = true;
     }
-    return `<tr>
-      <td class="${winA ? 'win' : ''}">${rowA ? metricValue(rowA[m.key], m.format) : '–'}</td>
-      <td class="cmp-label">${m.label}</td>
-      <td class="${winB ? 'win' : ''}">${rowB ? metricValue(rowB[m.key], m.format) : '–'}</td>
-    </tr>`;
-  }).join('');
+    return `<tr>\n      <td class="${winA ? "win" : ""}">${rowA ? metricValue(rowA[m.key], m.format) : "–"}</td>\n      <td class="cmp-label">${m.label}</td>\n      <td class="${winB ? "win" : ""}">${rowB ? metricValue(rowB[m.key], m.format) : "–"}</td>\n    </tr>`;
+  }).join("");
   return `<div class="cmp-table-wrap"><table class="cmp-table"><tbody>${rows}</tbody></table></div>`;
 }
 
-function teamCardHtml(meta){
-  const avatarClass = 'cmp-avatar' + (meta.logo ? '' : ' placeholder');
-  const bg = meta.logo ? 'transparent' : `linear-gradient(145deg, ${meta.primary}, ${meta.secondary})`;
-  // Subtitle is always "Racing since <year>" — same phrasing the team page
-  // already uses for active teams — never an end-year range, even for
-  // no-longer-active teams: this page has no separate Active/Inactive badge
-  // (unlike the team page), so a bare range or a bare year read ambiguous
-  // (founding year of the brand? Of the RRL team? Unclear). "Racing since"
-  // makes it unambiguous: the year they joined RRL as a team.
-  // 2026-08-06 (user request): the team logo/avatar links through to that
-  // team's own page — makes sense here since (unlike drivers) a team always
-  // has a dedicated page. Uses the same team.html?team=<name> URL pattern
-  // the team switcher on team.html itself already uses.
-  return `<div class="cmp-card">
-    <a class="${avatarClass}" href="team.html?team=${encodeURIComponent(meta.name)}" style="background:${bg}" aria-label="Open ${meta.name}'s team page">${logoHtml(meta)}</a>
-    <div class="cmp-name">${meta.name}</div>
-    <div class="cmp-sub">Racing since ${meta.first}</div>
-  </div>`;
+function teamCardHtml(meta) {
+  const avatarClass = "cmp-avatar" + (meta.logo ? "" : " placeholder");
+  const bg = meta.logo ? "transparent" : `linear-gradient(145deg, ${meta.primary}, ${meta.secondary})`;
+  return `<div class="cmp-card">\n    <a class="${avatarClass}" href="team.html?team=${encodeURIComponent(meta.name)}" style="background:${bg}" aria-label="Open ${meta.name}'s team page">${logoHtml(meta)}</a>\n    <div class="cmp-name">${meta.name}</div>\n    <div class="cmp-sub">Racing since ${meta.first}</div>\n  </div>`;
 }
 
-// 2026-07-29 (user correction): the placeholder avatar background used to
-// be tinted with the driver's own MOST RECENT team's colour — but a driver
-// isn't permanently tied to one team the way a team is tied to its own
-// colour; they can have raced for several teams and can switch again any
-// time, so pulling "their" colour from whichever team they happened to be
-// on last doesn't mean anything. The ambient glow (see updateGlow) uses the
-// fixed brand red/cyan pair for drivers instead. The avatar placeholder
-// itself (2026-07-29, user correction) stays a neutral grey, same as it
-// always looked for the drivers a team-colour lookup couldn't previously
-// resolve — colouring every driver's placeholder would be a bigger visual
-// change than asked for; only the glow needed a real, defensible default.
-function driverCardHtml(name){
+function driverCardHtml(name) {
   const photo = findDriverPhoto(name);
-  const avatarClass = 'cmp-avatar' + (photo ? '' : ' placeholder driver-placeholder');
-  const bg = photo ? 'transparent' : 'rgba(245,246,248,.08)';
+  const avatarClass = "cmp-avatar" + (photo ? "" : " placeholder driver-placeholder");
+  const bg = photo ? "transparent" : "rgba(245,246,248,.08)";
   const inner = photo ? `<img loading="lazy" src="${photo}" alt="${name}">` : AVATAR_PLACEHOLDER_SVG;
-  // No team/season subtitle for drivers — a driver isn't tied to one team,
-  // so naming just their most recent one next to the name reads as
-  // misleading (they may have raced for several). Just the name.
-  return `<div class="cmp-card">
-    <div class="${avatarClass}" style="background:${bg}">${inner}</div>
-    <div class="cmp-name">${name}</div>
-  </div>`;
+  return `<div class="cmp-card">\n    <div class="${avatarClass}" style="background:${bg}">${inner}</div>\n    <div class="cmp-name">${name}</div>\n  </div>`;
 }
 
-// ---------- URL state: ?type=team|driver&a=<name>&b=<name>. Switching type
-// or picking a selector updates the URL via replaceState (no reload, no
-// re-fetch of the xlsx) so a finished comparison is still a shareable/
-// bookmarkable link. ----------
-function readURLState(){
+function readURLState() {
   const p = new URLSearchParams(location.search);
-  const type = (p.get('type') || 'team').toLowerCase() === 'driver' ? 'driver' : 'team';
-  return { type, a: p.get('a') || '', b: p.get('b') || '' };
-}
-function writeURLState(type, a, b){
-  const p = new URLSearchParams();
-  p.set('type', type);
-  if (a) p.set('a', a);
-  if (b) p.set('b', b);
-  history.replaceState(null, '', location.pathname + '?' + p.toString());
+  const type = (p.get("type") || "team").toLowerCase() === "driver" ? "driver" : "team";
+  return {
+    type: type,
+    a: p.get("a") || "",
+    b: p.get("b") || ""
+  };
 }
 
-// ---------- Custom dropdown (replaces native <select>): a native <select>'s
-// OPEN options popup is OS/browser-rendered and can't be reliably restyled
-// (that's why it showed a white background / light-gray text / native
-// scrollbar no matter what CSS was applied to the closed control). This
-// builds a button + absolutely-positioned dark panel with a filter box and
-// a custom-scrollbar list instead, so every pixel is themeable. ----------
-function initCustomSelect(id, ariaLabel){
+function writeURLState(type, a, b) {
+  const p = new URLSearchParams;
+  p.set("type", type);
+  if (a) p.set("a", a);
+  if (b) p.set("b", b);
+  history.replaceState(null, "", location.pathname + "?" + p.toString());
+}
+
+function initCustomSelect(id, ariaLabel) {
   const root = document.getElementById(id);
-  root.classList.add('cmp-select');
-  root.innerHTML = `
-    <button type="button" class="cmp-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${ariaLabel}">
-      <span class="cmp-select-value placeholder">— Choose —</span>
-      <span class="arrow">▾</span>
-    </button>
-    <div class="cmp-select-panel" hidden>
-      <div class="cmp-select-search"><input type="text" placeholder="Search…" autocomplete="off"></div>
-      <ul class="cmp-select-options" role="listbox"></ul>
-    </div>`;
-
-  const btn = root.querySelector('.cmp-select-btn');
-  const btnLabel = root.querySelector('.cmp-select-value');
-  const panel = root.querySelector('.cmp-select-panel');
-  const search = root.querySelector('.cmp-select-search input');
-  const list = root.querySelector('.cmp-select-options');
-
+  root.classList.add("cmp-select");
+  root.innerHTML = `\n    <button type="button" class="cmp-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${ariaLabel}">\n      <span class="cmp-select-value placeholder">— Choose —</span>\n      <span class="arrow">▾</span>\n    </button>\n    <div class="cmp-select-panel" hidden>\n      <div class="cmp-select-search"><input type="text" placeholder="Search…" autocomplete="off"></div>\n      <ul class="cmp-select-options" role="listbox"></ul>\n    </div>`;
+  const btn = root.querySelector(".cmp-select-btn");
+  const btnLabel = root.querySelector(".cmp-select-value");
+  const panel = root.querySelector(".cmp-select-panel");
+  const search = root.querySelector(".cmp-select-search input");
+  const list = root.querySelector(".cmp-select-options");
   let names = [];
-  let value = '';
+  let value = "";
   let changeCb = null;
-
-  function renderList(filterText){
-    const q = (filterText || '').trim().toLowerCase();
+  function renderList(filterText) {
+    const q = (filterText || "").trim().toLowerCase();
     const filtered = q ? names.filter(n => n.toLowerCase().includes(q)) : names;
-    const items = ['<li class="cmp-select-option cmp-select-clear" data-name="">— Choose —</li>']
-      .concat(filtered.map(n => `<li class="cmp-select-option${n===value ? ' selected' : ''}" data-name="${n}">${n}</li>`));
-    list.innerHTML = filtered.length || !q
-      ? items.join('')
-      : items.join('') + '<li class="cmp-select-empty">No matches</li>';
+    const items = [ '<li class="cmp-select-option cmp-select-clear" data-name="">— Choose —</li>' ].concat(filtered.map(n => `<li class="cmp-select-option${n === value ? " selected" : ""}" data-name="${n}">${n}</li>`));
+    list.innerHTML = filtered.length || !q ? items.join("") : items.join("") + '<li class="cmp-select-empty">No matches</li>';
   }
-
-  function setLabel(name){
-    btnLabel.textContent = name || '— Choose —';
-    btnLabel.classList.toggle('placeholder', !name);
+  function setLabel(name) {
+    btnLabel.textContent = name || "— Choose —";
+    btnLabel.classList.toggle("placeholder", !name);
   }
-
-  function open(){
+  function open() {
     panel.hidden = false;
-    root.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-    search.value = '';
-    renderList('');
+    root.classList.add("open");
+    btn.setAttribute("aria-expanded", "true");
+    search.value = "";
+    renderList("");
     search.focus();
   }
-  function close(){
+  function close() {
     panel.hidden = true;
-    root.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
+    root.classList.remove("open");
+    btn.setAttribute("aria-expanded", "false");
   }
-  function select(name){
+  function select(name) {
     value = name;
     setLabel(name);
     close();
     if (changeCb) changeCb(value);
   }
-
-  btn.addEventListener('click', () => { panel.hidden ? open() : close(); });
-  search.addEventListener('input', () => renderList(search.value));
-  search.addEventListener('keydown', e => {
-    if (e.key === 'Enter'){
-      const first = list.querySelector('.cmp-select-option:not(.cmp-select-clear)');
-      select(first ? first.dataset.name : '');
+  btn.addEventListener("click", () => {
+    panel.hidden ? open() : close();
+  });
+  search.addEventListener("input", () => renderList(search.value));
+  search.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const first = list.querySelector(".cmp-select-option:not(.cmp-select-clear)");
+      select(first ? first.dataset.name : "");
       e.preventDefault();
-    } else if (e.key === 'Escape'){
+    } else if (e.key === "Escape") {
       close();
     }
   });
-  list.addEventListener('click', e => {
-    const li = e.target.closest('.cmp-select-option');
+  list.addEventListener("click", e => {
+    const li = e.target.closest(".cmp-select-option");
     if (li) select(li.dataset.name);
   });
-  document.addEventListener('click', e => {
+  document.addEventListener("click", e => {
     if (!root.contains(e.target)) close();
   });
-
   return {
-    setOptions(newNames){ names = newNames; },
-    setValue(name){ value = name || ''; setLabel(value); },
-    getValue(){ return value; },
-    onChange(cb){ changeCb = cb; },
+    setOptions(newNames) {
+      names = newNames;
+    },
+    setValue(name) {
+      value = name || "";
+      setLabel(value);
+    },
+    getValue() {
+      return value;
+    },
+    onChange(cb) {
+      changeCb = cb;
+    }
   };
 }
 
 const selects = {
-  teamSelectA: initCustomSelect('teamSelectA', 'Team A'),
-  teamSelectB: initCustomSelect('teamSelectB', 'Team B'),
-  driverSelectA: initCustomSelect('driverSelectA', 'Driver A'),
-  driverSelectB: initCustomSelect('driverSelectB', 'Driver B'),
+  teamSelectA: initCustomSelect("teamSelectA", "Team A"),
+  teamSelectB: initCustomSelect("teamSelectB", "Team B"),
+  driverSelectA: initCustomSelect("driverSelectA", "Driver A"),
+  driverSelectB: initCustomSelect("driverSelectB", "Driver B")
 };
 
-let currentType = 'team';
+let currentType = "team";
 
-function setup(){
+function setup() {
   const state = readURLState();
   currentType = state.type;
-
-  const teamNames = TEAMS_META.map(t => t.name).sort((a,b)=>a.localeCompare(b));
-  const driverNames = DATA.atDrivers.filter(d=>d.DRIVER).map(d=>d.DRIVER).sort((a,b)=>a.localeCompare(b));
-
+  const teamNames = TEAMS_META.map(t => t.name).sort((a, b) => a.localeCompare(b));
+  const driverNames = DATA.atDrivers.filter(d => d.DRIVER).map(d => d.DRIVER).sort((a, b) => a.localeCompare(b));
   selects.teamSelectA.setOptions(teamNames);
   selects.teamSelectB.setOptions(teamNames);
   selects.driverSelectA.setOptions(driverNames);
   selects.driverSelectB.setOptions(driverNames);
-
-  selects.teamSelectA.setValue(state.type==='team' ? state.a : '');
-  selects.teamSelectB.setValue(state.type==='team' ? state.b : '');
-  selects.driverSelectA.setValue(state.type==='driver' ? state.a : '');
-  selects.driverSelectB.setValue(state.type==='driver' ? state.b : '');
-
-  document.querySelectorAll('.type-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchType(btn.dataset.type));
+  selects.teamSelectA.setValue(state.type === "team" ? state.a : "");
+  selects.teamSelectB.setValue(state.type === "team" ? state.b : "");
+  selects.driverSelectA.setValue(state.type === "driver" ? state.a : "");
+  selects.driverSelectB.setValue(state.type === "driver" ? state.b : "");
+  document.querySelectorAll(".type-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchType(btn.dataset.type));
   });
   Object.values(selects).forEach(s => s.onChange(renderResult));
-
   applyTypeUI();
   renderResult();
 }
 
-function switchType(type){
+function switchType(type) {
   if (type === currentType) return;
   currentType = type;
-  // A different type means a fresh pick — a team name and a driver name
-  // aren't interchangeable, so both selectors reset rather than carrying
-  // over a stale (and possibly invalid) selection.
-  selects.teamSelectA.setValue('');
-  selects.teamSelectB.setValue('');
-  selects.driverSelectA.setValue('');
-  selects.driverSelectB.setValue('');
+  selects.teamSelectA.setValue("");
+  selects.teamSelectB.setValue("");
+  selects.driverSelectA.setValue("");
+  selects.driverSelectB.setValue("");
   applyTypeUI();
   renderResult();
 }
 
-function applyTypeUI(){
-  document.querySelectorAll('.type-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.type === currentType);
+function applyTypeUI() {
+  document.querySelectorAll(".type-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.type === currentType);
   });
-  document.getElementById('teamSelectors').style.display = currentType === 'team' ? 'flex' : 'none';
-  document.getElementById('driverSelectors').style.display = currentType === 'driver' ? 'flex' : 'none';
-  // 2026-08-06 (user request): a link to the full All-Time list, so someone
-  // comparing two teams/drivers here can jump to the stats page and see
-  // everyone ranked, not just the two they picked. stats.html's tabs pick up
-  // the #alltime-teams/#alltime-drivers hash on load (see activateTabFromHash
-  // in stats_skeleton1.html).
-  const atLink = document.getElementById('cmpAllTimeLink');
-  if (atLink){
-    atLink.innerHTML = currentType === 'team'
-      ? '<a href="stats.html#alltime-teams">See every team in the All-Time Teams list →</a>'
-      : '<a href="stats.html#alltime-drivers">See every driver in the All-Time Drivers list →</a>';
+  document.getElementById("teamSelectors").style.display = currentType === "team" ? "flex" : "none";
+  document.getElementById("driverSelectors").style.display = currentType === "driver" ? "flex" : "none";
+  const atLink = document.getElementById("cmpAllTimeLink");
+  if (atLink) {
+    atLink.innerHTML = currentType === "team" ? '<a href="stats.html#alltime-teams">See every team in the All-Time Teams list →</a>' : '<a href="stats.html#alltime-drivers">See every driver in the All-Time Drivers list →</a>';
   }
 }
 
-// Recolours the two ambient background glows to the compared entities' own
-// team colours (falls back to the brand red/cyan default when a colour
-// isn't known yet, e.g. before both sides are picked, or a driver with no
-// season-history row to look up a team from).
-function updateGlow(colorA, colorB){
-  document.getElementById('glowA').style.background = colorA || 'var(--red)';
-  document.getElementById('glowB').style.background = colorB || 'var(--cyan)';
+function updateGlow(colorA, colorB) {
+  document.getElementById("glowA").style.background = colorA || "var(--red)";
+  document.getElementById("glowB").style.background = colorB || "var(--cyan)";
 }
 
-function renderResult(){
-  const resultBox = document.getElementById('cmpResult');
-  const aSel = currentType === 'team' ? selects.teamSelectA : selects.driverSelectA;
-  const bSel = currentType === 'team' ? selects.teamSelectB : selects.driverSelectB;
+function renderResult() {
+  const resultBox = document.getElementById("cmpResult");
+  const aSel = currentType === "team" ? selects.teamSelectA : selects.driverSelectA;
+  const bSel = currentType === "team" ? selects.teamSelectB : selects.driverSelectB;
   const a = aSel.getValue();
   const b = bSel.getValue();
-
   writeURLState(currentType, a, b);
-  document.title = a && b ? `RRL — Compare: ${a} vs ${b}` : (a ? `RRL — Compare: ${a}` : 'RRL — Compare');
-
-  const nounPlural = currentType === 'team' ? 'teams' : 'drivers';
-  const nounSingular = currentType === 'team' ? 'a team' : 'a driver';
-
-  if (!a && !b){
+  document.title = a && b ? `RRL — Compare: ${a} vs ${b}` : a ? `RRL — Compare: ${a}` : "RRL — Compare";
+  const nounPlural = currentType === "team" ? "teams" : "drivers";
+  const nounSingular = currentType === "team" ? "a team" : "a driver";
+  if (!a && !b) {
     resultBox.innerHTML = `<div class="cmp-prompt">Choose two ${nounPlural} above to compare.</div>`;
     updateGlow(null, null);
     return;
   }
-  if (a && b && a === b){
+  if (a && b && a === b) {
     resultBox.innerHTML = `<div class="cmp-prompt">Choose two different ${nounPlural} to compare.</div>`;
     updateGlow(null, null);
     return;
   }
-
-  // 2026-08-05 (user request): arriving with only one side picked — e.g. via
-  // a link from the Stats page tables, which pre-fill just "a" — used to
-  // fall straight through to the generic "choose two" prompt and show
-  // nothing at all. Now the picked side's card + its own values render
-  // immediately (second column stays "–", same as before both sides are
-  // chosen), with a dashed placeholder card prompting for the second pick.
   const emptyCard = `<div class="cmp-card-empty">Choose a second ${nounSingular}<br>above to compare</div>`;
-
-  if (currentType === 'team'){
+  if (currentType === "team") {
     const metaA = a ? TEAMS_META.find(t => t.name === a) : null;
     const metaB = b ? TEAMS_META.find(t => t.name === b) : null;
     const rowA = metaA ? DATA.atTeams.find(r => r.TEAM === metaA.xlsxKey) : null;
     const rowB = metaB ? DATA.atTeams.find(r => r.TEAM === metaB.xlsxKey) : null;
-    resultBox.innerHTML =
-      `<div class="cmp-cards">${metaA ? teamCardHtml(metaA) : emptyCard}${metaB ? teamCardHtml(metaB) : emptyCard}</div>` +
-      renderCompareTable(rowA, rowB, TEAM_METRICS);
+    resultBox.innerHTML = `<div class="cmp-cards">${metaA ? teamCardHtml(metaA) : emptyCard}${metaB ? teamCardHtml(metaB) : emptyCard}</div>` + renderCompareTable(rowA, rowB, TEAM_METRICS);
     updateGlow(metaA ? metaA.primary : null, metaB ? metaB.primary : null);
   } else {
     const rowA = a ? DATA.atDrivers.find(d => d.DRIVER === a) : null;
     const rowB = b ? DATA.atDrivers.find(d => d.DRIVER === b) : null;
-    resultBox.innerHTML =
-      `<div class="cmp-cards">${a ? driverCardHtml(a) : emptyCard}${b ? driverCardHtml(b) : emptyCard}</div>` +
-      renderCompareTable(rowA, rowB, DRIVER_METRICS);
-    // Drivers always use the fixed brand red/cyan pair, never a team colour
-    // (see driverCardHtml comment) — updateGlow(null, null) already falls
-    // back to var(--red)/var(--cyan) on its own.
+    resultBox.innerHTML = `<div class="cmp-cards">${a ? driverCardHtml(a) : emptyCard}${b ? driverCardHtml(b) : emptyCard}</div>` + renderCompareTable(rowA, rowB, DRIVER_METRICS);
     updateGlow(null, null);
   }
 }
 
-init();
-</script>
-<script>
-// Content fade-on-scroll (2026-08-03) — keeps the .fade-content mask's
-// fade band pinned to the viewport (not the document) by re-offsetting
-// mask-position by (scrollY - the wrapper's own document offset) on every
-// scroll tick. Using the wrapper's own offset (rather than assuming it
-// starts at document y=0) makes this work whether the wrapper starts
-// right at the top of the page or after a hero section.
-(function(){
-  const fadeContent = document.querySelector('.fade-content');
-  if(!fadeContent) return;
-  function updateContentFadeMask(){
+init()</script>
+<script>(function() {
+  const fadeContent = document.querySelector(".fade-content");
+  if (!fadeContent) return;
+  function updateContentFadeMask() {
     const wrapperTop = fadeContent.getBoundingClientRect().top + window.scrollY;
-    const y = window.scrollY - wrapperTop; // can be negative — that's correct, it means the wrapper hasn't reached the fade zone yet
+    const y = window.scrollY - wrapperTop;
     const pos = `0 ${y}px`;
     fadeContent.style.webkitMaskPosition = pos;
     fadeContent.style.maskPosition = pos;
   }
-  window.addEventListener('scroll', () => requestAnimationFrame(updateContentFadeMask), {passive:true});
-  window.addEventListener('resize', () => requestAnimationFrame(updateContentFadeMask));
-  updateContentFadeMask();
-})();
-</script>
-
-
-<script>
-(function(){
-  var burger = document.querySelector('.burger');
-  var nav = document.getElementById('mobileNav');
-  var overlay = document.getElementById('mobileNavOverlay');
-  if(!burger || !nav || !overlay) return;
-  function openNav(){
-    nav.classList.add('open'); overlay.classList.add('open');
-    burger.classList.add('open'); document.body.classList.add('nav-open');
-    burger.setAttribute('aria-expanded','true'); nav.setAttribute('aria-hidden','false');
-  }
-  function closeNav(){
-    nav.classList.remove('open'); overlay.classList.remove('open');
-    burger.classList.remove('open'); document.body.classList.remove('nav-open');
-    burger.setAttribute('aria-expanded','false'); nav.setAttribute('aria-hidden','true');
-  }
-  burger.addEventListener('click', function(){
-    if(nav.classList.contains('open')){ closeNav(); } else { openNav(); }
+  window.addEventListener("scroll", () => requestAnimationFrame(updateContentFadeMask), {
+    passive: true
   });
-  overlay.addEventListener('click', closeNav);
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeNav(); } });
-  Array.prototype.forEach.call(nav.querySelectorAll('a'), function(a){
-    a.addEventListener('click', function(){
-      var href = a.getAttribute('href') || '';
-      if(href.charAt(0) !== '#'){ closeNav(); }
+  window.addEventListener("resize", () => requestAnimationFrame(updateContentFadeMask));
+  updateContentFadeMask();
+})()</script>
+
+
+<script>(function() {
+  var burger = document.querySelector(".burger");
+  var nav = document.getElementById("mobileNav");
+  var overlay = document.getElementById("mobileNavOverlay");
+  if (!burger || !nav || !overlay) return;
+  function openNav() {
+    nav.classList.add("open");
+    overlay.classList.add("open");
+    burger.classList.add("open");
+    document.body.classList.add("nav-open");
+    burger.setAttribute("aria-expanded", "true");
+    nav.setAttribute("aria-hidden", "false");
+  }
+  function closeNav() {
+    nav.classList.remove("open");
+    overlay.classList.remove("open");
+    burger.classList.remove("open");
+    document.body.classList.remove("nav-open");
+    burger.setAttribute("aria-expanded", "false");
+    nav.setAttribute("aria-hidden", "true");
+  }
+  burger.addEventListener("click", function() {
+    if (nav.classList.contains("open")) {
+      closeNav();
+    } else {
+      openNav();
+    }
+  });
+  overlay.addEventListener("click", closeNav);
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      closeNav();
+    }
+  });
+  Array.prototype.forEach.call(nav.querySelectorAll("a"), function(a) {
+    a.addEventListener("click", function() {
+      var href = a.getAttribute("href") || "";
+      if (href.charAt(0) !== "#") {
+        closeNav();
+      }
     });
   });
-})();
-</script>
+})()</script>
 </body>
 </html>
