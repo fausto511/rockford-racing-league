@@ -1524,10 +1524,14 @@ function renderAllTimeTeams(){
 // ---------- Season view ----------
 let seasonDriversTable, seasonTeamsTable;
 function renderSeasonView(){
-  const seasons = Array.from(new Set(DATA.driversSeason.map(r=>r.season))).sort();
+  // 2026-08-11 (user request): match Standings' season dropdown — "Season N
+  // (Year)" labels instead of bare years, newest year on top / oldest at
+  // the bottom (same formula/order as standings.html's pastSeasons: sort
+  // ascending then reverse, Season N = Year - 2016).
+  const seasons = Array.from(new Set(DATA.driversSeason.map(r=>r.season))).sort().reverse();
   const sel = initCustomSelect("seasonSelect", "Choose a season");
-  sel.setOptions(seasons);
-  sel.setValue(seasons.includes("2025") ? "2025" : seasons[seasons.length-1]);
+  sel.setOptions(seasons.map(y=>({value:y, label:"Season " + (Number(y) - 2016) + " (" + y + ")"})));
+  sel.setValue(seasons.includes("2025") ? "2025" : seasons[0]);
 
   const driverCompact = [
     {key:"platz", label:"#", num:true, render:r=>fmt(r["platz"],0)},
