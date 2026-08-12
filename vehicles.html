@@ -12,13 +12,13 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://fausto511.github.io/rockford-racing-league/vehicles.html">
 <meta property="og:title" content="Rockford Racing League — Vehicles">
-<meta property="og:description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and filterable.">
+<meta property="og:description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and sortable.">
 <meta property="og:image" content="https://fausto511.github.io/rockford-racing-league/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Rockford Racing League — Vehicles">
-<meta name="twitter:description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and filterable.">
+<meta name="twitter:description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and sortable.">
 <meta name="twitter:image" content="https://fausto511.github.io/rockford-racing-league/og-image.jpg">
-<meta name="description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and filterable.">
+<meta name="description" content="The full list of vehicles approved for RRL competition, grouped by class, searchable and sortable.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
@@ -80,7 +80,7 @@
 <section class="vehicles-hero">
   <div class="eyebrow">ROCKFORD RACING LEAGUE</div>
   <h1>Vehicles</h1>
-  <p class="lede">Every vehicle approved for RRL competition, grouped by class — search by name, filter by handling and topspeed.</p>
+  <p class="lede">Every vehicle approved for RRL competition, grouped by class — search by name, sort any column.</p>
 </section>
 
 <div class="wrap">
@@ -106,20 +106,6 @@
     </div>
     <div class="toolbar">
       <input type="text" id="search-super" placeholder="Search vehicle…">
-      <select id="handling-super">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-super">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-super"></span>
     </div>
@@ -139,20 +125,6 @@
     </div>
     <div class="toolbar">
       <input type="text" id="search-sport" placeholder="Search vehicle…">
-      <select id="handling-sport">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-sport">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-sport"></span>
     </div>
@@ -162,20 +134,6 @@
   <section class="panel" id="panel-rally">
     <div class="toolbar">
       <input type="text" id="search-rally" placeholder="Search vehicle…">
-      <select id="handling-rally">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-rally">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-rally"></span>
     </div>
@@ -191,20 +149,6 @@
     </div>
     <div class="toolbar">
       <input type="text" id="search-classics" placeholder="Search vehicle…">
-      <select id="handling-classics">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-classics">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-classics"></span>
     </div>
@@ -219,20 +163,6 @@
     </div>
     <div class="toolbar">
       <input type="text" id="search-muscle" placeholder="Search vehicle…">
-      <select id="handling-muscle">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-muscle">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-muscle"></span>
     </div>
@@ -242,20 +172,6 @@
   <section class="panel" id="panel-sedans">
     <div class="toolbar">
       <input type="text" id="search-sedans" placeholder="Search vehicle…">
-      <select id="handling-sedans">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-sedans">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-sedans"></span>
     </div>
@@ -265,27 +181,13 @@
   <section class="panel" id="panel-offroad">
     <div class="toolbar">
       <input type="text" id="search-offroad" placeholder="Search vehicle…">
-      <select id="handling-offroad">
-        <option value="">All Handling</option>
-        <option value="AM">Amateur</option>
-        <option value="PRO">Professional</option>
-      </select>
-      <select id="topspeed-offroad">
-        <option value="">All Topspeed</option>
-        <option value="A+">A+</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
       <span class="spacer"></span>
       <span class="count" id="count-offroad"></span>
     </div>
     <div class="table-card"><table id="tbl-offroad"></table></div>
   </section>
 
-  <p class="legend-note">H = Handling (AM = Amateur, PRO = Professional) &middot; TS = Topspeed tier. A few entries are still missing a confirmed Handling value, shown as “–”.</p>
+  <p class="legend-note">H = Handling (AM = Amateur, PRO = Professional) &middot; TS = Top Speed, measured km/h (source: gtacars.net). Click any column header to sort. A few entries are still missing a confirmed Handling or Top Speed value, shown as “–”.</p>
 
 </div>
 
@@ -340,134 +242,134 @@
 
 <script>
 const VEHICLES = [
-  { category: "Super", subclass: "Hyper 1", name: "Autarch", h: "AM", ts: "A", price: 1955000 },
-  { category: "Super", subclass: "Hyper 1", name: "Ignus", h: "AM", ts: "A", price: 2765000 },
-  { category: "Super", subclass: "Hyper 1", name: "RE-7B", h: "AM", ts: "B", price: 2475000 },
-  { category: "Super", subclass: "Hyper 1", name: "Thrax", h: "AM", ts: "B", price: 2325000 },
-  { category: "Super", subclass: "Hyper 1", name: "Tigon", h: "PRO", ts: "A", price: 2310000 },
-  { category: "Super", subclass: "Hyper 2", name: "ETR1", h: "AM", ts: "B", price: 1995000 },
-  { category: "Super", subclass: "Hyper 2", name: "Tyrus", h: "AM", ts: "B", price: 2550000 },
-  { category: "Super", subclass: "Hyper 2", name: "XA-21", h: "AM", ts: "B", price: 2375000 },
-  { category: "Super", subclass: "Hyper 2", name: "Zeno", h: "PRO", ts: "A", price: 2820000 },
-  { category: "Super", subclass: "Hyper 2", name: "Zorusso", h: "AM", ts: "B", price: 1925000 },
-  { category: "Super", subclass: "Hyper 2", name: "Tyrant", h: "AM", ts: "A", price: 2515000 },
-  { category: "Super", subclass: "Super 1", name: "Nero Custom", h: "AM", ts: "A", price: 2045000 },
-  { category: "Super", subclass: "Super 1", name: "Furia", h: "AM", ts: "B", price: 2055000 },
-  { category: "Super", subclass: "Super 1", name: "Tempesta", h: "AM", ts: "B", price: 1329000 },
-  { category: "Super", subclass: "Super 1", name: "Visione", h: "AM", ts: "A", price: 2250000 },
-  { category: "Super", subclass: "Super 1", name: "Nero", h: "AM", ts: "A", price: 1440000 },
-  { category: "Super", subclass: "Super 2", name: "X80 Proto", h: "PRO", ts: "A", price: 2700000 },
-  { category: "Super", subclass: "Super 2", name: "FMJ", h: "AM", ts: "A", price: 1750000 },
-  { category: "Super", subclass: "Super 2", name: "T20", h: "PRO", ts: "B", price: 2200000 },
-  { category: "Super", subclass: "Super 2", name: "Zentorno", h: "PRO", ts: "B", price: 725000 },
-  { category: "Super", subclass: "Super 2", name: "Osiris", h: "PRO", ts: "B", price: 1950000 },
-  { category: "Super", subclass: "Super 2", name: "Entity XF", h: "AM", ts: "B", price: 795000 },
-  { category: "Super", subclass: "Super 2", name: "Turismo R", h: "AM", ts: "B", price: 500000 },
-  { category: "Super", subclass: "Super 2", name: "Itali GTB", h: "PRO", ts: "A", price: 1189000 },
-  { category: "Super", subclass: "Super 2", name: "Penetrator", h: "AM", ts: "B", price: 880000 },
-  { category: "Super", subclass: "Super 3", name: "Cheetah", h: "AM", ts: "B", price: 650000 },
-  { category: "Super", subclass: "Super 3", name: "Infernus", h: "PRO", ts: "C", price: 440000 },
-  { category: "Super", subclass: "Super 3", name: "Itali GTB Custom", h: "PRO", ts: "A", price: 495000 },
-  { category: "Super", subclass: "Super 3", name: "Reaper", h: "AM", ts: "B", price: 1595000 },
-  { category: "Super", subclass: "Super 3", name: "GP1", h: "AM", ts: "B", price: 1260000 },
-  { category: "Super", subclass: "Super 3", name: "Vacca", h: "PRO", ts: "B", price: 240000 },
-  { category: "Sport", subclass: "Sport Elite 1", name: "Rapit GT X", h: "AM", ts: "A", price: 2705500 },
-  { category: "Sport", subclass: "Sport Elite 1", name: "Banshee GTS", h: "AM", ts: "B", price: 1989500 },
-  { category: "Sport", subclass: "Sport Elite 1", name: "Coquette D5", h: "AM", ts: "C", price: 1730000 },
-  { category: "Sport", subclass: "Sport Elite 1", name: "Itali RSX", h: "PRO", ts: "C", price: 3465000 },
-  { category: "Sport", subclass: "Sport Elite 1", name: "Neo", h: "PRO", ts: "E", price: 1875000 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Jugular", h: "AM", ts: "A", price: 905000 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Comet SR", h: "AM", ts: "B", price: 1145000 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Imorgon", h: "PRO", ts: "E", price: 2165000 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Paragon R", h: "AM", ts: "B", price: 2165000 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Elegy RH8", h: "PRO", ts: "C", price: 0 },
-  { category: "Sport", subclass: "Sport Elite 2", name: "Itali GTO Stinger TT", h: "AM", ts: "A", price: 2380000 },
-  { category: "Sport", subclass: "Sport 1", name: "300R", h: "AM", ts: "B", price: 2075000 },
-  { category: "Sport", subclass: "Sport 1", name: "10F", h: "PRO", ts: "A", price: 1675000 },
-  { category: "Sport", subclass: "Sport 1", name: "10F WB", h: "PRO", ts: "A", price: 2250000 },
-  { category: "Sport", subclass: "Sport 1", name: "Calico", h: "AM", ts: "B", price: 1496250 },
-  { category: "Sport", subclass: "Sport 1", name: "Elegy Retro Custom", h: "AM", ts: "C", price: 904000 },
-  { category: "Sport", subclass: "Sport 1", name: "Feltzer", h: "AM", ts: "B", price: 145000 },
-  { category: "Sport", subclass: "Sport 1", name: "Flash GT", h: "AM", ts: "C", price: 1675000 },
-  { category: "Sport", subclass: "Sport 1", name: "Growler", h: "PRO", ts: "B", price: 1220250 },
-  { category: "Sport", subclass: "Sport 1", name: "Jester (Racecar)", h: "AM", ts: "C", price: 350000 },
-  { category: "Sport", subclass: "Sport 1", name: "Jester RR", h: "AM", ts: "A", price: 1477500 },
-  { category: "Sport", subclass: "Sport 1", name: "Sentinel Classic WB", h: "PRO", ts: "A", price: 1350000 },
-  { category: "Sport", subclass: "Sport 1", name: "Specter Custom", h: "AM", ts: "B", price: 851000 },
-  { category: "Sport", subclass: "Sport 1", name: "Vectre", h: "AM", ts: "C", price: 1338750 },
-  { category: "Sport", subclass: "Sport 2", name: "8F Drafter", h: "AM", ts: "C", price: 718000 },
-  { category: "Sport", subclass: "Sport 2", name: "9F", h: "PRO", ts: "B", price: 120000 },
-  { category: "Sport", subclass: "Sport 2", name: "9F Cabrio", h: "PRO", ts: "B", price: 120000 },
-  { category: "Sport", subclass: "Sport 2", name: "Coquette D10", h: "PRO", ts: "A+", price: 1510000 },
-  { category: "Sport", subclass: "Sport 2", name: "Jester", h: "AM", ts: "C", price: 240000 },
-  { category: "Sport", subclass: "Sport 2", name: "Massacro", h: "AM", ts: "B", price: 275000 },
-  { category: "Sport", subclass: "Sport 2", name: "Massacro (Racecar)", h: "AM", ts: "B", price: 385000 },
-  { category: "Sport", subclass: "Sport 2", name: "Schlagen GT", h: "PRO", ts: "A", price: 1300000 },
-  { category: "Sport", subclass: "Sport 2", name: "Seven-70", h: "AM", ts: "B", price: 695000 },
-  { category: "Sport", subclass: "Sport 2", name: "Specter", h: "AM", ts: "B", price: 599000 },
-  { category: "Sport", subclass: "Sport 3.1", name: "Bestia GTS", h: "AM", ts: "C", price: 610000 },
-  { category: "Sport", subclass: "Sport 3.1", name: "V-STR", h: "PRO", ts: "A", price: 1285000 },
-  { category: "Sport", subclass: "Sport 3.1", name: "Surano", h: "PRO", ts: "B", price: 111000 },
-  { category: "Sport", subclass: "Sport 3.1", name: "Euros", h: "PRO", ts: "C", price: 1350000 },
-  { category: "Sport", subclass: "Sport 3.1", name: "Cypher", h: "AM", ts: "D", price: 1162500 },
-  { category: "Sport", subclass: "Sport 3.1", name: "Comet S2 Cabrio", h: "PRO", ts: "A", price: 1797000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Comet Retro Custom", h: "PRO", ts: "B", price: 745000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Schafter V12", h: "PRO", ts: "B", price: 116000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Komoda", h: "PRO", ts: "B", price: 1275000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Comet", h: "PRO", ts: "B", price: 100000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Penumbra FF", h: "AM", ts: "D", price: 1380000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "S95", h: "AM", ts: "C", price: 1995000 },
-  { category: "Sport", subclass: "Sport 3.2", name: "Comet S2", h: "PRO", ts: "B", price: 1408500 },
-  { category: "Sport", subclass: "Sport 3.2", name: "SM722", h: "PRO", ts: "B", price: 2115000 },
-  { category: "Sport", subclass: "Sport 4", name: "Sultan", h: "AM", ts: "C", price: 0 },
-  { category: "Sport", subclass: "Sport 4", name: "Verlierer", h: "PRO", ts: "A", price: 695000 },
-  { category: "Sport", subclass: "Sport 4", name: "Remus", h: "AM", ts: "C", price: 1027500 },
-  { category: "Sport", subclass: "Sport 4", name: "Alpha", h: "AM", ts: "C", price: 150000 },
-  { category: "Sport", subclass: "Sport 4", name: "Lynx", h: "AM", ts: "B", price: 1735000 },
-  { category: "Sport", subclass: "Sport 4", name: "Panthere", h: null, ts: "A", price: 2170000 },
-  { category: "Rally", subclass: "Rally 1", name: "Kuruma", h: "PRO", ts: "D", price: 126350 },
-  { category: "Rally", subclass: "Rally 1", name: "Tropos Rallye", h: "AM", ts: "B", price: 816000 },
-  { category: "Rally", subclass: "Rally 1", name: "Omnis", h: "AM", ts: "D", price: 701000 },
-  { category: "Rally", subclass: "Rally 1", name: "Sentinel Classic", h: "PRO", ts: "C", price: 650000 },
-  { category: "Classics", subclass: "Classics 1", name: "Turismo Classic", h: "PRO", ts: "B", price: 705000 },
-  { category: "Classics", subclass: "Classics 1", name: "Cheetah Classic", h: "AM", ts: "B", price: 865000 },
-  { category: "Classics", subclass: "Classics 1", name: "Retinue Mk II", h: "AM", ts: "B", price: 1620000 },
-  { category: "Classics", subclass: "Classics 1", name: "Rapid GT Classic", h: "PRO", ts: "B", price: 885000 },
-  { category: "Classics", subclass: "Classics 1", name: "Ardent", h: "AM", ts: "B", price: 1150000 },
-  { category: "Classics", subclass: "Classic 2", name: "Stirling GT", h: "AM", ts: "D", price: 975000 },
-  { category: "Classics", subclass: "Classic 2", name: "Infernus Classic", h: "PRO", ts: "C", price: 915000 },
-  { category: "Classics", subclass: "Classic 2", name: "Torero", h: "AM", ts: "C", price: 998000 },
-  { category: "Classics", subclass: "Classic 2", name: "Swinger", h: null, ts: "C", price: 909000 },
-  { category: "Classics", subclass: "Classic 2", name: "Viseris", h: "PRO", ts: "B", price: 875000 },
-  { category: "Classics", subclass: "Classic 3", name: "Savestra", h: "AM", ts: "C", price: 990000 },
-  { category: "Classics", subclass: "Classic 3", name: "Zion Classic", h: "PRO", ts: "D", price: 812000 },
-  { category: "Classics", subclass: "Classic 3", name: "Retinue", h: "AM", ts: "C", price: 615000 },
-  { category: "Classics", subclass: "Classic 3", name: "Pigalle", h: "PRO", ts: "B", price: 400000 },
-  { category: "Classics", subclass: "Classic 3", name: "Z-Type", h: "PRO", ts: "A", price: 950000 },
-  { category: "Classics", subclass: "Classic 3", name: "Coquette D1", h: "PRO", ts: "A", price: 1500000 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Blade", h: "AM", ts: "D", price: 160000 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Coquette BlackFin", h: "AM", ts: "D", price: 695000 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Dominator", h: "PRO", ts: "B", price: 0 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Gauntlet Hellfire", h: "PRO", ts: "A", price: 745000 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Greenwood", h: "AM", ts: "C", price: 1465000 },
-  { category: "Muscle", subclass: "Muscle 3", name: "Impaler", h: "PRO", ts: "C", price: 332000 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Phoenix", h: "AM", ts: "D", price: 0 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Beater Dukes", h: "AM", ts: "D", price: 378000 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Burger Shot Stallion", h: "AM", ts: "D", price: 0 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Redwood Gauntlet", h: "AM", ts: "C", price: 0 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Gauntlet CC", h: "PRO", ts: "A", price: 815000 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Deviant", h: "AM", ts: "E", price: 512000 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Tahoma", h: "PRO", ts: "D", price: 1500000 },
-  { category: "Muscle", subclass: "Muscle 5", name: "Tulip M100", h: "PRO", ts: "C", price: 1658000 },
-  { category: "Sedans", subclass: "Sedans", name: "Cinquemila", h: "AM", ts: "B", price: 1740000 },
-  { category: "Sedans", subclass: "Sedans", name: "Rhinehart", h: "PRO", ts: "B", price: 1598000 },
-  { category: "Sedans", subclass: "Sedans", name: "Schafter V12", h: "PRO", ts: "B", price: 116000 },
-  { category: "Sedans", subclass: "Sedans", name: "Chavos V6", h: null, ts: "C", price: 1420000 },
-  { category: "Sedans", subclass: "Sedans", name: "Minimus", h: null, ts: "C", price: 1417000 },
-  { category: "Sedans", subclass: "Sedans", name: "Tailgater S", h: "AM", ts: "C", price: 1495000 },
-  { category: "Offroad", subclass: "Offroad", name: "Desert Raid", h: "AM", ts: "E", price: 695000 },
-  { category: "Offroad", subclass: "Offroad", name: "Trophy Truck", h: "AM", ts: "E", price: 550000 },
-  { category: "Offroad", subclass: "Offroad", name: "Ratel", h: "AM", ts: "D", price: 1873000 },
+  { category: "Super", subclass: "Hyper 1", name: "Autarch", h: "AM", ts: 202.78, price: 1955000 },
+  { category: "Super", subclass: "Hyper 1", name: "Ignus", h: "AM", ts: 201.17, price: 2765000 },
+  { category: "Super", subclass: "Hyper 1", name: "RE-7B", h: "AM", ts: 198.75, price: 2475000 },
+  { category: "Super", subclass: "Hyper 1", name: "Thrax", h: "AM", ts: 199.16, price: 2325000 },
+  { category: "Super", subclass: "Hyper 1", name: "Tigon", h: "PRO", ts: 201.97, price: 2310000 },
+  { category: "Super", subclass: "Hyper 2", name: "ETR1", h: "AM", ts: 195.13, price: 1995000 },
+  { category: "Super", subclass: "Hyper 2", name: "Tyrus", h: "AM", ts: 198.35, price: 2550000 },
+  { category: "Super", subclass: "Hyper 2", name: "XA-21", h: "AM", ts: 197.14, price: 2375000 },
+  { category: "Super", subclass: "Hyper 2", name: "Zeno", h: "PRO", ts: 206.00, price: 2820000 },
+  { category: "Super", subclass: "Hyper 2", name: "Zorusso", h: "AM", ts: 201.17, price: 1925000 },
+  { category: "Super", subclass: "Hyper 2", name: "Tyrant", h: "AM", ts: 203.58, price: 2515000 },
+  { category: "Super", subclass: "Super 1", name: "Nero Custom", h: "AM", ts: 204.39, price: 2045000 },
+  { category: "Super", subclass: "Super 1", name: "Furia", h: "AM", ts: 195.94, price: 2055000 },
+  { category: "Super", subclass: "Super 1", name: "Tempesta", h: "AM", ts: 195.53, price: 1329000 },
+  { category: "Super", subclass: "Super 1", name: "Visione", h: "AM", ts: null, price: 2250000 },
+  { category: "Super", subclass: "Super 1", name: "Nero", h: "AM", ts: 203.18, price: 1440000 },
+  { category: "Super", subclass: "Super 2", name: "X80 Proto", h: "PRO", ts: 206.40, price: 2700000 },
+  { category: "Super", subclass: "Super 2", name: "FMJ", h: "AM", ts: 201.97, price: 1750000 },
+  { category: "Super", subclass: "Super 2", name: "T20", h: "PRO", ts: 197.14, price: 2200000 },
+  { category: "Super", subclass: "Super 2", name: "Zentorno", h: "PRO", ts: 196.74, price: 725000 },
+  { category: "Super", subclass: "Super 2", name: "Osiris", h: "PRO", ts: 196.34, price: 1950000 },
+  { category: "Super", subclass: "Super 2", name: "Entity XF", h: "AM", ts: 196.74, price: 795000 },
+  { category: "Super", subclass: "Super 2", name: "Turismo R", h: "AM", ts: 197.14, price: 500000 },
+  { category: "Super", subclass: "Super 2", name: "Itali GTB", h: "PRO", ts: 201.57, price: 1189000 },
+  { category: "Super", subclass: "Super 2", name: "Penetrator", h: "AM", ts: 198.35, price: 880000 },
+  { category: "Super", subclass: "Super 3", name: "Cheetah", h: "AM", ts: 194.33, price: 650000 },
+  { category: "Super", subclass: "Super 3", name: "Infernus", h: "PRO", ts: 189.90, price: 440000 },
+  { category: "Super", subclass: "Super 3", name: "Itali GTB Custom", h: "PRO", ts: 205.19, price: 495000 },
+  { category: "Super", subclass: "Super 3", name: "Reaper", h: "AM", ts: 196.34, price: 1595000 },
+  { category: "Super", subclass: "Super 3", name: "GP1", h: "AM", ts: 199.16, price: 1260000 },
+  { category: "Super", subclass: "Super 3", name: "Vacca", h: "PRO", ts: 193.93, price: 240000 },
+  { category: "Sport", subclass: "Sport Elite 1", name: "Rapit GT X", h: "AM", ts: 212.84, price: 2705500 },
+  { category: "Sport", subclass: "Sport Elite 1", name: "Banshee GTS", h: "AM", ts: 222.09, price: 1989500 },
+  { category: "Sport", subclass: "Sport Elite 1", name: "Coquette D5", h: "AM", ts: 210.42, price: 1730000 },
+  { category: "Sport", subclass: "Sport Elite 1", name: "Itali RSX", h: "PRO", ts: 216.46, price: 3465000 },
+  { category: "Sport", subclass: "Sport Elite 1", name: "Neo", h: "PRO", ts: 201.57, price: 1875000 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Jugular", h: "AM", ts: 201.17, price: 905000 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Comet SR", h: "AM", ts: 196.34, price: 1145000 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Imorgon", h: "PRO", ts: 171.80, price: 2165000 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Paragon R", h: "AM", ts: 197.95, price: 2165000 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Elegy RH8", h: "PRO", ts: 191.11, price: 0 },
+  { category: "Sport", subclass: "Sport Elite 2", name: "Itali GTO Stinger TT", h: "AM", ts: 212.43, price: 2380000 },
+  { category: "Sport", subclass: "Sport 1", name: "300R", h: "AM", ts: 193.12, price: 2075000 },
+  { category: "Sport", subclass: "Sport 1", name: "10F", h: "PRO", ts: 202.78, price: 1675000 },
+  { category: "Sport", subclass: "Sport 1", name: "10F WB", h: "PRO", ts: 206.00, price: 2250000 },
+  { category: "Sport", subclass: "Sport 1", name: "Calico", h: "AM", ts: 194.73, price: 1496250 },
+  { category: "Sport", subclass: "Sport 1", name: "Elegy Retro Custom", h: "AM", ts: 185.88, price: 904000 },
+  { category: "Sport", subclass: "Sport 1", name: "Feltzer", h: "AM", ts: 193.52, price: 145000 },
+  { category: "Sport", subclass: "Sport 1", name: "Flash GT", h: "AM", ts: 186.68, price: 1675000 },
+  { category: "Sport", subclass: "Sport 1", name: "Growler", h: "PRO", ts: 196.34, price: 1220250 },
+  { category: "Sport", subclass: "Sport 1", name: "Jester (Racecar)", h: "AM", ts: 193.52, price: 350000 },
+  { category: "Sport", subclass: "Sport 1", name: "Jester RR", h: "AM", ts: 202.78, price: 1477500 },
+  { category: "Sport", subclass: "Sport 1", name: "Sentinel Classic WB", h: "PRO", ts: 204.79, price: 1350000 },
+  { category: "Sport", subclass: "Sport 1", name: "Specter Custom", h: "AM", ts: 194.73, price: 851000 },
+  { category: "Sport", subclass: "Sport 1", name: "Vectre", h: "AM", ts: 186.68, price: 1338750 },
+  { category: "Sport", subclass: "Sport 2", name: "8F Drafter", h: "AM", ts: 189.50, price: 718000 },
+  { category: "Sport", subclass: "Sport 2", name: "9F", h: "PRO", ts: 195.13, price: 120000 },
+  { category: "Sport", subclass: "Sport 2", name: "9F Cabrio", h: "PRO", ts: 195.13, price: 120000 },
+  { category: "Sport", subclass: "Sport 2", name: "Coquette D10", h: "PRO", ts: 210.02, price: 1510000 },
+  { category: "Sport", subclass: "Sport 2", name: "Jester", h: "AM", ts: 192.32, price: 240000 },
+  { category: "Sport", subclass: "Sport 2", name: "Massacro", h: "AM", ts: 197.55, price: 275000 },
+  { category: "Sport", subclass: "Sport 2", name: "Massacro (Racecar)", h: "AM", ts: 197.55, price: 385000 },
+  { category: "Sport", subclass: "Sport 2", name: "Schlagen GT", h: "PRO", ts: 201.97, price: 1300000 },
+  { category: "Sport", subclass: "Sport 2", name: "Seven-70", h: "AM", ts: 199.56, price: 695000 },
+  { category: "Sport", subclass: "Sport 2", name: "Specter", h: "AM", ts: 194.73, price: 599000 },
+  { category: "Sport", subclass: "Sport 3.1", name: "Bestia GTS", h: "AM", ts: 191.51, price: 610000 },
+  { category: "Sport", subclass: "Sport 3.1", name: "V-STR", h: "PRO", ts: 201.57, price: 1285000 },
+  { category: "Sport", subclass: "Sport 3.1", name: "Surano", h: "PRO", ts: 194.73, price: 111000 },
+  { category: "Sport", subclass: "Sport 3.1", name: "Euros", h: "PRO", ts: 188.70, price: 1350000 },
+  { category: "Sport", subclass: "Sport 3.1", name: "Cypher", h: "AM", ts: 182.66, price: 1162500 },
+  { category: "Sport", subclass: "Sport 3.1", name: "Comet S2 Cabrio", h: "PRO", ts: 208.01, price: 1797000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Comet Retro Custom", h: "PRO", ts: null, price: 745000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Schafter V12", h: "PRO", ts: 202.78, price: 116000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Komoda", h: "PRO", ts: 198.75, price: 1275000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Comet", h: "PRO", ts: 192.72, price: 100000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Penumbra FF", h: "AM", ts: 181.86, price: 1380000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "S95", h: "AM", ts: 187.09, price: 1995000 },
+  { category: "Sport", subclass: "Sport 3.2", name: "Comet S2", h: "PRO", ts: 197.14, price: 1408500 },
+  { category: "Sport", subclass: "Sport 3.2", name: "SM722", h: "PRO", ts: 199.16, price: 2115000 },
+  { category: "Sport", subclass: "Sport 4", name: "Sultan", h: "AM", ts: 187.09, price: 0 },
+  { category: "Sport", subclass: "Sport 4", name: "Verlierer", h: "PRO", ts: null, price: 695000 },
+  { category: "Sport", subclass: "Sport 4", name: "Remus", h: "AM", ts: 185.88, price: 1027500 },
+  { category: "Sport", subclass: "Sport 4", name: "Alpha", h: "AM", ts: 190.71, price: 150000 },
+  { category: "Sport", subclass: "Sport 4", name: "Lynx", h: "AM", ts: 195.53, price: 1735000 },
+  { category: "Sport", subclass: "Sport 4", name: "Panthere", h: null, ts: 197.14, price: 2170000 },
+  { category: "Rally", subclass: "Rally 1", name: "Kuruma", h: "PRO", ts: 181.86, price: 126350 },
+  { category: "Rally", subclass: "Rally 1", name: "Tropos Rallye", h: "AM", ts: 192.32, price: 816000 },
+  { category: "Rally", subclass: "Rally 1", name: "Omnis", h: "AM", ts: 182.26, price: 701000 },
+  { category: "Rally", subclass: "Rally 1", name: "Sentinel Classic", h: "PRO", ts: 188.70, price: 650000 },
+  { category: "Classics", subclass: "Classics 1", name: "Turismo Classic", h: "PRO", ts: 194.73, price: 705000 },
+  { category: "Classics", subclass: "Classics 1", name: "Cheetah Classic", h: "AM", ts: 193.12, price: 865000 },
+  { category: "Classics", subclass: "Classics 1", name: "Retinue Mk II", h: "AM", ts: 193.52, price: 1620000 },
+  { category: "Classics", subclass: "Classics 1", name: "Rapid GT Classic", h: "PRO", ts: 192.72, price: 885000 },
+  { category: "Classics", subclass: "Classics 1", name: "Ardent", h: "AM", ts: 191.11, price: 1150000 },
+  { category: "Classics", subclass: "Classic 2", name: "Stirling GT", h: "AM", ts: 181.86, price: 975000 },
+  { category: "Classics", subclass: "Classic 2", name: "Infernus Classic", h: "PRO", ts: 191.11, price: 915000 },
+  { category: "Classics", subclass: "Classic 2", name: "Torero", h: "AM", ts: 187.49, price: 998000 },
+  { category: "Classics", subclass: "Classic 2", name: "Swinger", h: null, ts: 188.29, price: 909000 },
+  { category: "Classics", subclass: "Classic 2", name: "Viseris", h: "PRO", ts: 199.56, price: 875000 },
+  { category: "Classics", subclass: "Classic 3", name: "Savestra", h: "AM", ts: 189.90, price: 990000 },
+  { category: "Classics", subclass: "Classic 3", name: "Zion Classic", h: "PRO", ts: 181.45, price: 812000 },
+  { category: "Classics", subclass: "Classic 3", name: "Retinue", h: "AM", ts: 186.68, price: 615000 },
+  { category: "Classics", subclass: "Classic 3", name: "Pigalle", h: "PRO", ts: 195.94, price: 400000 },
+  { category: "Classics", subclass: "Classic 3", name: "Z-Type", h: "PRO", ts: 204.39, price: 950000 },
+  { category: "Classics", subclass: "Classic 3", name: "Coquette D1", h: "PRO", ts: 199.16, price: 1500000 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Blade", h: "AM", ts: 177.83, price: 160000 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Coquette BlackFin", h: "AM", ts: 185.07, price: 695000 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Dominator", h: "PRO", ts: 194.33, price: 0 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Gauntlet Hellfire", h: "PRO", ts: 201.17, price: 745000 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Greenwood", h: "AM", ts: 192.32, price: 1465000 },
+  { category: "Muscle", subclass: "Muscle 3", name: "Impaler", h: "PRO", ts: 186.28, price: 332000 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Phoenix", h: "AM", ts: 183.46, price: 0 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Beater Dukes", h: "AM", ts: 181.05, price: 378000 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Burger Shot Stallion", h: "AM", ts: 183.06, price: 0 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Redwood Gauntlet", h: "AM", ts: 187.09, price: 0 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Gauntlet CC", h: "PRO", ts: 201.57, price: 815000 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Deviant", h: "AM", ts: 173.81, price: 512000 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Tahoma", h: "PRO", ts: 180.65, price: 1500000 },
+  { category: "Muscle", subclass: "Muscle 5", name: "Tulip M100", h: "PRO", ts: 187.89, price: 1658000 },
+  { category: "Sedans", subclass: "Sedans", name: "Cinquemila", h: "AM", ts: 193.93, price: 1740000 },
+  { category: "Sedans", subclass: "Sedans", name: "Rhinehart", h: "PRO", ts: 197.95, price: 1598000 },
+  { category: "Sedans", subclass: "Sedans", name: "Schafter V12", h: "PRO", ts: 202.78, price: 116000 },
+  { category: "Sedans", subclass: "Sedans", name: "Chavos V6", h: null, ts: 185.88, price: 1420000 },
+  { category: "Sedans", subclass: "Sedans", name: "Minimus", h: null, ts: 185.07, price: 1417000 },
+  { category: "Sedans", subclass: "Sedans", name: "Tailgater S", h: "AM", ts: 186.68, price: 1495000 },
+  { category: "Offroad", subclass: "Offroad", name: "Desert Raid", h: "AM", ts: 171.80, price: 695000 },
+  { category: "Offroad", subclass: "Offroad", name: "Trophy Truck", h: "AM", ts: 171.80, price: 550000 },
+  { category: "Offroad", subclass: "Offroad", name: "Ratel", h: "AM", ts: 181.86, price: 1873000 },
 ];
 
 
@@ -482,6 +384,11 @@ function fmtHandling(h) {
   return "–";
 }
 
+function fmtTopspeed(v) {
+  if (v === null || v === undefined) return "–";
+  return Number(v).toFixed(2) + " km/h";
+}
+
 function makeSortableTable(tableEl, rows, cols, opts) {
   opts = opts || {};
   let sortKey = opts.defaultSort || cols[0].key;
@@ -494,12 +401,16 @@ function makeSortableTable(tableEl, rows, cols, opts) {
         const av = a[sortKey], bv = b[sortKey];
         const an = av === null || av === undefined ? null : Number(av);
         const bn = bv === null || bv === undefined ? null : Number(bv);
-        if (an === null && bn === null) cmp = 0; else if (an === null) cmp = 1; else if (bn === null) cmp = -1; else cmp = an - bn;
+        // Missing values always sort last, regardless of sort direction.
+        if (an === null && bn === null) cmp = 0;
+        else if (an === null) cmp = 1;
+        else if (bn === null) cmp = -1;
+        else cmp = sortDir === "asc" ? an - bn : bn - an;
       } else {
         const as = (a[sortKey] || "").toString(), bs = (b[sortKey] || "").toString();
-        cmp = as.localeCompare(bs);
+        cmp = sortDir === "asc" ? as.localeCompare(bs) : bs.localeCompare(as);
       }
-      return sortDir === "asc" ? cmp : -cmp;
+      return cmp;
     });
     let thead = "<thead><tr>" + cols.map(c => {
       const isSorted = c.key === sortKey;
@@ -539,7 +450,7 @@ const VEHICLE_COLS = [
   { key: "name", label: "Name" },
   { key: "subclass", label: "Class" },
   { key: "h", label: "Handling", render: row => fmtHandling(row.h) },
-  { key: "ts", label: "Topspeed", render: row => row.ts || "–" },
+  { key: "ts", label: "Top Speed", num: true, render: row => fmtTopspeed(row.ts) },
   { key: "price", label: "Price", num: true, render: row => fmtPrice(row.price) }
 ];
 
@@ -548,28 +459,20 @@ function initCategory(cat, csSlug, subclasses) {
   const tableEl = document.getElementById('tbl-' + csSlug);
   const table = makeSortableTable(tableEl, rowsAll, VEHICLE_COLS, { defaultSort: 'price', defaultDir: 'desc' });
   const searchEl = document.getElementById('search-' + csSlug);
-  const handlingEl = document.getElementById('handling-' + csSlug);
-  const topspeedEl = document.getElementById('topspeed-' + csSlug);
   const countEl = document.getElementById('count-' + csSlug);
   const subtabGroup = document.getElementById('subtabs-' + csSlug);
   let activeSubtab = 'all';
   function applyFilters() {
     const q = (searchEl.value || '').trim().toLowerCase();
-    const h = handlingEl.value;
-    const ts = topspeedEl.value;
     const filtered = rowsAll.filter(v => {
       if (activeSubtab !== 'all' && slugify(v.subclass) !== activeSubtab) return false;
       if (q && !v.name.toLowerCase().includes(q)) return false;
-      if (h && v.h !== h) return false;
-      if (ts && v.ts !== ts) return false;
       return true;
     });
     table.setRows(filtered);
     countEl.textContent = filtered.length + (filtered.length === 1 ? ' vehicle' : ' vehicles');
   }
   searchEl.addEventListener('input', applyFilters);
-  handlingEl.addEventListener('change', applyFilters);
-  topspeedEl.addEventListener('change', applyFilters);
   if (subtabGroup) {
     subtabGroup.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
