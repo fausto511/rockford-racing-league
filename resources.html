@@ -308,6 +308,8 @@
 
 const TIER_SIZE = 10;
 
+const TIER_NAMES = ["Top 10", "Midfield", "Backmarkers"];
+
 const tiersHtml = [];
 
 for (let i = 0; i < POINTS.length; i += TIER_SIZE) {
@@ -315,7 +317,7 @@ for (let i = 0; i < POINTS.length; i += TIER_SIZE) {
   const firstPos = chunk[0][0], lastPos = chunk[chunk.length - 1][0];
   const maxPts = chunk[0][1], minPts = chunk[chunk.length - 1][1];
   const rows = chunk.map(([pos, pts]) => `<div class="points-row"><span class="pos">P${pos}</span><span class="pts">${pts}</span></div>`).join("");
-  tiersHtml.push(`<div class="points-tier"><div class="points-tier-head"><span>P${firstPos}–P${lastPos}</span><span class="range">${maxPts}–${minPts} pts</span></div><div class="points-tier-rows">${rows}</div></div>`);
+  tiersHtml.push(`<div class="points-tier"><div class="points-tier-head"><span>${TIER_NAMES[i / TIER_SIZE]} · P${firstPos}–P${lastPos}</span><span class="range">${maxPts}–${minPts} pts</span></div><div class="points-tier-rows">${rows}</div></div>`);
 }
 
 document.getElementById("pointsTiers").innerHTML = tiersHtml.join("")</script>
