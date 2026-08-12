@@ -849,21 +849,16 @@ function renderPage() {
   document.getElementById("teamHeroBar").style.background = `linear-gradient(90deg, ${meta.primary}, ${meta.secondary})`;
   document.getElementById("teamCompareBtn").href = "compare.html?type=team&a=" + encodeURIComponent(meta.name);
   const atRow = DATA.atTeams.find(r => r.TEAM === meta.xlsxKey);
-  const latestSeasonRow = latestSeason != null ? DATA.teamsSeason.find(r => r.team === meta.xlsxKey && r.season === latestSeason) : null;
-  const teamRating = latestSeasonRow ? scaleRating(latestSeasonRow.rating) : null;
+  const teamRating = atRow ? scaleRating(atRow.RATING) : null;
   const leagueRank = atRow && atRow.POS != null ? Number(atRow.POS) : null;
   const heroRatingEl = document.getElementById("heroRatingVal");
   const heroRatingLblEl = document.getElementById("heroRatingLbl");
   const heroRankEl = document.getElementById("heroRankVal");
   heroRatingEl.textContent = teamRating != null ? Math.round(teamRating).toString() : "–";
-  heroRatingLblEl.textContent = latestSeason != null ? `${latestSeason} Rating` : "Rating";
+  heroRatingLblEl.textContent = "All-Time Rating";
   heroRankEl.textContent = leagueRank != null ? Math.round(leagueRank).toString() : "–";
   const allTimeGrid = document.getElementById("allTimeGrid");
   if (atRow) {
-    const ratingTarget = (() => {
-      const n = scaleRating(atRow.RATING);
-      return n == null ? null : Math.round(n);
-    })();
     const stats = [ {
       value: Number(atRow.RACES),
       label: "Races"
@@ -874,6 +869,9 @@ function renderPage() {
       value: Number(atRow.TITLE ?? 0),
       label: "Team Championships"
     }, {
+      value: Number(atRow["BEST RANK/S"]),
+      label: "Best Finish"
+    }, {
       value: Number(atRow.WINS),
       label: "Wins"
     }, {
@@ -882,9 +880,6 @@ function renderPage() {
     }, {
       value: Number(atRow["TOP 10"]),
       label: "Top 10s"
-    }, {
-      value: ratingTarget,
-      label: "Rating"
     } ];
     allTimeGrid.innerHTML = stats.map((s, i) => `<div class="stat-card"><div class="value" id="atStat${i}">–</div><div class="label">${s.label}</div></div>`).join("");
     stats.forEach((s, i) => countUp(document.getElementById(`atStat${i}`), isNaN(s.value) ? null : s.value, 1400, 0));
