@@ -458,10 +458,10 @@ function makeSortableTable(tableEl, rows, cols, opts) {
 
 const VEHICLE_COLS = [
   { key: "name", label: "Name", render: row => fmtVehicleName(row) },
-  { key: "h", label: "Handling", render: row => fmtHandling(row.h) },
-  { key: "drivetrain", label: "Drivetrain", render: row => fmtDrivetrain(row.drivetrain) },
   { key: "ts", label: "Top Speed", num: true, render: row => fmtTopspeed(row.ts) },
   { key: "hsDownforce", label: "High-Speed Downforce", num: true, render: row => fmtDownforce(row.hsDownforce) },
+  { key: "drivetrain", label: "Drivetrain", render: row => fmtDrivetrain(row.drivetrain) },
+  { key: "h", label: "Handling", render: row => fmtHandling(row.h) },
   { key: "price", label: "Price", num: true, render: row => fmtPrice(row.price) }
 ];
 
