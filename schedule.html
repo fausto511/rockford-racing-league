@@ -504,7 +504,9 @@
   round: 1,
   dateLabel: "Sun, Aug 16, 2026",
   qualifying: "2026-08-16T19:45:00+02:00",
-  end: "2026-08-16T21:15:00+02:00"
+  end: "2026-08-16T21:15:00+02:00",
+  track: "Artarctica",
+  vehicleClass: "Super 3"
 }, {
   round: 2,
   dateLabel: "Sun, Aug 23, 2026",
@@ -645,7 +647,7 @@ const TRACK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4
 function raceCardHtml(r) {
   const localQ = formatLocalTime(new Date(r.qualifying).getTime());
   const wx = weatherPresentation(r.qualifying, r.end);
-  return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">\n    <div class="race-card-img"><div class="race-card-img-label">${TRACK_ICON}<span>Track TBA</span></div></div>\n    <div class="race-card-body">\n      <div class="race-round">Race ${r.round} of ${RACES.length}</div>\n      <div class="race-date">${r.dateLabel}</div>\n      <div class="race-datarows">\n        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value">${localQ}</span></div>\n        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value">1h 30m</span></div>\n        <div class="data-row"><span class="data-row-label">Vehicle Class</span><span class="data-row-value">TBA</span></div>\n        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value" data-role="qualcountdown">—</span></div>\n      </div>\n      <a class="race-weather ${wx.cls}" href="rainforecast.html">${wx.html}</a>\n      <div class="race-btn-row">\n        <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>\n        <a class="race-join-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>\n      </div>\n    </div>\n  </div>`;
+  return `<div class="race-card" data-qualifying="${r.qualifying}" data-end="${r.end}">\n    <div class="race-card-img"><div class="race-card-img-label">${TRACK_ICON}<span>${r.track || "Track TBA"}</span></div></div>\n    <div class="race-card-body">\n      <div class="race-round">Race ${r.round} of ${RACES.length}</div>\n      <div class="race-date">${r.dateLabel}</div>\n      <div class="race-datarows">\n        <div class="data-row"><span class="data-row-label">Start Time</span><span class="data-row-value">${localQ}</span></div>\n        <div class="data-row"><span class="data-row-label">Duration</span><span class="data-row-value">1h 30m</span></div>\n        <div class="data-row"><span class="data-row-label">Vehicle Class</span><span class="data-row-value">${r.vehicleClass || "TBA"}</span></div>\n        <div class="data-row"><span class="data-row-label">Qualifying</span><span class="data-row-value" data-role="qualcountdown">—</span></div>\n      </div>\n      <a class="race-weather ${wx.cls}" href="rainforecast.html">${wx.html}</a>\n      <div class="race-btn-row">\n        <a class="race-join-btn" href="https://discord.gg/rsZUhJYBub" target="_blank" rel="noopener">Join on Discord</a>\n        <a class="race-join-btn" href="https://www.twitch.tv/fausto_511" target="_blank" rel="noopener">Watch Live</a>\n      </div>\n    </div>\n  </div>`;
 }
 
 function updateCountdowns() {
