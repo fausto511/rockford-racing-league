@@ -616,6 +616,26 @@ function wireTabs() {
   });
 }
 wireTabs();
+
+function applyVehicleDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const cls = params.get("class");
+  const sub = params.get("sub");
+  const safe = /^[a-z0-9-]+$/;
+  if (cls && safe.test(cls)) {
+    const tabBtn = document.querySelector('nav.tabs button[data-tab="' + cls + '"]');
+    if (tabBtn) tabBtn.click();
+  }
+  if (sub && safe.test(sub)) {
+    const subBtn = document.querySelector('[data-subtab="' + sub + '"]');
+    if (subBtn) subBtn.click();
+  }
+  if (cls || sub) {
+    const panel = document.querySelector(".panel.active");
+    if (panel) panel.scrollIntoView({ block: "start" });
+  }
+}
+applyVehicleDeepLink();
 </script>
 
 <script>(function() {
