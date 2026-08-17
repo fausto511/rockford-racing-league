@@ -1941,23 +1941,25 @@ function loadStandingsSeason() {
     defaultDir: "asc",
     onRender: n => document.getElementById("countStandingsTeams").textContent = n + " teams"
   });
-  renderStandingsAwards(s, drows, trows);
+  renderStandingsAwards(s, drows, trows, isCurrent);
   updateStandingsDriversThumb();
   updateStandingsTeamsThumb();
 }
 
-function renderStandingsAwards(s, drows, trows) {
-  const top3d = drows.slice().filter(r => stNum(r.platz) !== null).sort((a, b) => stNum(a.platz) - stNum(b.platz)).slice(0, 3);
-  const top3t = trows.slice().filter(r => stNum(r.platz) !== null).sort((a, b) => stNum(a.platz) - stNum(b.platz)).slice(0, 3);
-  document.getElementById("standingsAwardTop3Drivers").innerHTML = top3d.length ? top3d.map(r => `<li>${r.fahrer} <span style="color:rgba(199,204,212,.55)">(${stTeamMeta(r.team).name})</span> <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte, 0)} pts</span></li>`).join("") : `<li class="empty">No data for this season.</li>`;
-  document.getElementById("standingsAwardTop3Teams").innerHTML = top3t.length ? top3t.map(r => `<li>${stTeamCell(r.team)} <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte, 0)} pts</span></li>`).join("") : `<li class="empty">No data for this season.</li>`;
+function renderStandingsAwards(s, drows, trows, isCurrent) {
+  const pendingMsg = `<li class="empty">Determined after the season finishes.</li>`;
+  const noDataMsg = `<li class="empty">No data for this season.</li>`;
+  const top3d = isCurrent ? [] : drows.slice().filter(r => stNum(r.platz) !== null).sort((a, b) => stNum(a.platz) - stNum(b.platz)).slice(0, 3);
+  const top3t = isCurrent ? [] : trows.slice().filter(r => stNum(r.platz) !== null).sort((a, b) => stNum(a.platz) - stNum(b.platz)).slice(0, 3);
+  document.getElementById("standingsAwardTop3Drivers").innerHTML = top3d.length ? top3d.map(r => `<li>${r.fahrer} <span style="color:rgba(199,204,212,.55)">(${stTeamMeta(r.team).name})</span> <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte, 0)} pts</span></li>`).join("") : (isCurrent ? pendingMsg : noDataMsg);
+  document.getElementById("standingsAwardTop3Teams").innerHTML = top3t.length ? top3t.map(r => `<li>${stTeamCell(r.team)} <span style="color:rgba(199,204,212,.55)">— ${stFmt(r.punkte, 0)} pts</span></li>`).join("") : (isCurrent ? pendingMsg : noDataMsg);
   const awardLabels = {
     DOTY: "Driver of the Year",
     NOTY: "Newcomer of the Year",
     FAIRPLAY: "Fairplay Award",
     BEST_SUB: "Best Sub Award"
   };
-  const yearAwards = STANDINGS_SEASON_DATA && STANDINGS_SEASON_DATA.seasonAwards ? STANDINGS_SEASON_DATA.seasonAwards.filter(r => r.year === s) : [];
+  const yearAwards = isCurrent ? [] : (STANDINGS_SEASON_DATA && STANDINGS_SEASON_DATA.seasonAwards ? STANDINGS_SEASON_DATA.seasonAwards.filter(r => r.year === s) : []);
   const byAward = {};
   yearAwards.forEach(r => {
     (byAward[r.award] = byAward[r.award] || []).push(r.driver);
@@ -1965,7 +1967,8 @@ function renderStandingsAwards(s, drows, trows) {
   const order = [ "DOTY", "NOTY", "FAIRPLAY", "BEST_SUB" ];
   const list = order.map(key => {
     const names = byAward[key];
-    return `<li><span>${awardLabels[key]}</span><span class="who">${names ? names.join(", ") : "–"}</span></li>`;
+    const who = names ? names.join(", ") : (isCurrent ? "Determined after the season finishes" : "–");
+    return `<li><span>${awardLabels[key]}</span><span class="who">${who}</span></li>`;
   }).join("");
   document.getElementById("standingsAwardSeasonAwards").innerHTML = list;
 }
