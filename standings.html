@@ -1410,35 +1410,185 @@ const SEASON10_DRIVERS = [ {
 } ];
 
 const SEASON10_TEAMS = [ {
-  team: "Atomic"
+  platz: 1,
+  team: "Jackal",
+  punkte: 80,
+  dif: 0,
+  rennen: 2,
+  schnitt: 40.0,
+  wins: 1,
+  podium: 1,
+  top10: 2,
+  iotd: 0,
+  rating: 83.5
 }, {
-  team: "Auto Exotic"
+  platz: 2,
+  team: "Auto Exotic",
+  punkte: 76,
+  dif: 4,
+  rennen: 2,
+  schnitt: 38.0,
+  wins: 0,
+  podium: 0,
+  top10: 2,
+  iotd: 0,
+  rating: 81.5
 }, {
-  team: "Benny's"
+  platz: 3,
+  team: "Pegasus",
+  punkte: 66,
+  dif: 10,
+  rennen: 2,
+  schnitt: 33.0,
+  wins: 0,
+  podium: 0,
+  top10: 2,
+  iotd: 0,
+  rating: 78.5
 }, {
-  team: "Crowex"
+  platz: 4,
+  team: "Atomic",
+  punkte: 51,
+  dif: 15,
+  rennen: 2,
+  schnitt: 25.5,
+  wins: 0,
+  podium: 0,
+  top10: 1,
+  iotd: 0,
+  rating: 68.5
 }, {
-  team: "Estancia"
+  platz: 5,
+  team: "Xero Gas",
+  punkte: 47,
+  dif: 4,
+  rennen: 2,
+  schnitt: 23.5,
+  wins: 0,
+  podium: 1,
+  top10: 1,
+  iotd: 0,
+  rating: 68.5
 }, {
-  team: "Globe Oil"
+  platz: 6,
+  team: "MeTV",
+  punkte: 46,
+  dif: 1,
+  rennen: 1,
+  schnitt: 46.0,
+  wins: 0,
+  podium: 1,
+  top10: 1,
+  iotd: 0,
+  rating: null
 }, {
-  team: "Jackal"
+  platz: 7,
+  team: "Benny's",
+  punkte: 41,
+  dif: 5,
+  rennen: 2,
+  schnitt: 20.5,
+  wins: 0,
+  podium: 0,
+  top10: 1,
+  iotd: 0,
+  rating: 65.5
 }, {
-  team: "LS Customs"
+  platz: 7,
+  team: "Globe Oil",
+  punkte: 41,
+  dif: 0,
+  rennen: 2,
+  schnitt: 20.5,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 68.5
 }, {
-  team: "Maze Bank"
+  platz: 7,
+  team: "Meinmacht",
+  punkte: 41,
+  dif: 0,
+  rennen: 2,
+  schnitt: 20.5,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 68.5
 }, {
-  team: "Meinmacht"
+  platz: 10,
+  team: "Crowex",
+  punkte: 29,
+  dif: 12,
+  rennen: 2,
+  schnitt: 14.5,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 62.5
 }, {
-  team: "MeTV"
+  platz: 11,
+  team: "Estancia",
+  punkte: 27,
+  dif: 2,
+  rennen: 2,
+  schnitt: 13.5,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 57.0
 }, {
-  team: "Pegasus"
+  platz: 12,
+  team: "Pisswasser",
+  punkte: 18,
+  dif: 9,
+  rennen: 1,
+  schnitt: 18.0,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: null
 }, {
-  team: "Pisswasser"
+  platz: 13,
+  team: "Redwood",
+  punkte: 17,
+  dif: 1,
+  rennen: 2,
+  schnitt: 8.5,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 58.5
 }, {
-  team: "Redwood"
+  platz: 14,
+  team: "Maze Bank",
+  punkte: 16,
+  dif: 1,
+  rennen: 1,
+  schnitt: 16.0,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: null
 }, {
-  team: "Xero Gas"
+  platz: 15,
+  team: "LS Customs",
+  punkte: 14,
+  dif: 2,
+  rennen: 2,
+  schnitt: 7.0,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  iotd: 0,
+  rating: 57.0
 } ];
 
 const driverFullCols = [ {
@@ -1600,11 +1750,6 @@ const teamFullCols = [ {
   label: "Top 10",
   num: true,
   render: r => stFmt(r["top10"], 0)
-}, {
-  key: "totd",
-  label: "TOTD",
-  num: true,
-  render: r => stFmt(r["totd"], 0)
 }, {
   key: "iotd",
   label: "IOTD",
