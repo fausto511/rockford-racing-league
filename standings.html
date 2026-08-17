@@ -112,6 +112,7 @@
       <nav class="subtabs">
         <button data-subtab="drivers" class="active">Drivers</button>
         <button data-subtab="teams">Teams</button>
+        <button data-subtab="substitutes">Substitutes</button>
         <button data-subtab="awards">Awards</button>
       </nav>
     </div>
@@ -142,6 +143,18 @@
         </div>
       </div>
       <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsTeams"></div></div></div>
+    </div>
+    <div class="subpanel" id="panel-substitutes">
+      <div class="toolbar">
+        <input type="text" id="filterStandingsSubs" placeholder="Search substitute…">
+        <span class="count" id="countStandingsSubs"></span>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll-pad">
+        <table class="season-table" id="tblStandingsSubs"></table>
+        </div>
+      </div>
+      <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumbStandingsSubs"></div></div></div>
     </div>
     <div class="subpanel" id="panel-awards">
       <div class="award-grid">
@@ -223,6 +236,7 @@
       requestAnimationFrame(() => {
         updateStandingsDriversThumb();
         updateStandingsTeamsThumb();
+        if (typeof updateStandingsSubsThumb === "function") updateStandingsSubsThumb();
       });
     }
   });
@@ -535,6 +549,11 @@ function stTeamCell(name) {
   if (!name) return "–";
   const m = stTeamMeta(name);
   return `<a class="team-cell" href="compare.html?type=team&amp;a=${encodeURIComponent(name)}"><span class="dot" style="background:${m.primary}"></span>${m.name}</a>`;
+}
+
+function stSubCell(name) {
+  if (!name) return "–";
+  return `<span class="driver-cell">${name}</span>`;
 }
 
 function stMakeSortableTable(tableEl, rows, initialCols, opts) {
@@ -1591,6 +1610,64 @@ const SEASON10_TEAMS = [ {
   rating: 57.0
 } ];
 
+const SEASON10_SUBS = [ {
+  platz: 1,
+  fahrer: "papaschulz95",
+  punkte: 23,
+  rennen: 1,
+  schnitt: 23.0,
+  beste_pos: 11,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  poles: 0,
+  hotlaps: 0,
+  dotd: 0,
+  rating: null
+}, {
+  platz: 2,
+  fahrer: "Blackow1234",
+  punkte: 17,
+  rennen: 1,
+  schnitt: 17.0,
+  beste_pos: 17,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  poles: 0,
+  hotlaps: 0,
+  dotd: 0,
+  rating: null
+}, {
+  platz: 3,
+  fahrer: "menphin",
+  punkte: 9,
+  rennen: 1,
+  schnitt: 9.0,
+  beste_pos: 22,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  poles: 0,
+  hotlaps: 0,
+  dotd: 0,
+  rating: null
+}, {
+  platz: 4,
+  fahrer: "Trinity_obannion",
+  punkte: 5,
+  rennen: 1,
+  schnitt: 5.0,
+  beste_pos: 26,
+  wins: 0,
+  podium: 0,
+  top10: 0,
+  poles: 0,
+  hotlaps: 0,
+  dotd: 0,
+  rating: null
+} ];
+
 const driverFullCols = [ {
   key: "platz",
   label: "#",
@@ -1843,6 +1920,67 @@ const teamCompactCols = [ {
   render: r => stFmt(r["top10"], 0)
 }, stRatingCol("rating", "Rating") ];
 
+const subCols = [ {
+  key: "platz",
+  label: "#",
+  num: true,
+  render: r => stFmt(r["platz"], 0)
+}, {
+  key: "fahrer",
+  label: "Driver",
+  render: r => stSubCell(r["fahrer"])
+}, {
+  key: "punkte",
+  label: "Points",
+  num: true,
+  render: r => stFmt(r["punkte"], 0)
+}, {
+  key: "rennen",
+  label: "Races",
+  num: true,
+  render: r => stFmt(r["rennen"], 0)
+}, {
+  key: "schnitt",
+  label: "Avg",
+  num: true,
+  render: r => stFmt(r["schnitt"], 1)
+}, {
+  key: "beste_pos",
+  label: "Best Pos",
+  num: true,
+  render: r => stFmt(r["beste_pos"], 0)
+}, {
+  key: "wins",
+  label: "Wins",
+  num: true,
+  render: r => stFmt(r["wins"], 0)
+}, {
+  key: "podium",
+  label: "Podium",
+  num: true,
+  render: r => stFmt(r["podium"], 0)
+}, {
+  key: "top10",
+  label: "Top 10",
+  num: true,
+  render: r => stFmt(r["top10"], 0)
+}, {
+  key: "poles",
+  label: "Poles",
+  num: true,
+  render: r => stFmt(r["poles"], 0)
+}, {
+  key: "hotlaps",
+  label: "Hotlaps",
+  num: true,
+  render: r => stFmt(r["hotlaps"], 0)
+}, {
+  key: "dotd",
+  label: "DOTD",
+  num: true,
+  render: r => stFmt(r["dotd"], 0)
+}, stRatingCol("rating", "Rating") ];
+
 function stWireScrollThumb(cardEl, thumbEl) {
   if (!cardEl || !thumbEl) return function() {};
   function update() {
@@ -1911,7 +2049,9 @@ const updateStandingsDriversThumb = stWireScrollThumb(document.getElementById("t
 
 const updateStandingsTeamsThumb = stWireScrollThumb(document.getElementById("tblStandingsTeams").closest(".table-card"), document.getElementById("thumbStandingsTeams"));
 
-let standingsDriversTable, standingsTeamsTable;
+const updateStandingsSubsThumb = stWireScrollThumb(document.getElementById("tblStandingsSubs").closest(".table-card"), document.getElementById("thumbStandingsSubs"));
+
+let standingsDriversTable, standingsTeamsTable, standingsSubsTable;
 
 const standingsSeasonSel = stInitCustomSelect("standingsSeasonSelect", "Choose a season");
 
@@ -1929,6 +2069,7 @@ function loadStandingsSeason() {
   const isCurrent = s === "S10";
   const drows = isCurrent ? SEASON10_DRIVERS : STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.driversSeason.filter(r => r.season === s) : [];
   const trows = isCurrent ? SEASON10_TEAMS : STANDINGS_SEASON_DATA ? STANDINGS_SEASON_DATA.teamsSeason.filter(r => r.season === s) : [];
+  const srows = isCurrent ? SEASON10_SUBS : STANDINGS_SEASON_DATA && STANDINGS_SEASON_DATA.subsSeason ? STANDINGS_SEASON_DATA.subsSeason.filter(r => r.season === s) : [];
   const dCols = showingFullStandings ? driverFullCols : driverCompactCols;
   const tCols = showingFullStandings ? teamFullCols : teamCompactCols;
   standingsDriversTable = stMakeSortableTable(document.getElementById("tblStandingsDrivers"), drows, dCols, {
@@ -1941,9 +2082,15 @@ function loadStandingsSeason() {
     defaultDir: "asc",
     onRender: n => document.getElementById("countStandingsTeams").textContent = n + " teams"
   });
+  standingsSubsTable = stMakeSortableTable(document.getElementById("tblStandingsSubs"), srows, subCols, {
+    defaultSort: "platz",
+    defaultDir: "asc",
+    onRender: n => document.getElementById("countStandingsSubs").textContent = n + " substitutes"
+  });
   renderStandingsAwards(s, drows, trows, isCurrent);
   updateStandingsDriversThumb();
   updateStandingsTeamsThumb();
+  updateStandingsSubsThumb();
 }
 
 function renderStandingsAwards(s, drows, trows, isCurrent) {
@@ -1993,6 +2140,16 @@ function applyStandingsTeamsFilter() {
   standingsTeamsTable.setRows(trows);
 }
 
+function applyStandingsSubsFilter() {
+  const q = document.getElementById("filterStandingsSubs").value.trim().toUpperCase();
+  if (!q) return;
+  const s = standingsSeasonSel.getValue() || "S10";
+  const isCurrent = s === "S10";
+  const baseRows = isCurrent ? SEASON10_SUBS : STANDINGS_SEASON_DATA && STANDINGS_SEASON_DATA.subsSeason ? STANDINGS_SEASON_DATA.subsSeason.filter(r => r.season === s) : [];
+  const srows = baseRows.filter(r => (r.fahrer || "").toUpperCase().includes(q));
+  standingsSubsTable.setRows(srows);
+}
+
 function setStandingsColToggleLabel(btn) {
   btn.innerHTML = showingFullStandings ? '<span class="dot"></span>Compact view' : '<span class="dot"></span>All columns';
 }
@@ -2009,6 +2166,8 @@ function toggleFullStandings() {
 document.getElementById("filterStandingsDrivers").addEventListener("input", applyStandingsDriversFilter);
 
 document.getElementById("filterStandingsTeams").addEventListener("input", applyStandingsTeamsFilter);
+
+document.getElementById("filterStandingsSubs").addEventListener("input", applyStandingsSubsFilter);
 
 document.getElementById("toggleStandingsCols").addEventListener("click", toggleFullStandings);
 
