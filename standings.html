@@ -2172,6 +2172,20 @@ standingsSeasonSel.onChange(loadStandingsSeason);
 
 loadStandingsSeason();
 
+(function applyStandingsURLParams() {
+  const params = new URLSearchParams(location.search);
+  const season = params.get("season");
+  if (season) {
+    standingsSeasonSel.setValue(season);
+    loadStandingsSeason();
+  }
+  const tab = params.get("tab");
+  if (tab) {
+    const btn = document.querySelector(`.subtabs button[data-subtab="${tab}"]`);
+    if (btn) btn.click();
+  }
+})();
+
 function stApplyStandingsWorkbook(wb) {
   const sheetToObjects = name => {
     const ws = wb.Sheets[name];
