@@ -1967,7 +1967,7 @@ function renderStandingsAwards(s, drows, trows, isCurrent) {
   const order = [ "DOTY", "NOTY", "FAIRPLAY", "BEST_SUB" ];
   const list = order.map(key => {
     const names = byAward[key];
-    const who = names ? names.join(", ") : (isCurrent ? "Determined after the season finishes" : "–");
+    const who = names ? names.join(", ") : (isCurrent ? "TBD" : "–");
     return `<li><span>${awardLabels[key]}</span><span class="who">${who}</span></li>`;
   }).join("");
   document.getElementById("standingsAwardSeasonAwards").innerHTML = list;
