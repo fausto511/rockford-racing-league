@@ -551,14 +551,6 @@ function stTeamCell(name) {
   return `<a class="team-cell" href="compare.html?type=team&amp;a=${encodeURIComponent(name)}"><span class="dot" style="background:${m.primary}"></span>${m.name}</a>`;
 }
 
-function stSubCell(name, allTimeKey) {
-  if (!name) return "–";
-  if (allTimeKey) {
-    return `<a class="driver-cell" href="compare.html?type=driver&amp;a=${encodeURIComponent(allTimeKey)}">${name}</a>`;
-  }
-  return `<span class="driver-cell">${name}</span>`;
-}
-
 function stMakeSortableTable(tableEl, rows, initialCols, opts) {
   opts = opts || {};
   let cols = initialCols;
@@ -1616,7 +1608,6 @@ const SEASON10_TEAMS = [ {
 const SEASON10_SUBS = [ {
   platz: 1,
   fahrer: "PAPASCHULZ",
-  allTimeKey: "PAPASCHULZ",
   punkte: 23,
   rennen: 1,
   schnitt: 23.0,
@@ -1645,7 +1636,6 @@ const SEASON10_SUBS = [ {
 }, {
   platz: 3,
   fahrer: "MENPHIN",
-  allTimeKey: "MENPHIN",
   punkte: 9,
   rennen: 1,
   schnitt: 9.0,
@@ -1933,7 +1923,7 @@ const subCols = [ {
 }, {
   key: "fahrer",
   label: "Driver",
-  render: r => stSubCell(r["fahrer"], r["allTimeKey"])
+  render: r => stDriverCell(r["fahrer"])
 }, {
   key: "punkte",
   label: "Points",
