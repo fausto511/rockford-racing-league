@@ -478,7 +478,7 @@ const VEHICLE_COLS = [
 function initCategory(cat, csSlug, subclasses) {
   const rowsAll = VEHICLES.filter(v => v.category === cat);
   const tableEl = document.getElementById('tbl-' + csSlug);
-  const table = makeSortableTable(tableEl, rowsAll, VEHICLE_COLS, { defaultSort: 'price', defaultDir: 'desc' });
+  const table = makeSortableTable(tableEl, rowsAll, VEHICLE_COLS, { defaultSort: 'name', defaultDir: 'asc' });
   const searchEl = document.getElementById('search-' + csSlug);
   const countEl = document.getElementById('count-' + csSlug);
   const subtabGroup = document.getElementById('subtabs-' + csSlug);
