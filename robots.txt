@@ -1,34 +1,56 @@
 User-agent: *
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: GPTBot
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: Claude-Web
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: CCBot
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 User-agent: Bytespider
 Allow: /
+Disallow: /privacy-policy.html
+Disallow: /legal-notice.html
 
 Sitemap: https://fausto511.github.io/rockford-racing-league/sitemap.xml
