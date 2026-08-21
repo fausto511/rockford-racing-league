@@ -1,0 +1,29 @@
+# Rockford Racing League (RRL)
+
+> Competitive GTA V racing league, running since 2017. Official hub for race schedules, driver and team standings, all-time stats, rules, and community contact.
+
+The RRL organizes seasonal GTA V racing competitions across multiple vehicle classes, tracking driver and team results season by season and all-time.
+
+## Core pages
+
+- [Home](https://fausto511.github.io/rockford-racing-league/index.html): league overview, latest news, and highlights.
+- [Schedule](https://fausto511.github.io/rockford-racing-league/schedule.html): upcoming and past race dates.
+- [Standings](https://fausto511.github.io/rockford-racing-league/standings.html): current and historical season standings for drivers, teams, and substitute drivers.
+- [Stats](https://fausto511.github.io/rockford-racing-league/stats.html): league-wide statistics.
+- [Teams](https://fausto511.github.io/rockford-racing-league/teams.html): current team lineup.
+- [Team detail](https://fausto511.github.io/rockford-racing-league/team.html): individual team pages with roster and results.
+- [Compare](https://fausto511.github.io/rockford-racing-league/compare.html): head-to-head driver and team comparisons using all-time stats.
+- [Hall of Fame](https://fausto511.github.io/rockford-racing-league/halloffame.html): all-time driver and team records.
+- [Vehicles](https://fausto511.github.io/rockford-racing-league/vehicles.html): approved vehicle classes and technical specs.
+- [Tracks](https://fausto511.github.io/rockford-racing-league/tracks.html): race tracks used by the league.
+- [Commission](https://fausto511.github.io/rockford-racing-league/commission.html): league staff and their roles.
+- [Resources](https://fausto511.github.io/rockford-racing-league/resources.html): rules and reference material for drivers.
+- [FAQ](https://fausto511.github.io/rockford-racing-league/faq.html): frequently asked questions.
+- [Media](https://fausto511.github.io/rockford-racing-league/media.html): featured videos and media coverage.
+- [Rain Forecast](https://fausto511.github.io/rockford-racing-league/rainforecast.html): weather conditions relevant to race days.
+- [Contact](https://fausto511.github.io/rockford-racing-league/contact.html): how to reach the league.
+
+## Notes
+
+- All standings, stats, and records reflect the league's own recorded race results.
+- Full sitemap: https://fausto511.github.io/rockford-racing-league/sitemap.xml
