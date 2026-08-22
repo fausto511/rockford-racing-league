@@ -65,6 +65,28 @@
 .msel-menu label:hover{background:rgba(245,246,248,.07)}
 .msel-menu input[type=checkbox]{accent-color:var(--cyan);width:15px;height:15px;cursor:pointer}
 @media (max-width:700px){.filter-field,.range-field{min-width:100%}.filter-reset{width:100%;text-align:center}.msel{width:100%}.msel-trigger{width:100%;justify-content:space-between}.msel-menu{left:0;right:0;min-width:0}}
+.cmp-select{position:relative;min-width:230px}
+.cmp-select-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,246,248,.05);border:1px solid rgba(245,246,248,.2);color:var(--white);padding:13px 18px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.02em;cursor:pointer;text-align:left}
+.cmp-select-btn:hover,.cmp-select.open .cmp-select-btn{border-color:rgba(245,246,248,.4)}
+.cmp-select-btn .cmp-select-value.placeholder{color:var(--grey)}
+.cmp-select-btn .arrow{color:var(--grey);font-size:10px;transition:transform .15s ease;flex:0 0 auto}
+.cmp-select.open .cmp-select-btn .arrow{transform:rotate(180deg)}
+.cmp-select-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#14161c;border:1px solid rgba(245,246,248,.16);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:60;overflow:hidden}
+.cmp-select-search{padding:10px;border-bottom:1px solid rgba(245,246,248,.1)}
+.cmp-select-search input{width:100%;background:rgba(245,246,248,.06);border:1px solid rgba(245,246,248,.16);color:var(--white);border-radius:999px;padding:9px 14px;font-family:'Source Sans 3',sans-serif;font-size:13px}
+.cmp-select-search input::placeholder{color:rgba(199,204,212,.5)}
+.cmp-select-options{list-style:none;max-height:270px;overflow-y:auto;padding:6px;scrollbar-width:thin;scrollbar-color:rgba(245,246,248,.28) transparent}
+.cmp-select-options::-webkit-scrollbar{width:8px}
+.cmp-select-options::-webkit-scrollbar-track{background:0 0}
+.cmp-select-options::-webkit-scrollbar-thumb{background:rgba(245,246,248,.22);border-radius:4px}
+.cmp-select-options::-webkit-scrollbar-thumb:hover{background:rgba(245,246,248,.35)}
+.cmp-select-option{padding:10px 14px;border-radius:10px;font-family:'Chakra Petch',sans-serif;font-size:13px;color:var(--white);cursor:pointer}
+.cmp-select-option.cmp-select-clear{color:var(--grey)}
+.cmp-select-option.hot,.cmp-select-option:hover{background:rgba(62,225,232,.12);color:var(--cyan)}
+.cmp-select-option.selected{font-weight:700;color:var(--cyan)}
+.cmp-select-empty{padding:16px;color:var(--grey);font-size:12.5px;text-align:center}
+.cmp-select.cmp-select-sm{min-width:200px}
+.cmp-select.cmp-select-sm .cmp-select-btn{padding:8px 14px;font-size:12px}
 </style>
 </head>
 <body>
@@ -146,12 +168,8 @@
     <div class="filter-panel">
       <div class="filter-row">
         <div class="filter-field" style="min-width:200px">
-          <label for="filter-raced">Already Raced</label>
-          <select id="filter-raced">
-            <option value="">All</option>
-            <option value="yes">Already Raced</option>
-            <option value="no">Not Raced Yet</option>
-          </select>
+          <label>Already Raced</label>
+          <div id="filter-raced" class="cmp-select-sm"></div>
         </div>
         <div class="msel" id="region-msel">
           <button type="button" class="msel-trigger" id="region-msel-trigger">
@@ -829,7 +847,88 @@ document.addEventListener("click", (e) => {
   }
 });
 
-const filterRacedEl = document.getElementById("filter-raced");
+// Custom single-select component, matching the one already used on stats.html/standings.html (initCustomSelect)
+// so dropdowns look consistent site-wide instead of falling back to the plain browser <select>.
+function initCustomSelect(id, ariaLabel, opts) {
+  opts = opts || {};
+  const placeholder = opts.placeholder || "— Choose —";
+  const showSearch = !opts.hideSearch;
+  const root = document.getElementById(id);
+  root.classList.add("cmp-select");
+  root.innerHTML = `\n    <button type="button" class="cmp-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${ariaLabel}">\n      <span class="cmp-select-value placeholder">${placeholder}</span>\n      <span class="arrow">▾</span>\n    </button>\n    <div class="cmp-select-panel" hidden>\n      ${showSearch ? `<div class="cmp-select-search"><input type="text" placeholder="Search…" autocomplete="off"></div>` : ""}\n      <ul class="cmp-select-options" role="listbox"></ul>\n    </div>`;
+  const btn = root.querySelector(".cmp-select-btn");
+  const btnLabel = root.querySelector(".cmp-select-value");
+  const panel = root.querySelector(".cmp-select-panel");
+  const search = root.querySelector(".cmp-select-search input");
+  const list = root.querySelector(".cmp-select-options");
+  let items = [];
+  let value = "";
+  let changeCb = null;
+  function normalize(newItems) {
+    return (newItems || []).map(it => typeof it === "string" ? { value: it, label: it } : it);
+  }
+  function renderList(filterText) {
+    const q = (filterText || "").trim().toLowerCase();
+    const filtered = q ? items.filter(it => ("" + it.label).toLowerCase().includes(q)) : items;
+    const optList = [`<li class="cmp-select-option cmp-select-clear" data-value="">${placeholder}</li>`].concat(filtered.map(it => `<li class="cmp-select-option${it.value === value ? " selected" : ""}" data-value="${it.value}">${it.label}</li>`));
+    list.innerHTML = filtered.length || !q ? optList.join("") : optList.join("") + '<li class="cmp-select-empty">No matches</li>';
+  }
+  function setLabel(v) {
+    const found = items.find(it => it.value === v);
+    const lbl = found ? found.label : "";
+    btnLabel.textContent = lbl || placeholder;
+    btnLabel.classList.toggle("placeholder", !lbl);
+  }
+  function open() {
+    panel.hidden = false;
+    root.classList.add("open");
+    btn.setAttribute("aria-expanded", "true");
+    if (search) search.value = "";
+    renderList("");
+    if (search) search.focus();
+  }
+  function close() {
+    panel.hidden = true;
+    root.classList.remove("open");
+    btn.setAttribute("aria-expanded", "false");
+  }
+  function select(v) {
+    value = v;
+    setLabel(v);
+    close();
+    if (changeCb) changeCb(value);
+  }
+  btn.addEventListener("click", () => { panel.hidden ? open() : close(); });
+  if (search) {
+    search.addEventListener("input", () => renderList(search.value));
+    search.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const first = list.querySelector(".cmp-select-option:not(.cmp-select-clear)");
+        select(first ? first.dataset.value : "");
+        e.preventDefault();
+      } else if (e.key === "Escape") close();
+    });
+  }
+  list.addEventListener("click", e => {
+    const li = e.target.closest(".cmp-select-option");
+    if (li) select(li.dataset.value);
+  });
+  document.addEventListener("click", e => { if (!root.contains(e.target)) close(); });
+  return {
+    setOptions(newItems) { items = normalize(newItems); },
+    setValue(v) { value = v || ""; setLabel(value); },
+    getValue() { return value; },
+    onChange(cb) { changeCb = cb; }
+  };
+}
+
+const racedSelect = initCustomSelect("filter-raced", "Already Raced", { hideSearch: true, placeholder: "All" });
+racedSelect.setOptions([
+  { value: "yes", label: "Already Raced" },
+  { value: "no", label: "Not Raced Yet" }
+]);
+racedSelect.setValue("");
+racedSelect.onChange(() => applyTrackFilters());
 
 // Class filter buttons. Multi-select (AND): a track must support every selected class.
 const classFilterEl = document.getElementById("class-filter");
@@ -895,7 +994,7 @@ const DEFAULT_RATING_RANGE = [5, 10];
 
 function applyTrackFilters() {
   const q = (searchElTracks.value || "").trim().toLowerCase();
-  const raced = filterRacedEl.value;
+  const raced = racedSelect.getValue();
   const [distLo, distHi] = distanceRange.getRange();
   const [ratLo, ratHi] = ratingRange.getRange();
   const filtered = TRACKS.filter(t => {
@@ -925,10 +1024,9 @@ function applyTrackFilters() {
 }
 
 searchElTracks.addEventListener("input", applyTrackFilters);
-filterRacedEl.addEventListener("change", applyTrackFilters);
 document.getElementById("filter-reset").addEventListener("click", () => {
   searchElTracks.value = "";
-  filterRacedEl.value = "";
+  racedSelect.setValue("");
   activeClasses.clear();
   activeTypes.clear();
   activeRegions.clear();
