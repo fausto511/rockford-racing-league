@@ -42,10 +42,10 @@
 .range-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:15px;height:15px;border-radius:50%;background:var(--cyan);cursor:pointer;margin-top:-5.5px;box-shadow:0 0 0 3px var(--bg)}
 .range-slider input[type=range]::-moz-range-track{height:4px;background:transparent;border:none}
 .range-slider input[type=range]::-moz-range-thumb{pointer-events:auto;width:15px;height:15px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;box-shadow:0 0 0 3px var(--bg)}
-.class-filter{display:flex;flex-wrap:wrap;gap:8px}
-.class-filter button{background:0 0;color:var(--text-secondary);border:1px solid var(--border);padding:7px 14px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
-.class-filter button.active{background:var(--cyan);color:#06282a;border-color:var(--cyan)}
-.class-filter button:hover:not(.active){border-color:rgba(245,246,248,.4);color:var(--white)}
+.class-filter,.pill-filter{display:flex;flex-wrap:wrap;gap:8px}
+.class-filter button,.pill-filter button{background:0 0;color:var(--text-secondary);border:1px solid var(--border);padding:7px 14px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
+.class-filter button.active,.pill-filter button.active{background:var(--cyan);color:#06282a;border-color:var(--cyan)}
+.class-filter button:hover:not(.active),.pill-filter button:hover:not(.active){border-color:rgba(245,246,248,.4);color:var(--white)}
 @media (max-width:700px){.filter-field,.range-field{min-width:100%}.filter-reset{width:100%;text-align:center}}
 </style>
 </head>
@@ -121,15 +121,7 @@
 
   <div class="filter-panel">
     <div class="filter-row">
-      <div class="filter-field">
-        <label for="filter-type">Type</label>
-        <select id="filter-type"><option value="">All Types</option></select>
-      </div>
-      <div class="filter-field">
-        <label for="filter-region">Region</label>
-        <select id="filter-region"><option value="">All Regions</option></select>
-      </div>
-      <div class="filter-field">
+      <div class="filter-field" style="min-width:200px">
         <label for="filter-raced">Already Raced</label>
         <select id="filter-raced">
           <option value="">All</option>
@@ -138,6 +130,18 @@
         </select>
       </div>
       <button type="button" class="filter-reset" id="filter-reset">Reset Filters</button>
+    </div>
+    <div class="filter-row">
+      <div class="filter-field" style="min-width:100%">
+        <label>Type &mdash; select any number, track must match one</label>
+        <div class="pill-filter" id="type-filter"></div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-field" style="min-width:100%">
+        <label>Region &mdash; select any number, track must match one</label>
+        <div class="pill-filter" id="region-filter"></div>
+      </div>
     </div>
     <div class="filter-row">
       <div class="range-field">
@@ -737,28 +741,44 @@ const CLASS_FIELDS = [
   { key: "offroad", label: "Offroad" }
 ];
 const activeClasses = new Set();
+const activeTypes = new Set();
+const activeRegions = new Set();
 
-// Type options, derived live from the data so this never drifts out of sync.
-const filterTypeEl = document.getElementById("filter-type");
-Array.from(new Set(TRACKS.map(t => t.type).filter(Boolean))).sort((a, b) => a.localeCompare(b)).forEach(type => {
-  const opt = document.createElement("option");
-  opt.value = type;
-  opt.textContent = type;
-  filterTypeEl.appendChild(opt);
-});
+// Generic pill-button multi-select builder: any number of options may be active at once (OR logic).
+function buildPillMultiSelect(containerEl, options, activeSet) {
+  options.forEach(value => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = value;
+    btn.dataset.value = value;
+    btn.addEventListener("click", () => {
+      if (activeSet.has(value)) { activeSet.delete(value); btn.classList.remove("active"); }
+      else { activeSet.add(value); btn.classList.add("active"); }
+      applyTrackFilters();
+    });
+    containerEl.appendChild(btn);
+  });
+}
 
-// Region options: trim whitespace so e.g. "Rockford" and "Rockford " (a data typo) collapse into one entry.
-const filterRegionEl = document.getElementById("filter-region");
-Array.from(new Set(TRACKS.map(t => (t.region || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b)).forEach(region => {
-  const opt = document.createElement("option");
-  opt.value = region;
-  opt.textContent = region;
-  filterRegionEl.appendChild(opt);
-});
+// Type options, derived live from the data so this never drifts out of sync. Multi-select (OR): a track matches if its type is any of the selected ones.
+const typeFilterEl = document.getElementById("type-filter");
+buildPillMultiSelect(
+  typeFilterEl,
+  Array.from(new Set(TRACKS.map(t => t.type).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+  activeTypes
+);
+
+// Region options: trim whitespace so e.g. "Rockford" and "Rockford " (a data typo) collapse into one entry. Multi-select (OR).
+const regionFilterEl = document.getElementById("region-filter");
+buildPillMultiSelect(
+  regionFilterEl,
+  Array.from(new Set(TRACKS.map(t => (t.region || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+  activeRegions
+);
 
 const filterRacedEl = document.getElementById("filter-raced");
 
-// Class filter buttons.
+// Class filter buttons. Multi-select (AND): a track must support every selected class.
 const classFilterEl = document.getElementById("class-filter");
 CLASS_FIELDS.forEach(c => {
   const btn = document.createElement("button");
@@ -773,48 +793,51 @@ CLASS_FIELDS.forEach(c => {
   classFilterEl.appendChild(btn);
 });
 
-// Dual-range slider setup, bounds derived live from the data.
-function setupRangeFilter(minEl, maxEl, fillEl, valueEl, dataMin, dataMax, step, fmt) {
-  [minEl, maxEl].forEach(el => { el.min = dataMin; el.max = dataMax; el.step = step; });
-  minEl.value = dataMin;
-  maxEl.value = dataMax;
+// Dual-range slider setup. Bounds are fixed, round numbers (not derived from the data), per explicit request.
+// Distance's upper handle is treated as "10+ km" (unbounded) at its max position, since one track (Alamo RX, 11.81 km)
+// exceeds 10 km — this keeps that track reachable instead of silently hiding it behind a hard 10 km cap.
+function setupRangeFilter(minEl, maxEl, fillEl, valueEl, rangeMin, rangeMax, step, fmt, unboundedLabelAtMax) {
+  [minEl, maxEl].forEach(el => { el.min = rangeMin; el.max = rangeMax; el.step = step; });
+  minEl.value = rangeMin;
+  maxEl.value = rangeMax;
   function updateVisual(movedEl) {
     let lo = parseFloat(minEl.value), hi = parseFloat(maxEl.value);
     if (lo > hi) { if (movedEl === minEl) { hi = lo; maxEl.value = hi; } else { lo = hi; minEl.value = lo; } }
-    const span = dataMax - dataMin || 1;
-    fillEl.style.left = ((lo - dataMin) / span * 100) + "%";
+    const span = rangeMax - rangeMin || 1;
+    fillEl.style.left = ((lo - rangeMin) / span * 100) + "%";
     fillEl.style.width = ((hi - lo) / span * 100) + "%";
-    valueEl.textContent = fmt(lo) + " – " + fmt(hi);
+    const hiLabel = (unboundedLabelAtMax && hi >= rangeMax) ? unboundedLabelAtMax : fmt(hi);
+    valueEl.textContent = fmt(lo) + " – " + hiLabel;
   }
   function onInput(e) { updateVisual(e.target); applyTrackFilters(); }
   minEl.addEventListener("input", onInput);
   maxEl.addEventListener("input", onInput);
   updateVisual(minEl);
   return {
-    getRange: () => [parseFloat(minEl.value), parseFloat(maxEl.value)],
-    reset: () => { minEl.value = dataMin; maxEl.value = dataMax; updateVisual(minEl); }
+    getRange: () => {
+      let hi = parseFloat(maxEl.value);
+      if (unboundedLabelAtMax && hi >= rangeMax) hi = Infinity;
+      return [parseFloat(minEl.value), hi];
+    },
+    reset: () => { minEl.value = rangeMin; maxEl.value = rangeMax; updateVisual(minEl); }
   };
 }
 
-const distanceValues = TRACKS.map(t => t.distance).filter(v => v !== null && v !== undefined);
-const ratingValues = TRACKS.map(t => t.rating).filter(v => v !== null && v !== undefined);
 const distanceRange = setupRangeFilter(
   document.getElementById("distance-min"), document.getElementById("distance-max"),
   document.getElementById("distance-fill"), document.getElementById("distance-value"),
-  Math.min(...distanceValues), Math.max(...distanceValues), 0.01,
-  v => v.toFixed(2) + " km"
+  0, 10, 0.1,
+  v => v.toFixed(1) + " km", "10+ km"
 );
 const ratingRange = setupRangeFilter(
   document.getElementById("rating-min"), document.getElementById("rating-max"),
   document.getElementById("rating-fill"), document.getElementById("rating-value"),
-  Math.min(...ratingValues), Math.max(...ratingValues), 0.1,
-  v => v.toFixed(1)
+  1, 10, 0.1,
+  v => v.toFixed(1), null
 );
 
 function applyTrackFilters() {
   const q = (searchElTracks.value || "").trim().toLowerCase();
-  const type = filterTypeEl.value;
-  const region = filterRegionEl.value;
   const raced = filterRacedEl.value;
   const [distLo, distHi] = distanceRange.getRange();
   const [ratLo, ratHi] = ratingRange.getRange();
@@ -823,8 +846,8 @@ function applyTrackFilters() {
       const haystack = (t.title + " " + (t.region || "") + " " + (t.creator || "")).toLowerCase();
       if (!haystack.includes(q)) return false;
     }
-    if (type && t.type !== type) return false;
-    if (region && (t.region || "").trim() !== region) return false;
+    if (activeTypes.size && !activeTypes.has(t.type)) return false;
+    if (activeRegions.size && !activeRegions.has((t.region || "").trim())) return false;
     if (raced === "yes" && !t.raced) return false;
     if (raced === "no" && t.raced) return false;
     if (t.distance !== null && t.distance !== undefined && (t.distance < distLo || t.distance > distHi)) return false;
@@ -837,16 +860,16 @@ function applyTrackFilters() {
 }
 
 searchElTracks.addEventListener("input", applyTrackFilters);
-filterTypeEl.addEventListener("change", applyTrackFilters);
-filterRegionEl.addEventListener("change", applyTrackFilters);
 filterRacedEl.addEventListener("change", applyTrackFilters);
 document.getElementById("filter-reset").addEventListener("click", () => {
   searchElTracks.value = "";
-  filterTypeEl.value = "";
-  filterRegionEl.value = "";
   filterRacedEl.value = "";
   activeClasses.clear();
+  activeTypes.clear();
+  activeRegions.clear();
   classFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  typeFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  regionFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
   distanceRange.reset();
   ratingRange.reset();
   applyTrackFilters();
