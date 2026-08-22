@@ -978,8 +978,8 @@ function setupRangeFilter(minEl, maxEl, fillEl, valueEl, rangeMin, rangeMax, ste
 const distanceRange = setupRangeFilter(
   document.getElementById("distance-min"), document.getElementById("distance-max"),
   document.getElementById("distance-fill"), document.getElementById("distance-value"),
-  0, 15, 0.1,
-  v => v.toFixed(1) + " km", "15+ km"
+  0, 10, 0.1,
+  v => v.toFixed(1) + " km", "10+ km"
 );
 const ratingRange = setupRangeFilter(
   document.getElementById("rating-min"), document.getElementById("rating-max"),
