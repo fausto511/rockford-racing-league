@@ -46,7 +46,25 @@
 .class-filter button,.pill-filter button{background:0 0;color:var(--text-secondary);border:1px solid var(--border);padding:7px 14px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
 .class-filter button.active,.pill-filter button.active{background:var(--cyan);color:#06282a;border-color:var(--cyan)}
 .class-filter button:hover:not(.active),.pill-filter button:hover:not(.active){border-color:rgba(245,246,248,.4);color:var(--white)}
-@media (max-width:700px){.filter-field,.range-field{min-width:100%}.filter-reset{width:100%;text-align:center}}
+.filter-details{margin-bottom:16px}
+.filter-details .filter-panel{margin-bottom:0;margin-top:10px}
+.filter-summary{list-style:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:var(--surface-1);border:1px solid rgba(245,246,248,.14);border-radius:999px;padding:10px 18px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-primary);user-select:none;width:fit-content}
+.filter-summary::-webkit-details-marker{display:none}
+.filter-summary:hover{border-color:rgba(245,246,248,.3)}
+.filter-summary-badge{background:var(--cyan);color:#06282a;border-radius:999px;padding:2px 9px;font-size:11px}
+.filter-summary-caret{transition:transform .18s ease;color:var(--text-muted)}
+.filter-details[open] .filter-summary-caret{transform:rotate(180deg)}
+.msel{position:relative}
+.msel-trigger{background:0 0;color:var(--text-secondary);border:1px solid var(--border);padding:9px 16px;border-radius:999px;font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;height:fit-content}
+.msel-trigger:hover{border-color:rgba(245,246,248,.4);color:var(--white)}
+.msel-trigger.active{border-color:var(--cyan);color:var(--cyan)}
+.msel-badge{background:var(--cyan);color:#06282a;border-radius:999px;padding:1px 8px;font-size:10.5px}
+.msel-caret{font-size:10px}
+.msel-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:220px;max-height:280px;overflow-y:auto;background:rgba(14,15,19,.98);border:1px solid rgba(245,246,248,.14);border-radius:12px;padding:8px;z-index:20;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.msel-menu label{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;font-size:13px;font-family:'Source Sans 3',sans-serif;color:var(--text-primary);cursor:pointer;white-space:nowrap}
+.msel-menu label:hover{background:rgba(245,246,248,.07)}
+.msel-menu input[type=checkbox]{accent-color:var(--cyan);width:15px;height:15px;cursor:pointer}
+@media (max-width:700px){.filter-field,.range-field{min-width:100%}.filter-reset{width:100%;text-align:center}.msel{width:100%}.msel-trigger{width:100%;justify-content:space-between}.msel-menu{left:0;right:0;min-width:0}}
 </style>
 </head>
 <body>
@@ -119,57 +137,64 @@
     <span class="count" id="count-tracks"></span>
   </div>
 
-  <div class="filter-panel">
-    <div class="filter-row">
-      <div class="filter-field" style="min-width:200px">
-        <label for="filter-raced">Already Raced</label>
-        <select id="filter-raced">
-          <option value="">All</option>
-          <option value="yes">Already Raced</option>
-          <option value="no">Not Raced Yet</option>
-        </select>
+  <details class="filter-details" id="filter-details">
+    <summary class="filter-summary">
+      <span class="filter-summary-label">Filters</span>
+      <span class="filter-summary-badge" id="filter-summary-badge" hidden></span>
+      <span class="filter-summary-caret" aria-hidden="true">&#9662;</span>
+    </summary>
+    <div class="filter-panel">
+      <div class="filter-row">
+        <div class="filter-field" style="min-width:200px">
+          <label for="filter-raced">Already Raced</label>
+          <select id="filter-raced">
+            <option value="">All</option>
+            <option value="yes">Already Raced</option>
+            <option value="no">Not Raced Yet</option>
+          </select>
+        </div>
+        <div class="msel" id="region-msel">
+          <button type="button" class="msel-trigger" id="region-msel-trigger">
+            Region <span class="msel-badge" id="region-msel-badge" hidden></span> <span class="msel-caret" aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="msel-menu" id="region-msel-menu" hidden></div>
+        </div>
+        <button type="button" class="filter-reset" id="filter-reset">Reset Filters</button>
       </div>
-      <button type="button" class="filter-reset" id="filter-reset">Reset Filters</button>
-    </div>
-    <div class="filter-row">
-      <div class="filter-field" style="min-width:100%">
-        <label>Type &mdash; select any number, track must match one</label>
-        <div class="pill-filter" id="type-filter"></div>
-      </div>
-    </div>
-    <div class="filter-row">
-      <div class="filter-field" style="min-width:100%">
-        <label>Region &mdash; select any number, track must match one</label>
-        <div class="pill-filter" id="region-filter"></div>
-      </div>
-    </div>
-    <div class="filter-row">
-      <div class="range-field">
-        <div class="range-head"><label>Distance</label><span class="range-value" id="distance-value"></span></div>
-        <div class="range-slider">
-          <div class="range-track"></div>
-          <div class="range-fill" id="distance-fill"></div>
-          <input type="range" id="distance-min" step="0.01">
-          <input type="range" id="distance-max" step="0.01">
+      <div class="filter-row">
+        <div class="filter-field" style="min-width:100%">
+          <label>Type &mdash; select any number, track must match one</label>
+          <div class="pill-filter" id="type-filter"></div>
         </div>
       </div>
-      <div class="range-field">
-        <div class="range-head"><label>Rating</label><span class="range-value" id="rating-value"></span></div>
-        <div class="range-slider">
-          <div class="range-track"></div>
-          <div class="range-fill" id="rating-fill"></div>
-          <input type="range" id="rating-min" step="0.1">
-          <input type="range" id="rating-max" step="0.1">
+      <div class="filter-row">
+        <div class="range-field">
+          <div class="range-head"><label>Distance</label><span class="range-value" id="distance-value"></span></div>
+          <div class="range-slider">
+            <div class="range-track"></div>
+            <div class="range-fill" id="distance-fill"></div>
+            <input type="range" id="distance-min" step="0.01">
+            <input type="range" id="distance-max" step="0.01">
+          </div>
+        </div>
+        <div class="range-field">
+          <div class="range-head"><label>Rating</label><span class="range-value" id="rating-value"></span></div>
+          <div class="range-slider">
+            <div class="range-track"></div>
+            <div class="range-fill" id="rating-fill"></div>
+            <input type="range" id="rating-min" step="0.1">
+            <input type="range" id="rating-max" step="0.1">
+          </div>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-field" style="min-width:100%">
+          <label>Classes &mdash; track must support all selected classes</label>
+          <div class="class-filter" id="class-filter"></div>
         </div>
       </div>
     </div>
-    <div class="filter-row">
-      <div class="filter-field" style="min-width:100%">
-        <label>Classes &mdash; track must support all selected classes</label>
-        <div class="class-filter" id="class-filter"></div>
-      </div>
-    </div>
-  </div>
+  </details>
 
   <div class="table-card"><table id="tbl-tracks"></table></div>
   <div class="scroll-indicator"><div class="track"><div class="thumb" id="thumb-tracks"></div></div></div>
@@ -768,13 +793,41 @@ buildPillMultiSelect(
   activeTypes
 );
 
-// Region options: trim whitespace so e.g. "Rockford" and "Rockford " (a data typo) collapse into one entry. Multi-select (OR).
-const regionFilterEl = document.getElementById("region-filter");
-buildPillMultiSelect(
-  regionFilterEl,
-  Array.from(new Set(TRACKS.map(t => (t.region || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
-  activeRegions
-);
+// Region options: trim whitespace so e.g. "Rockford" and "Rockford " (a data typo) collapse into one entry.
+// Rendered as a compact checkbox dropdown (21 regions is too many to show as always-visible pills).
+const REGION_OPTIONS = Array.from(new Set(TRACKS.map(t => (t.region || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+const regionMselTrigger = document.getElementById("region-msel-trigger");
+const regionMselMenu = document.getElementById("region-msel-menu");
+const regionMselBadge = document.getElementById("region-msel-badge");
+REGION_OPTIONS.forEach(region => {
+  const label = document.createElement("label");
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.value = region;
+  cb.addEventListener("change", () => {
+    if (cb.checked) activeRegions.add(region); else activeRegions.delete(region);
+    updateRegionMselUi();
+    applyTrackFilters();
+  });
+  label.appendChild(cb);
+  label.appendChild(document.createTextNode(region));
+  regionMselMenu.appendChild(label);
+});
+function updateRegionMselUi() {
+  const n = activeRegions.size;
+  regionMselBadge.hidden = n === 0;
+  regionMselBadge.textContent = n;
+  regionMselTrigger.classList.toggle("active", n > 0);
+}
+regionMselTrigger.addEventListener("click", (e) => {
+  e.stopPropagation();
+  regionMselMenu.hidden = !regionMselMenu.hidden;
+});
+document.addEventListener("click", (e) => {
+  if (!regionMselMenu.hidden && !regionMselMenu.contains(e.target) && e.target !== regionMselTrigger) {
+    regionMselMenu.hidden = true;
+  }
+});
 
 const filterRacedEl = document.getElementById("filter-raced");
 
@@ -826,15 +879,19 @@ function setupRangeFilter(minEl, maxEl, fillEl, valueEl, rangeMin, rangeMax, ste
 const distanceRange = setupRangeFilter(
   document.getElementById("distance-min"), document.getElementById("distance-max"),
   document.getElementById("distance-fill"), document.getElementById("distance-value"),
-  0, 10, 0.1,
-  v => v.toFixed(1) + " km", "10+ km"
+  0, 15, 0.1,
+  v => v.toFixed(1) + " km", "15+ km"
 );
 const ratingRange = setupRangeFilter(
   document.getElementById("rating-min"), document.getElementById("rating-max"),
   document.getElementById("rating-fill"), document.getElementById("rating-value"),
-  1, 10, 0.1,
+  5, 10, 0.1,
   v => v.toFixed(1), null
 );
+
+const filterSummaryBadge = document.getElementById("filter-summary-badge");
+const DEFAULT_DISTANCE_RANGE = [0, Infinity];
+const DEFAULT_RATING_RANGE = [5, 10];
 
 function applyTrackFilters() {
   const q = (searchElTracks.value || "").trim().toLowerCase();
@@ -857,6 +914,14 @@ function applyTrackFilters() {
   });
   trackTable.setRows(filtered);
   countElTracks.textContent = filtered.length + (filtered.length === 1 ? " track" : " tracks");
+
+  // Badge on the collapsed "Filters" toggle, so it's clear filters are active even while the panel is closed.
+  let activeCount = activeTypes.size + activeRegions.size + activeClasses.size;
+  if (raced) activeCount++;
+  if (distLo !== DEFAULT_DISTANCE_RANGE[0] || distHi !== DEFAULT_DISTANCE_RANGE[1]) activeCount++;
+  if (ratLo !== DEFAULT_RATING_RANGE[0] || ratHi !== DEFAULT_RATING_RANGE[1]) activeCount++;
+  filterSummaryBadge.hidden = activeCount === 0;
+  filterSummaryBadge.textContent = activeCount;
 }
 
 searchElTracks.addEventListener("input", applyTrackFilters);
@@ -869,7 +934,8 @@ document.getElementById("filter-reset").addEventListener("click", () => {
   activeRegions.clear();
   classFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
   typeFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-  regionFilterEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  regionMselMenu.querySelectorAll("input[type=checkbox]").forEach(cb => { cb.checked = false; });
+  updateRegionMselUi();
   distanceRange.reset();
   ratingRange.reset();
   applyTrackFilters();
