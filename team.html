@@ -19,7 +19,7 @@
 <meta name="twitter:description" content="Team profiles for the Rockford Racing League — season history, stats and roster.">
 <meta name="twitter:image" content="https://fausto511.github.io/rockford-racing-league/og-image.jpg">
 <meta name="description" content="Team profiles for the Rockford Racing League — season history, stats and roster.">
-<script type="application/ld+json">
+<script type="application/ld+json" id="pageSchemaJsonLd">
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -829,6 +829,16 @@ function renderPage() {
   document.querySelector('meta[property="og:description"]')?.setAttribute("content", pageDesc);
   document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", pageTitle);
   document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", pageDesc);
+  const schemaEl = document.getElementById("pageSchemaJsonLd");
+  if (schemaEl) {
+    try {
+      const schema = JSON.parse(schemaEl.textContent);
+      schema.name = pageTitle;
+      schema.url = pageUrl;
+      schema.description = pageDesc;
+      schemaEl.textContent = JSON.stringify(schema, null, 2);
+    } catch (e) {}
+  }
   const driverRows = DATA.driversSeason.filter(r => r.team === meta.xlsxKey && r.fahrer);
   const latestSeason = driverRows.length ? Math.max(...driverRows.map(r => r.season)) : null;
   const season10Roster = SEASON10_ROSTER[meta.name] || null;
