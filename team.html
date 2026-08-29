@@ -819,6 +819,16 @@ function currentTeamFromURL() {
 function renderPage() {
   const meta = currentTeamFromURL();
   document.title = `RRL — ${meta.name}`;
+  const pageUrl = `https://fausto511.github.io/rockford-racing-league/team.html?team=${encodeURIComponent(meta.name).replace(/'/g, "%27")}`;
+  const pageTitle = `Rockford Racing League — ${meta.name}`;
+  const pageDesc = `Team profile for ${meta.name} in the Rockford Racing League — season history, stats and roster since ${meta.first}.`;
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", pageUrl);
+  document.querySelector('meta[name="description"]')?.setAttribute("content", pageDesc);
+  document.querySelector('meta[property="og:url"]')?.setAttribute("content", pageUrl);
+  document.querySelector('meta[property="og:title"]')?.setAttribute("content", pageTitle);
+  document.querySelector('meta[property="og:description"]')?.setAttribute("content", pageDesc);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", pageTitle);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", pageDesc);
   const driverRows = DATA.driversSeason.filter(r => r.team === meta.xlsxKey && r.fahrer);
   const latestSeason = driverRows.length ? Math.max(...driverRows.map(r => r.season)) : null;
   const season10Roster = SEASON10_ROSTER[meta.name] || null;
