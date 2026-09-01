@@ -1030,7 +1030,7 @@ const TOP_BAR_METRICS = [ {
 }, {
   key: "M P/S",
   label: "Most Points (Season)",
-  digits: 1
+  digits: 0
 }, {
   key: "M POLES/S",
   label: "Most Poles (Season)",
@@ -1245,22 +1245,22 @@ function renderAllTimeDrivers() {
     key: "DRIVER",
     label: "Driver",
     render: r => driverCell(r["DRIVER"])
-  }, nc("C", "Championships", 0), nc("TC", "Team Championships", 0), nc("S", "Seasons", 0), nc("R", "Races", 0), nc("P", "Points", 0), nc("AVR/R", "Avg Points", 1), nc("M P/S", "M P/S", 1), nc("BEST POS/R", "Best Pos/Race", 0), nc("BEST POS/S", "Best Pos/Season", 1), nc("WINS", "Wins", 0), nc("M WINS/S", "M Wins/S", 1), {
+  }, nc("C", "Championships", 0), nc("TC", "Team Championships", 0), nc("S", "Seasons", 0), nc("R", "Races", 0), nc("P", "Points", 0), nc("AVR/R", "Avg Points", 1), nc("M P/S", "M P/S", 0), nc("BEST POS/R", "Best Pos/Race", 0), nc("BEST POS/S", "Best Pos/Season", 0), nc("WINS", "Wins", 0), nc("M WINS/S", "M Wins/S", 0), {
     key: "WIN RATE",
     label: "Win %",
     num: true,
     render: r => pct(r["WIN RATE"])
-  }, nc("PODIUMS", "Podium", 0), nc("M PODIUMS/S", "M Podium/S", 1), {
+  }, nc("PODIUMS", "Podium", 0), nc("M PODIUMS/S", "M Podium/S", 0), {
     key: "PODIUM RATE",
     label: "Podium %",
     num: true,
     render: r => pct(r["PODIUM RATE"])
-  }, nc("TOP 10", "Top 10", 0), nc("M TOP 10/S", "M Top10/S", 1), {
+  }, nc("TOP 10", "Top 10", 0), nc("M TOP 10/S", "M Top10/S", 0), {
     key: "TOP10 RATE",
     label: "Top 10 %",
     num: true,
     render: r => pct(r["TOP10 RATE"])
-  }, nc("POLES", "Poles", 0), nc("M POLES/S", "M Poles/S", 1), nc("HOTLAPS", "Hotlaps", 0), nc("M HOTLAPS/S", "M Hotlaps/S", 1), nc("DOTD", "DOTD", 0), ncRating("RATING", "Rating"), {
+  }, nc("POLES", "Poles", 0), nc("M POLES/S", "M Poles/S", 0), nc("HOTLAPS", "Hotlaps", 0), nc("M HOTLAPS/S", "M Hotlaps/S", 0), nc("DOTD", "DOTD", 0), ncRating("RATING", "Rating"), {
     key: "DOTY AWARD",
     label: "DOTY Awards",
     render: r => r["DOTY AWARD"] || "–"
