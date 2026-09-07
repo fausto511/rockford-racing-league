@@ -17,7 +17,7 @@ The RRL organizes seasonal GTA V racing competitions across multiple vehicle cla
 - [Vehicles](https://fausto511.github.io/rockford-racing-league/vehicles.html): approved vehicle classes and technical specs.
 - [Tracks](https://fausto511.github.io/rockford-racing-league/tracks.html): race tracks used by the league.
 - [Commission](https://fausto511.github.io/rockford-racing-league/commission.html): league staff and their roles.
-- [Resources](https://fausto511.github.io/rockford-racing-league/resources.html): rules and reference material for drivers.
+- [Rules](https://fausto511.github.io/rockford-racing-league/rules.html): official rules and vehicle classes for drivers.
 - [FAQ](https://fausto511.github.io/rockford-racing-league/faq.html): frequently asked questions.
 - [Media](https://fausto511.github.io/rockford-racing-league/media.html): featured videos and media coverage.
 - [Rain Forecast](https://fausto511.github.io/rockford-racing-league/rainforecast.html): weather conditions relevant to race days.
