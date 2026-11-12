@@ -117,12 +117,12 @@
 
   <section class="panel active" id="panel-super">
     <div class="subtabs" id="subtabs-super">
-      <button data-subtab="hyper-1" class="active">Hyper 1</button>
+      <button data-subtab="ultra" class="active">Ultra</button>
+      <button data-subtab="hyper-1">Hyper 1</button>
       <button data-subtab="hyper-2">Hyper 2</button>
       <button data-subtab="super-1">Super 1</button>
       <button data-subtab="super-2">Super 2</button>
       <button data-subtab="super-3">Super 3</button>
-      <button data-subtab="ultra">Ultra</button>
     </div>
     <div class="toolbar">
       <input type="text" id="search-super" placeholder="Search vehicle…">
@@ -269,6 +269,10 @@
 
 <script>
 const VEHICLES = [
+  { category: "Super", subclass: "Ultra", name: "Veleno GT", h: "AM", ts: 223, price: 3090000, url: "https://gtacars.net/gta5/velenogt", hsDownforce: 6.0, drivetrain: "RWD" },
+  { category: "Super", subclass: "Ultra", name: "Horus", h: "AM", ts: null, price: 2810000, url: "https://gtacars.net/gta5/horus", hsDownforce: 6.5, drivetrain: "RWD" },
+  { category: "Super", subclass: "Ultra", name: "Krieger", h: "AM", ts: 206, price: 2875000, url: "https://gtacars.net/gta5/krieger", hsDownforce: 5.9, drivetrain: "AWD" },
+  { category: "Super", subclass: "Ultra", name: "LRC GT", h: "AM", ts: 209, price: 2650000, url: "https://gtacars.net/gta5/lrcgt", hsDownforce: 7.1, drivetrain: "RWD" },
   { category: "Super", subclass: "Hyper 1", name: "Autarch", h: "AM", ts: 203, price: 1955000, url: "https://gtacars.net/gta5/autarch", hsDownforce: 6.3, drivetrain: "RWD" },
   { category: "Super", subclass: "Hyper 1", name: "Ignus", h: "AM", ts: 201, price: 2765000, url: "https://gtacars.net/gta5/ignus", hsDownforce: 4.0, drivetrain: "AWD" },
   { category: "Super", subclass: "Hyper 1", name: "RE-7B", h: "AM", ts: 199, price: 2475000, url: "https://gtacars.net/gta5/le7b", hsDownforce: 8.8, drivetrain: "RWD" },
@@ -301,10 +305,6 @@ const VEHICLES = [
   { category: "Super", subclass: "Super 3", name: "Reaper", h: "AM", ts: 196, price: 1595000, url: "https://gtacars.net/gta5/reaper", hsDownforce: 4.0, drivetrain: "RWD" },
   { category: "Super", subclass: "Super 3", name: "GP1", h: "AM", ts: 199, price: 1260000, url: "https://gtacars.net/gta5/gp1", hsDownforce: 3.1, drivetrain: "RWD" },
   { category: "Super", subclass: "Super 3", name: "Vacca", h: "PRO", ts: 194, price: 240000, url: "https://gtacars.net/gta5/vacca", hsDownforce: 4.0, drivetrain: "RWD" },
-  { category: "Super", subclass: "Ultra", name: "Veleno GT", h: "AM", ts: 223, price: 3090000, url: "https://gtacars.net/gta5/velenogt", hsDownforce: 6.0, drivetrain: "RWD" },
-  { category: "Super", subclass: "Ultra", name: "Horus", h: "AM", ts: null, price: 2810000, url: "https://gtacars.net/gta5/horus", hsDownforce: 6.5, drivetrain: "RWD" },
-  { category: "Super", subclass: "Ultra", name: "Krieger", h: "AM", ts: 206, price: 2875000, url: "https://gtacars.net/gta5/krieger", hsDownforce: 5.9, drivetrain: "AWD" },
-  { category: "Super", subclass: "Ultra", name: "LRC GT", h: "AM", ts: 209, price: 2650000, url: "https://gtacars.net/gta5/lrcgt", hsDownforce: 7.1, drivetrain: "RWD" },
   { category: "Sport", subclass: "Sport Elite 1", name: "Rapid GT X", h: "AM", ts: 213, price: 2705500, url: "https://gtacars.net/gta5/rapidgt4", hsDownforce: 4.0, drivetrain: "RWD" },
   { category: "Sport", subclass: "Sport Elite 1", name: "Banshee GTS", h: "AM", ts: 222, price: 1989500, url: "https://gtacars.net/gta5/banshee3", hsDownforce: 4.8, drivetrain: "RWD" },
   { category: "Sport", subclass: "Sport Elite 1", name: "Coquette D5", h: "AM", ts: 210, price: 1730000, url: "https://gtacars.net/gta5/coquette6", hsDownforce: 4.0, drivetrain: "RWD" },
